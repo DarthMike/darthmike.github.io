@@ -2,12 +2,12 @@
 #      Main Configs       #
 # ----------------------- #
 
-url: http://yoursite.com
-title: My Octopress Blog
-subtitle: A blogging framework for hackers.
-author: Your Name
-simple_search: https://www.google.com/search
-description:
+url: http://DarthMike.github.io
+title: Miguel Angel Quiñones
+subtitle: "var blog = Human.write()"
+author: Miguel Angel Quiñones
+#simple_search: https://www.google.com/search
+description: Thoughts on programming and iOS
 
 # Default date format is "ordinal" (resulting in "July 22nd 2007")
 # You can customize the format as defined in
@@ -64,13 +64,13 @@ default_asides: [asides/recent_posts.html, asides/github.html, asides/delicious.
 # ----------------------- #
 
 # Github repositories
-github_user:
+github_user: DarthMike
 github_repo_count: 0
 github_show_profile_link: true
 github_skip_forks: true
 
 # Twitter
-twitter_user:
+twitter_user: '@miguelquinon'
 twitter_tweet_button: true
 
 # Google +1
@@ -99,3 +99,14 @@ google_analytics_tracking_id:
 
 # Facebook Like
 facebook_like: false
+
+# -------------------- #
+# Octoflat settings
+# -------------------- #
+navigation:
+- text: Blog
+  url: /
+- text: 'Who?'
+  url: /about/
+
+linkedin_user: 'miguelquinon'
