@@ -108,5 +108,7 @@ navigation:
   url: /
 - text: 'Who?'
   url: /about/
+- text: 'Games'
+  url: /games/
 
 linkedin_user: 'miguelquinon'
