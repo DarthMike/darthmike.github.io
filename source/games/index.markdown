@@ -25,7 +25,7 @@ A short game made inspired by [Experimental Gameplay Project](http://experimenta
 The second game I made. A 2-level demo of a physics platformer.
 * * *
 #[Surviral](https://github.com/DarthMike/Surviral)
-[![Surviral](/images/games/sv.png)]((https://github.com/DarthMike/Surviral)
+[![Surviral](/images/games/sv.png)](https://github.com/DarthMike/Surviral)
 <br/>
 A quite incomplete game made for [EGP March - 10 seconds](http://experimentalgameplay.com/blog/2010/03/best-of-the-net-10-seconds/).
 * * *
