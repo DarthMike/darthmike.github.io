@@ -182,7 +182,9 @@ body {
   font: 18px/1.831 "Open Sans", sans-serif; }
 
 p {
-  font-weight: 300; }
+  font-weight: 300;
+  margin-top: 10px;
+  margin-bottom: 20px;}
 
 a {
   color: $secondary-color;
