@@ -1,5 +1,17 @@
+branches:
+  only:
+  - source
 language: ruby
 rvm:
-  - 2.0.0
-  - 1.9.3
-script: bundle exec rake install; bundle exec rake generate
+- 2.1.1
+before_script:
+- export REPO_URL="https://$GH_TOKEN@github.com/$GH_REPO.git"
+- rake setup_github_pages[$REPO_URL]
+script:
+- rake generate
+after_script:
+- rake deploy
+env:
+  global:
+  - GH_REPO="DarthMike/darthmike.github.io"
+  - secure: SF8l/xWaW2Ucr8BBu9RYseQcCAF0SyrunZjRl4Ud0zZbu3aHBwduFaUYH+K8BQQ29H9i7IcUGzVxZUUraf6VqVNeylzcotWpTi82DqhJEMEtwnV7kMYfxkaEvkoZ23CNcQK3gWbYYL0ceqem/HZKytfEzs5+dOwJpGY5pFlE1lA=
