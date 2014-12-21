@@ -72,7 +72,7 @@ extension MQAwesomeControl {
 ```
 
 ##Semantic separation of APIs
-This is possibly the best known use of this feature. The only drawback is that you can’t add stored properties, so API extensions only having methods are the best candidates.
+This is possibly the best known use of this feature. The only drawback is that you can’t add stored properties, so API extensions only containing methods are the best candidates.
 
 ```swift
 class Car {
@@ -144,7 +144,7 @@ extension Person: RelatedEntities {
 }
 ```
 ##UI styling
-Instead of relying on a gigantic stylesheet-type file, where all appearance setup is made, you can use extensions specific to your application to style UI components:
+Instead of relying on a gigantic stylesheet-type file, where all appearance setup is made, you can use extensions specific to your application to style UI components. Here I use the previous pattern of adopting a protocol in an extension:
 
 ```swift
 //Protocol in MyApplicationStyles.swift
@@ -170,7 +170,8 @@ class Stylesheet {
 }
 ```
 
-Additionally, you can create extensions to reflect your designer’s stylesheet. Here I use the previous pattern of adopting a protocol in an extension.
+Additionally, you can create extensions to reflect your designer’s stylesheet.
+
 ```swift
 extension UIColor {
     class func brandColor() -> UIColor {
