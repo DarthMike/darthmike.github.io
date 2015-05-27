@@ -21,7 +21,7 @@ So one could safely say that, unlike [Android][android], it's main competitor in
 
 The mobile sector of IT moves very fast. New technologies, APIs, and fast releases are standard. Apple in particular, releases new versions of the iPhone and iPad devices and iOS version every year. A yearly cycle may not seem a short term, but it is short for long-lasting products; the kind of products that are valuable for users and for the people building them.
 
-There are a set of inconveniences related to moving fast in mobile, in particular in iOS. Let’s see what developers need to cope with every year or in the immediate future.
+There are some inconveniences related to moving fast in mobile, in particular in iOS. Let’s see what developers need to cope with every year or in the immediate future.
 
 ## Breaking API changes
 
@@ -35,7 +35,7 @@ You may expect APIs to be deprecated with every iOS version, you can expect repl
 
 ## Bugs
 
-All software has bugs, this is a fact that any software engineer is acquainted with very early in his career. But moving fast means you can’t just wait for releases to be polished; to keep your application compatible, to keep *the 5 star ratings coming*, you need to support a potentially rough OS release from day (or week) 1. You may even need to provide workarounds in your code to specific bugs in the latest iOS version. 
+All software has bugs, this is a fact that every software engineer is acquainted with very early in his career. But moving fast means you can’t just wait for platform releases to be polished; to keep your application compatible, to keep *the 5 star ratings coming*, you need to support a potentially rough OS release from day (or week) 1. You may even need to provide workarounds in your code to specific bugs in the latest iOS version. 
 
 Again this will lead to more entropy to the code, thus increasing the software rot.
 
@@ -43,7 +43,7 @@ Again this will lead to more entropy to the code, thus increasing the software r
 
 Apple users upgrade their devices fast. This is very good for application developers because you can target the *latest and greatest*, simplify code, and still be quite confident that your product will be available for the majority of the users in the platform.
 
-The flip side of this is that users expect the latest features, furthermore they expect them in 3rd party applications. Many times the changes in the OS are not noticeable by users, like [autolayout][AutoLayout], [NSURLSesssion][nsurlsession] or 64bit support. But sometimes they are, like support for TouchID, App Extensions, UIKit Dynamics or many changes that UIKit faces every year. Even if some features are not noticeable by users, they will notice the effect they have in an application behaviour. For example adding support for [background fetch][fetch] requires using NSURLSession and users will notice that content is ready when application is launched. 
+The flip-side of this is that users expect the latest features, furthermore they expect them in 3rd party applications. Many times the changes in the OS are not noticeable by users, like [autolayout][AutoLayout], [NSURLSesssion][nsurlsession] or 64 bit support. But sometimes those additions are noticeable, like support for TouchID, App Extensions, UIKit Dynamics or many changes that UIKit faces every year. Even if some features are not noticeable by users, they will notice the effect they have in an application behaviour. For example adding support for [background fetch][fetch] requires using NSURLSession and users will notice that content is ready when application is launched. 
 
 As the application marketplace is very crowded, any kind of promotion is an opportunity to stand out from the crowd; new OS features are a very prominent way to get featured by Apple by the time the new OS version is released, and it is often used to promote applications. Apple does this on purpose, it’s on the users benefits that all applications converge to using new OS features, and presents the App Store with as positive and unified.
 
