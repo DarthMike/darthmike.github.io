@@ -7,7 +7,7 @@ categories: [ios, apple, tools]
 ---
 
 
-As an iOS developer or Apple-centric developer, [wwdc][wwdc] is a time of excitement and news. The yearly event at Apple offers many networking opportunities, but most importantly sets the stage for the next year of development in the company's platform. As this year event is closing in, I wanted to write my thoughts on a related, and often overlooked topic; [fragmentation][fragmentation]
+As an iOS developer or Apple-centric developer, [WWDC][wwdc] is a time of excitement and news. The yearly event at Apple offers many networking opportunities, but most importantly sets the stage for the next year of development in the company's platform. As this year event is closing in, I wanted to write my thoughts on a related, and often overlooked topic; [fragmentation][fragmentation]
 
 <!-- more -->
 
