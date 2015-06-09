@@ -6,7 +6,7 @@ comments: true
 categories: [objective-c, iOS, code style]
 ---
 
-Apple introduced nullability annotations to Objective-C compiler from [XCode 6.3](https://developer.apple.com/swift/blog/?id=25). I was really surprised by this change, and welcomed it with open arms when I saw the release notes. My first thought was: Objetive-C is learning from Swift! I want to share my 2 cents on this new annotation and what it means for more modern Objective-C code.
+Apple introduced nullability annotations to Objective-C compiler from [XCode 6.3](https://developer.apple.com/swift/blog/?id=25). I was really surprised by this change, and welcomed it with open arms when I saw the release notes. My first thought was: Objective-C is learning from Swift! I want to share my 2 cents on this new annotation and what it means for more modern Objective-C code.
 
 <!-- more -->
 
@@ -23,7 +23,7 @@ That's it.
 
 #What's the catch?
 
-These annotations allow you to express your intent when defining an interface. It makes APIs clearer and reduce the need for documenation specifying nil behaviour. When used from Swift code, it allows the interface to 'transform' as needed to express nullability in Swift terms; That is no more implicitly unwrapped optionals and declared non-nil references, and simple optionals.
+These annotations allow you to express your intent when defining an interface. It makes APIs clearer and reduce the need for documentation specifying nil behaviour. When used from Swift code, it allows the interface to 'transform' as needed to express nullability in Swift terms; That is no more implicitly unwrapped optionals and declared non-nil references, and simple optionals.
 
 But you need to understand that the language (Objective-C) hasn't change, and that these annotations don't change the runtime behaviour of the code at all. In other words: The generated code with and without annotations is the same.
 
