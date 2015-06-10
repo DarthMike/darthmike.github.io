@@ -67,7 +67,7 @@ car.wheels = @[squarewheel];
 SquareWheel *w = car.wheels[0];
 ```
 
-In this case you can annotate the types with the `kindof` keyword, to let the compiler that you want to freely assume that subclasses of the specified type are also valid:
+In this case you can annotate the types with the `kindof` keyword, to let the compiler know that you want to freely assume that subclasses of the specified type are also valid:
 
 ```objc
 @interface Vehicle : NSObject
