@@ -160,7 +160,7 @@ Objective-C advances to slowly make way to Swift. Apple is going full-steam with
 
 But as many of us need to work with ‘legacy’ Objective-C code, ‘lightweight generics’ is nevertheless a welcomed addition.
 
-I will mention again this is not a full ’generics’ implementation for Objective-C, but rather annotations for the compiler to check your API usage, and intention. It also changes how Swift sees the Objective-C code and improves interoperability between the languages. A win win situation.
+I will mention again this is not a full ’generics’ implementation for Objective-C, but rather annotations for the compiler to check your API usage, and intention. It also changes how Swift sees the Objective-C code and improves interoperability between the languages. A win-win situation.
 
 [generics]: https://developer.apple.com/library/prerelease/ios/documentation/Swift/Conceptual/BuildingCocoaApps/InteractingWithObjective-CAPIs.html#//apple_ref/doc/uid/TP40014216-CH4-ID35
 [fbs]: http://fuckingblocksyntax.com/
