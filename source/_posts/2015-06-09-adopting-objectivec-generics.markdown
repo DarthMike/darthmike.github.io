@@ -23,7 +23,7 @@ Let me say it before we begin, the syntax is simple so we will not see (indispen
 @end
 ```
 
-Note the brackets on the declaration of the NSArray property. As you can see it works with your types, and it lets the compiler check the types for you. You get warnings which can let you know something is amiss when an API:
+Note the brackets on the declaration of the NSArray property. It lets the compiler check the types of APIs accepting `id` and it will generate warnings by comparing the pointer types:
 
 ```objc
 Wheel *wheel = [[Wheel alloc] init];
@@ -40,7 +40,7 @@ UIColor *color = w.color;
 NSString *str = car.wheels[0];
 ```
 
-So now you can remove all the pesky comments to tell your colleagues and future self what these collections contain. Be aware that the generated code does not change, as we will see in a few moments. And most importantly, you can also annotate your own APIs! This is very good.
+So now you can remove all the pesky comments to tell your colleagues and future self what these collections contain. Be aware that the generated code does not change, as we will see in the next sections.
 
 All Foundation collections support generics: NSArray, NSMutableArray, NSSet, NSMutableSet, NSOrderedSet, NSMutableOrderedSet, NSDictionary, NSMutableDictionary, NSHashTable, NSMapTable.
 
@@ -156,7 +156,7 @@ As with nullability, adopting this language changes will be tedious. I think the
 
 # Conclusion
 
-Objective-C advances to grudgingly make way to Swift. Apple is going full-steam with Swift and this change is more in favour of that language than of Objective-C itself.
+Objective-C advances to slowly make way to Swift. Apple is going full-steam with Swift and this change is more in favour of that language than of Objective-C itself.
 
 But as many of us need to work with ‘legacy’ Objective-C code, ‘lightweight generics’ is nevertheless a welcomed addition.
 
