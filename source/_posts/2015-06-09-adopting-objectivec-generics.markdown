@@ -71,7 +71,7 @@ In this case you can annotate the types with the `kindof` keyword, to let the co
 
 ```objc
 @interface Vehicle : NSObject
-@property (nonatomic, copy) NSArray<__typeof Wheel *> *wheels;
+@property (nonatomic, copy) NSArray<__kindof Wheel *> *wheels;
 @end
 ```
 
