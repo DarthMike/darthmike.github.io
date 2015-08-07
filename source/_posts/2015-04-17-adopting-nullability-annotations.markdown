@@ -25,7 +25,7 @@ That's it.
 
 These annotations allow you to express your intent when defining an interface. It makes APIs clearer and reduce the need for documentation specifying nil behaviour. When used from Swift code, it allows the interface to 'transform' as needed to express nullability in Swift terms; That is no more implicitly unwrapped optionals and declared non-nil references, and simple optionals.
 
-But you need to understand that the language (Objective-C) hasn't change, and that these annotations don't change the runtime behaviour of the code at all. In other words: The generated code with and without annotations is the same.
+But you need to understand that the language (Objective-C) hasn't changed, and that these annotations don't change the runtime behaviour of the code at all. In other words: The generated code with and without annotations is the same.
 
 So the compiler will generate warnings when the API is misused. *Compiler. Is. Always. Clever.* Is it in this case?
 
