@@ -55,7 +55,7 @@ We’ll make mistakes as we learn, but hey that’s part of our job. Do you like
 
 # Moving on
 
-I like to be [pragmatic](https://pragprog.com/book/tpp/the-pragmatic-programmer) rather than zealous. And I think Swift brings an excellent opportunity to learn more about other ways of thinking about building software, different abstractions, and how to fit those into our day to day work as a mobile developers.
+I like to be [pragmatic](https://pragprog.com/book/tpp/the-pragmatic-programmer) rather than zealous. And I think Swift brings an excellent opportunity to learn more about other ways of thinking about building software, different abstractions, and how to fit those into our day to day work as iOS developers.
 
 Swift, as [other modern languages](http://www.scala-lang.org/), offers a unique opportunity to learn and grow. It’s a very exciting field we work on.
 
