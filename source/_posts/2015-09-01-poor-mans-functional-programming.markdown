@@ -18,7 +18,7 @@ I’m referring to *some* features inspired by functional languages. I’ve you�
 
 I don’t want to start defining what functional programming is, there’s [excellent](http://harlankellaway.com/blog/2015/08/10/swift-functional-programming-intro/) resources out there, [check them out](https://www.objc.io/books/).
 
-I want to stress out how a beginner, somebody who starts learning Functional Programming (FP), might think think:
+I want to point out how a beginner, somebody who starts learning Functional Programming (FP), might feel:
 
 - Too abstract
 - Not applicable to my problems
