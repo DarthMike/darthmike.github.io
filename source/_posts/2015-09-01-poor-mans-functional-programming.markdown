@@ -27,17 +27,17 @@ I want to point out how a beginner, somebody who starts learning Functional Prog
 - I **need** to mutate stuff!
 - Meh, I’ll go back to my familiar way of doing things
 
-There’s a higher barrier of entry to learn how to think and code programs which are more ‘functional’. The concepts are abstract,  and the benefits are often described as *it’s more functional* without emphasis of what you are actually gaining. Also there’s the problem that often times all is explained by simple examples. But every programmer knows there’s a huge difference between toy programs and real big projects.
+There’s a higher barrier of entry to learn how to think and code programs which are more ‘functional’. The concepts are abstract,  and the benefits are often described as *it’s more functional* without emphasis of what you are actually gaining. Also there’s the problem that many times all is explained by simple examples. But every programmer knows there’s a huge difference between toy programs and real big projects.
 
 # Flame wars
 
-On the other hand side of the equation you’ll find engineers and computer scientists that believe that the *only and true* way of doing things is of course thinking functionally, and we’ve all been doing it wrong during the last decades. The math is the only source of truth and validity, hence FP is the only way.
+You’ll find engineers and computer scientists that believe that the *only and true* way of doing things is of course thinking functionally, and we’ve all been doing it wrong during the last decades. The math is the only source of truth and validity, hence FP is the only way.
 
 They’ve got their very valid reasons to think this way, but my opinion is that many people familiar with FP start to use higher-level vocabulary, and describe conventions and problems in a way that might seem foreign and strange for somebody who is not used to those terms. Rob Napier has [an excellent article describing this](http://robnapier.net/haskell-overlords).
 
 Computer science, and programming in particular, is a curious field where people take sides around things that may seem totally absurd for an outsider: Vim vs Emacs, Windows vs Mac, Linux vs everything else, Ruby vs Python, OOP vs FP.
 
-Do we really need to fight over who is right, instead of using the tools that are most appropriate to do our job? I’m totally on the side of moving on and being pragmatic about learning, and eventually as growing as a software engineer. By looking at different ways of solving a problem you can only get better at what you do, not worse, because you will have the power to make an informed choice.
+Do we really need to fight over who is right, instead of using the tools that are most appropriate to do our job? I’m totally on the side of moving on and being pragmatic about learning, and eventually as growing as a software engineer. By looking at different ways of solving a problem you can only get better at what you do, not worse, because you will have the ability to make an informed choice.
 
 I’d love to see the people who are experts or versed in FP to reach out and share knowledge in a way that can be understood by beginners. If we really want people to be aware of the benefits of using a different paradigm, we should make it approachable to start with.
 
