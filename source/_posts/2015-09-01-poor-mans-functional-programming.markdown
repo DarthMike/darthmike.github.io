@@ -10,13 +10,13 @@ It's a very exciting time to be an iOS or Mac developer. The platform moves very
 
 I want to relate this to the fact that most iOS engineers, or mobile application developers, are traditionally familiar with Object Oriented Programming paradigm. But Swift offers more than different syntax and OOP.
 
-I’m referring to *some* features inspired by functional languages. I’ve you’ve ever had an interest, but never the chance or motivation to go forth and look into this paradigm, now it's the perfect time to do it.
+I’m referring to *some* features inspired by functional languages. If you’ve ever had an interest, but never the chance or motivation to go forth and look into this paradigm, now it's the perfect time to do it.
 
 <!-- more -->
 
 # Functional programming is...
 
-I don’t want to start defining what functional programming is, there’s [excellent](http://harlankellaway.com/blog/2015/08/10/swift-functional-programming-intro/) resources out there, [check them out](https://www.objc.io/books/).
+I don’t want to start reviewing what functional programming is, there are [excellent](http://harlankellaway.com/blog/2015/08/10/swift-functional-programming-intro/) resources out there, [check them out](https://www.objc.io/books/).
 
 I want to point out how a beginner, somebody who starts learning Functional Programming (FP), might feel:
 
@@ -26,8 +26,6 @@ I want to point out how a beginner, somebody who starts learning Functional Prog
 - What does even ‘pure’ mean?
 - I **need** to mutate stuff!
 - Meh, I’ll go back to my familiar way of doing things
-
-I’m not claiming that the previous statements are true, I’m just rephrasing and accumulating thoughts **I** have previously had. Most possibly other people had similar thoughts.
 
 There’s a higher barrier of entry to learn how to think and code programs which are more ‘functional’. The concepts are abstract,  and the benefits are often described as *it’s more functional* without emphasis of what you are actually gaining. Also there’s the problem that often times all is explained by simple examples. But every programmer knows there’s a huge difference between toy programs and real big projects.
 
