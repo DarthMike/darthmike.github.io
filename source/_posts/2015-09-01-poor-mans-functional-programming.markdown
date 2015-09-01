@@ -43,11 +43,11 @@ I’d love to see the people who are experts or versed in FP to reach out and sh
 
 # Poor man’s functional programming
 
-I would like to think that for most engineers, the choice of paradigm on our day to day work is not a clear one. Thus we will have direct benefit from a language that let’s you choose. We will choose to write code in an OOP way, and then use FP where it benefits the most as well. And it seems I’m [not](https://realm.io/news/altconf-saul-mora-object-orientated-functional-programming/) the [first](http://www.johndcook.com/blog/2009/03/23/functional-in-the-small-oo-in-the-large/) to think about this.
+I would like to think that for most engineers, the choice of paradigm on our day to day work is not a clear one. Thus we will have direct benefit from a language that lets you choose. Using such a language we will be able to write code in an OOP or FP way where it benefits the most. And it seems I’m [not](https://realm.io/news/altconf-saul-mora-object-orientated-functional-programming/) the [first](http://www.johndcook.com/blog/2009/03/23/functional-in-the-small-oo-in-the-large/) to think about this.
 
 Coming back to Swift, this is precisely what you can do with it. You can choose programming styles depending on what your problem is, the framework you work with, and even the team you work on. 
 
-This flexibility does comes with a price though: The functional features of the language are not as rich as other, *purer* languages. So in a way, that’s the whole point of my essay: With Swift, and given the normal users of the language (myself included), we will be able to do **Poor man’s functional programming**. A style that will not be purely functional programming, but won’t be only imperative OOP programming.
+This flexibility does comes with a price though: The functional features of the language are not as rich as other, *purer* languages. This is the point of my essay: With Swift, and given the normal users of the language (myself included), we will be able to do **Poor man’s functional programming**. A style that tries to mix the best of both paradigms.
 
 We’ll make mistakes as we learn, but hey that’s part of our job. Do you like code you wrote 6 months ago? I know I don’t.
 
