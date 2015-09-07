@@ -1,14 +1,14 @@
 ---
 layout: post
 title: "Poor man's functional programming: FP in the small"
-date: 2015-09-01 10:56:59 +0100
+date: 2015-09-07 22:00:59 +0100
 comments: true
 categories: ["swift", "functional programming"]
 ---
 
 In a [previous post][part1], I wrote about the choice of paradigms that Swift presents for it's target audience. I also gave my opinion on how people with different backgrounds might see and approach the Functional Programming paradigm.
 
-In this post I want to share how I started to take advantage of FP for the practical domain of iOS developers: Building apps.
+In this post I want to share how I started to take advantage of FP with Swift for the practical domain of iOS developers: Building apps.
 
 <!-- more -->
 
@@ -18,13 +18,13 @@ In software development there are no silver bullets to kill your problems and mo
 
 iOS applications involve a great deal of **UI** programming. The iOS frameworks are object-oriented, and Swift is not a pure FP language. Throwing away all the code from Apple's frameworks just to make our code more functional is not a realistic approach.
 
-Thus we need to balance where we want to use from different programming paradigms. For a beginner, or a team with not too much experience with FP, the pragmatic option is doing [Functional Programming in the small, Object Oriented in the large][small_large]. We'll focus on how to leverage Swift to write more 'functional' code in the small.
+Thus we need to balance where we want to use from different programming paradigms. For a beginner, or a team with not too much experience with FP, my choice would be doing [Functional Programming in the small, Object Oriented in the large][small_large]. We'll focus on how to leverage Swift to write more 'functional' code in the small.
 
 # FP in the small using Swift
-**TODO**: Disclaimer about swift 2.0
+
 ## Basics
 
-Let's review the features of Swift and the standard library that help write more 'functional' without having to restructure big parts of how we build a project.
+Let's review the features of Swift and the standard library that help write more 'functional' without having to restructure or change how we build a project.
 
 ### Better functions
 
