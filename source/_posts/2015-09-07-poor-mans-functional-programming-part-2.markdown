@@ -24,7 +24,7 @@ Thus we need to balance where we want to use from different programming paradigm
 
 ## Basics
 
-Let's review the features of Swift and the standard library that help write more 'functional' without having to restructure or change how we build a project.
+Let's look at the features of Swift and the standard library that help write more 'functional' without having to restructure or change how we build a project.
 
 ### Better functions
 
@@ -32,31 +32,48 @@ One of the first terms you will hear when diving into FP is that functions are *
 
 What this means is that functions are treated like any other type. Think as functions being treated like objects; They can accept other functions as input, return other functions, and be stored and passed around.
 
-Under this definition Objective-C *kind of* supports this, but it's lacking in several areas. Firstly, there's a difference between blocks and selectors, the way to use them is different and the syntax is more complex. Furthermore in Swift a closure is a function without name, whereas in Objective-C closures can only be expressed with blocks.
+Under this definition Objective-C *kind of* supports this, but it's lacking in several areas. Firstly, there's a difference between blocks and selectors, the way to use them is different and the syntax is more complex. Secondly, in Swift a closure is a function without name, whereas in Objective-C closures can only be expressed with blocks.
 
 So a simple example is:
+
 ```Swift
-**TODO**: Example moving around closures/functions
+let animation = {
+    view.transform = CGAffineTransformMakeScale(0.5, 0.5)
+}
+
+UIView.animateWithDuration(0.4, animations: animation)
 ```
+
+Nothing you couldn't do using blocks and Objective-C. The bigger difference for me is that the syntax is very concise and easy to understand. The language also has special handling for trailing closures which is very handy to keep the code readable. Also implementing DSLs using closures is very easy. This might seem a picky point, but in my opinion readability of a programming language is very important.
 
 ### They're everywhere!
 
 Functions are everywhere, even disguised sometimes:
 
-- Methods in are functions that take an implicit 'self' first argument
+- Reference and value type methods are functions that take an implicit 'self' first argument
 - Computed properties are closures
-- Lazy variables are defined by a closure
+- Lazy variables are defined with a closure
 
-Given that functions are everywhere my first recommendation is that you should learn to read and understand the signature. This is specially important when generics are involved, which is a very fundamental part of the language. A function signature conveys two crucial bits of information:
+Given that functions are everywhere my first recommendation is that you should learn to read and understand the signature. This is specially important when generics are involved, which is a very fundamental part of the language. 
+
+For example take the definition of map for optionals in Swift 2.0 standard library (T is the generic type of the optional itself):
+
+```swift
+/// If `self == nil`, returns `nil`.  Otherwise, returns `f(self!)`.
+    func map<U>(f: @noescape (T) -> U) -> U?
+```
+
+A function signature conveys two crucial bits of information:
 
 - The **shape** it has, so it can be used somewhere else where another function expects same signature
 - **What** the function does. In some cases, specially in the standard library, reading the name and understanding the signature of a function, you can infer what it does. I don't think it replaces documentation but it's a big helper when reading code.
 
-A last good property that I think functions and closures have in Swift, is that the syntax is very concise and easy to understand. The language also has special handling for trailing closures which is very handy to keep the code readable. Also implementing DSLs using closures is very easy. This might seem a picky point, but in my opinion readability of a programming language is very important.
 
 ### Elementary functions
 
 Given that FP is about functions, many programming languages offer similar 'basic' basic ones which are the building blocks of more complex logic. Understanding and knowing how to use these can make you start applying a more functional style across all your code easily.
+
+> **Swift 2.0**: Many of the free functions in the standard library have been moved to extensions or implementations on the types themselves. This is more in line with Apple's 'Protocol Oriented Programming', but the fundamentals of FP are still the same. You can see the functions in this way as if they were namespace by the type, rather than overloaded for specific types.
 
 Learn how these functions work, and how you can apply them to several contexts:
 
@@ -70,11 +87,16 @@ There's a great [post][fp_intro_swift] by [Harken Hallway][harken_twitter] that 
 Ways I like to use them:
 
 ```Swift
-**TODO**: Map instead of loop
+// Map instead of loops
+let views: [UIView] = // Fill array as needed
+views.map { self.addSubview($0) }
 ```
 
 ```Swift
-**TODO**: Reduce to find visible in hierarchy
+// Reduce instead of loops. Useful when finding aggregate information
+let anyEmpty: Bool = self.subviews.reduce(false) { empty, view
+     return empty || CGRectEqualToRect(view.frame, CGRectZero)
+}
 ```
 
 ```Swift
