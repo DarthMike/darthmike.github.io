@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Poor man's functional programming"
-date: 2015-09-02 21:00:00 +0100
+date: 2015-08-31 21:00:00 +0100
 comments: true
 categories: ["swift", "functional programming", "meta"]
 ---
