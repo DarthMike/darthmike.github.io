@@ -83,9 +83,9 @@ Even though **Swift compiler does not guarantee functions are pure**, so we coul
 
 Given that FP is about functions, many programming languages offer similar 'basic' basic ones which are the building blocks of more complex logic. Understanding and knowing how to use these can make you start applying a more functional style across all your code easily.
 
-> **Swift 2.0**: Many of the free functions in the standard library have been moved to extensions or implementations on the types themselves. This is more in line with Apple's 'Protocol Oriented Programming', but the fundamentals of FP are still the same. You can see the functions in this way as if they were namespace by the type, rather than overloaded for specific types.
+> **Swift 2.0**: Many of the free functions in the standard library have been moved to methods in types or generic protocols. This is more in line with Apple's 'Protocol Oriented Programming', but the fundamentals of FP are still the same. You can see see those methods as if they were namespaced functions by the type, rather than global functions overloaded for specific types.
 
-Learn how these functions work, and how you can apply them to several contexts. In my opinion the basic list is:
+Learn how the basic functions work, and how you can apply them to your day to day code:
 
 - Map
 - Filter
@@ -94,7 +94,7 @@ Learn how these functions work, and how you can apply them to several contexts. 
 
 [Harken Hallway][harken_twitter] wrote an [excellent post][fp_intro_swift] that gives practical introduction to some of them.
 
-Here are some ways I've changed my programming style by using those more often. It basically boils down to avoiding 'if' statements and loops:
+Here are some ways I've changed my programming style by using those more often. It generally boils down to avoiding 'if' statements and loops:
 
 ```Swift
 // Map instead of loops
@@ -106,18 +106,47 @@ _ = views.map { self.addSubview($0) }
 ```
 
 ```Swift
+// Map instead for... mapping. You might be surprised how many times you might need this simple concept
+
+struct Model {
+	// Your app model values
+}
+
+class SomeViewModel {
+	init(model: Model) {
+		self.model = model
+	}
+	// ViewModel logic/presentation values
+	private let model: Model
+}
+
+let models: [Model] //Read from somewhere, maybe DB or remote
+let viewModels = models.map(SomeViewModel.init)
+```
+
+```Swift
 // Reduce instead of loops. Useful when finding aggregate information
-let anyEmpty: Bool = self.subviews.reduce(false) { empty, view
+let anySubViewEmpty: Bool = self.subviews.reduce(false) { empty, view
      return empty || CGRectEqualToRect(view.frame, CGRectZero)
 }
 ```
 
 ```Swift
-**TODO**: Filter in viewModels
-```
+// Flatmap with optionals. For example parsing some model array and every parse operation can fail, and it's described with a failable initialializer.
 
-```Swift
-**TODO**: Flatmap with optionals
+struct MyModel {
+	// Model values
+}
+
+extension MyViewModel {
+	init?(json: JSON) {
+		// Parsing
+	}
+}
+
+let jsonItems: [JSON] // Fetched from a remote server
+// flatMap in Swift 2.0 has special knowledge of optionals, we take advantage of that
+let models = jsonItems.flatMap(MyViewModel.init)
 ```
 
 Starting to apply these standard functions when coding can go a long way to make yourself and your team understand their utility. Getting accustomed to those functions is the first big step to writing more functional code.
@@ -125,8 +154,6 @@ Starting to apply these standard functions when coding can go a long way to make
 ## Operators
 
 Spend some time reading about FP and you will eventually bump into some crazy-looking operators. Even though I don't think they increase readability of code, it's useful to understand how they work.
-
-For starters, remember that an operator in Swift is just a function. It can take two forms, depending on the operands it works with; A single operand, or two operands. When you see an operator in my opinion is actually better to think about the function and look at it's signature, rather than implementation, to understand what the operator does.
 
 If you start working with functions, you will eventually need to connect them in some ways. As far as FP is concerned, the connection should be done by, you guessed it, another function. This 'connecting' function will then somehow adapt between the output type of the first one, and the input type of the second one.
 
@@ -160,7 +187,7 @@ func bind<A,B>(from: A, transform: A->B?) -> B? {
 }
 ```
 
-Then combining those two operations would look like this:
+Then combining the operations using bind, the code would be:
 ```swift
 // Outputs "Number is small: 2"
 bind(bind(2, transform: toEvenNumber), transform: toValidString)
@@ -169,7 +196,9 @@ bind(bind(2, transform: toEvenNumber), transform: toValidString)
 bind(bind(20, transform: toEvenNumber), transform: toValidString)
 ```
 
-There's one big problem with the previous code: It's very hard to read and know what is going on. The connection function takes over the space and pollutes that we are actually just connecting two other functions together. If we remember that a function is just an operator, or syntactic sugar, then a cryptic symbol can be defined to express 'bind':
+There's one big problem with the previous code: It's very hard to read and know what is going on. The connection function takes over the space and pollutes that we are actually just connecting two other functions together.
+
+Remember that an operator in Swift is just a function. It can take two forms, depending on the operands it works with; A single operand, or two operands. We can then define a cryptic symbol can be defined to express 'bind':
 
 ```swift
 // Bind operator, also called 'flatmap'
@@ -187,11 +216,11 @@ Then the two previous examples read a lot better, assuming you know what 'bind' 
 20 >>- toEvenNumber >>- toValidString
 ```
 
-The only reason why those custom operators exist in FP languages is that of readability. If you know what to operator means, and it's likely you will, then you read code and immediately understand the intention of the code. It is said that the code is written in declarative style.
+I think the only reason why those custom operators exist in FP languages is because it improves readability of the code. If you know what to operator means - and it's likely you will because they are very common connectors - then you read code and immediately understand the intention of the code. Using them the code should more declarative, with the tradeoff that somebody not used to those operators will thing it is very foreign syntax.
 
 There's other custom operators you will see when reading about FP. There's the two I've encountered most often:
 
-- FlatMap, or Bind: Expressed as >>>, or >>= or >>-
+- Bind, also called FlatMap in Swift: Expressed as >>>, >>= or >>-
 - Apply, or 'Applicative functors': Expressed as <*>
 
 ThoughtBot created two open source projects that are very helpful to understand practical operators used for function composition: [Runes][runes] and [Argo][argo]. Those projects are concise and helped me a lot to grasp some FP concepts, I encourage you to check them.
