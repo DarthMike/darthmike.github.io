@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Functional programming in the small, with Swift"
-date: 2015-09-07 22:00:59 +0100
+date: 2015-09-09 16:00:23 +0100
 comments: true
 categories: ["swift", "functional programming"]
 ---
