@@ -233,7 +233,7 @@ I think smaller changes to ways we code are achievable by every team and it's ju
 
 Given Swift is a multi-paradigm language it's up to the programmer to choose how to write code, so it's important to  explore various ways until we find what we could call 'idiomatic' Swift.
 
-We are all learning so don't take any of my work for granted, and if you have any comments I'd love to [discuss them][twitter].
+We are all learning so don't hesitate to tell me if I'm wrong or disagree with me. If you have any comments I'd love to [discuss them][twitter].
 
 [part1]: {{site.url}}/blog/2015/08/31/poor-mans-functional-programming/
 [small_large]: http://www.johndcook.com/blog/2009/03/23/functional-in-the-small-oo-in-the-large/
