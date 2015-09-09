@@ -18,7 +18,7 @@ In software development there are no silver bullets to kill your problems and mo
 
 iOS applications involve a great deal of **UI** programming. The iOS frameworks are object-oriented, and Swift is not a pure FP language. Throwing away all the code from Apple's frameworks just to make our code more functional is not a realistic approach.
 
-Thus we need to balance where we want to use from different programming paradigms. For a beginner, or a team with not too much experience with FP, my choice would be doing [Functional Programming in the small, Object Oriented in the large][small_large]. We'll focus on how to leverage Swift to write more 'functional' code in the small.
+Thus we need to balance where we want to use from different programming paradigms. For a beginner, or a team with not too much experience with FP, my choice would be doing [Functional Programming in the small, Object Oriented in the large][small_large].
 
 # FP in the small using Swift
 
@@ -51,7 +51,7 @@ let animation {
 UIView.animateWithDuration(0.4, animations: animation)
 ```
 
-You couldn't do the first example with Objective-C selectors. The bigger difference for me is that the syntax is very concise and easy to understand. The language also has special handling for trailing closures which is very handy to keep the code readable. A side effect of this is that implementing DSLs using closures is very easy (check my library [SwiftAnimations][swiftanimations] for a simple example). This might seem a picky point, but in my opinion readability of a programming language is very important.
+You couldn't do the first example with Objective-C selectors, specially considering that you can declare a function locally inside another function. The bigger difference for me is that the syntax is very concise and easy to understand. The language also has special handling for trailing closures which is very handy to keep the code readable. A side effect of this is that implementing DSLs using closures is very easy (check my library [SwiftAnimations][swiftanimations] or Robert Böhnke's [Cartography][cartography]). This might seem a minor point, but in my opinion readability of a programming language is very important.
 
 ## Functions (and closures) everywhere
 
@@ -149,15 +149,15 @@ let jsonItems: [JSON] // Fetched from a remote server
 let models = jsonItems.flatMap(MyViewModel.init)
 ```
 
-Starting to apply these standard functions when coding can go a long way to make yourself and your team understand their utility. Getting accustomed to those functions is the first big step to writing more functional code.
+There's many times you can benefit from only these basic functions, which are already implemented in the Swift standard library. Starting to apply these standard functions when coding can go a long way to make yourself and your team understand the use and benefit of a more functional or declarative code style. Getting accustomed to using those functions regularly is the first big step to writing more functional code.
 
 ## Operators
 
 Spend some time reading about FP and you will eventually bump into some crazy-looking operators. Even though I don't think they increase readability of code, it's useful to understand how they work.
 
-If you start working with functions, you will eventually need to connect them in some ways. As far as FP is concerned, the connection should be done by, you guessed it, another function. This 'connecting' function will then somehow adapt between the output type of the first one, and the input type of the second one.
+If you start working only with functions, you'll need to connect them in somehow. As far as FP is concerned, the connection should be done by, you guessed it, another function. This 'connecting' function will act as an adapter between the output type of the first one, and the input type of the second one.
 
-A typical example is when you have type which is an optional. Then you have a function that transforms those types and can fail, represented as an optional return. Here's a dummy example:
+A typical example is when you have an optional type. Then you have a function that transforms non-optional types and can fail, represented as an optional return. Here's a dummy example:
 
 ```swift
 // Converts number to string if it is valid
@@ -173,7 +173,7 @@ let toEvenNumber: Int -> Int? = { number in
 }
 ```
 
-If we want to combine those two functions, the input type of one does not match the output type of the other. The functions do not accept optionals, as it does not make sense for what they do.
+If we want to combine those two functions, the input type of one does not match the output type of the other. The functions do not accept optionals, as it does not make sense to do so.
 
 You can bind those two functions with another function, that will translate the output to the input of the next one:
 
@@ -207,7 +207,7 @@ func >>-<A,B>(from: A?, transform: A->B?) -> B? {
 }
 ```
 
-Then the two previous examples read a lot better, assuming you know what 'bind' is, and you know the operator:
+Then the two previous examples read a lot better, assuming you know what 'bind' is, and you know how to interpret the operator:
 ```swift
 // Outputs "Number is small: 2"
 2 >>- toEvenNumber >>- toValidString
@@ -216,12 +216,12 @@ Then the two previous examples read a lot better, assuming you know what 'bind' 
 20 >>- toEvenNumber >>- toValidString
 ```
 
-I think the only reason why those custom operators exist in FP languages is because it improves readability of the code. If you know what to operator means - and it's likely you will because they are very common connectors - then you read code and immediately understand the intention of the code. Using them the code should more declarative, with the tradeoff that somebody not used to those operators will thing it is very foreign syntax.
+I think the only reason why many custom operators exist in FP languages is because it improves readability of the code. If you know what an operator does - and it's likely you will because they are very common connectors - then you read code and immediately understand the intention of the code. Using them the code should more declarative, with the tradeoff that somebody not used to those operators will thing it is very foreign syntax.
 
 There's other custom operators you will see when reading about FP. There's the two I've encountered most often:
 
-- Bind, also called FlatMap in Swift: Expressed as >>>, >>= or >>-
-- Apply, or 'Applicative functors': Expressed as <*>
+- Bind, also called **FlatMap** in Swift: Expressed as >>>, >>= or **>>-**
+- **Apply**, or 'Applicative functors': Expressed as **<*>**
 
 ThoughtBot created two open source projects that are very helpful to understand practical operators used for function composition: [Runes][runes] and [Argo][argo]. Those projects are concise and helped me a lot to grasp some FP concepts, I encourage you to check them.
 
@@ -241,5 +241,6 @@ We are all learning so don't take any of my work for granted, and if you have an
 [harken_twitter]: https://twitter.com/HarlanKellaway
 [twitter]: https://twitter.com/miguelquinon
 [swiftanimations]: https://github.com/DarthMike/SwiftAnimations
+[cartography]: https://github.com/robb/Cartography
 [runes]: https://github.com/thoughtbot/Runes
 [argo]: https://github.com/thoughtbot/Argo
