@@ -225,6 +225,8 @@ There's other custom operators you will see when reading about FP. There's the t
 
 ThoughtBot created two open source projects that are very helpful to understand practical operators used for function composition: [Runes][runes] and [Argo][argo]. Those projects are concise and helped me a lot to grasp some FP concepts, I encourage you to check them.
 
+> **Swift 2.0**: As Swift moves towards removing usage of free functions in favour of methods in protocols and protocol extensions, you'll see less use of these custom operators in the language. But still, it's a nice concept to understand.
+
 # Conclusion
 
 Changing programming habits is hard, but adopting a new way of writing code can be very rewarding if you understand the benefits that it provides. 
