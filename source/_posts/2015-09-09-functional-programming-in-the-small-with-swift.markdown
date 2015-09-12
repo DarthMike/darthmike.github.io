@@ -108,20 +108,20 @@ _ = views.map { self.addSubview($0) }
 ```Swift
 // Map instead for... mapping. You might be surprised how many times you might need this simple concept
 
-struct Model {
+struct MyDataModel {
 	// Your app model values
 }
 
-class SomeViewModel {
+class MyViewModel {
 	init(model: Model) {
 		self.model = model
 	}
 	// ViewModel logic/presentation values
-	private let model: Model
+	private let model: MyDataModel
 }
 
-let models: [Model] //Read from somewhere, maybe DB or remote
-let viewModels = models.map(SomeViewModel.init)
+let models: [MyDataModel] //Read from somewhere, maybe DB or remote
+let viewModels = models.map(MyViewModel.init)
 ```
 
 ```Swift
@@ -134,11 +134,11 @@ let anySubViewEmpty: Bool = self.subviews.reduce(false) { empty, view
 ```Swift
 // Flatmap with optionals. For example parsing some model array and every parse operation can fail, and it's described with a failable initialializer.
 
-struct MyModel {
+struct MyDataModel {
 	// Model values
 }
 
-extension MyViewModel {
+extension MyDataModel {
 	init?(json: JSON) {
 		// Parsing
 	}
@@ -146,7 +146,7 @@ extension MyViewModel {
 
 let jsonItems: [JSON] // Fetched from a remote server
 // flatMap in Swift 2.0 has special knowledge of optionals, we take advantage of that
-let models = jsonItems.flatMap(MyViewModel.init)
+let parsedModels = jsonItems.flatMap(MyDataModel.init)
 ```
 
 There's many times you can benefit from only these basic functions, which are already implemented in the Swift standard library. Starting to apply these standard functions when coding can go a long way to make yourself and your team understand the use and benefit of a more functional or declarative code style. Getting accustomed to using those functions regularly is the first big step to writing more functional code.
