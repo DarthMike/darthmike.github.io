@@ -97,16 +97,7 @@ Learn how the basic functions work, and how you can apply them to your day to da
 Here are some ways I've changed my programming style by using those more often. It generally boils down to avoiding 'if' statements and loops:
 
 ```Swift
-// Map instead of loops
-let views: [UIView] = // Fill array as needed
-views.map { self.addSubview($0) }
-
-// Note that if you don't want a warning, you will need to indicate the compiler you don't care about return type, like so:
-_ = views.map { self.addSubview($0) }
-```
-
-```Swift
-// Map instead for... mapping. You might be surprised how many times you might need this simple concept
+// Map for... mapping. You might be surprised how many times you might need this simple concept
 
 struct Model {
 	// Your app model values
@@ -150,6 +141,23 @@ let models = jsonItems.flatMap(MyViewModel.init)
 ```
 
 There's many times you can benefit from only these basic functions, which are already implemented in the Swift standard library. Starting to apply these standard functions when coding can go a long way to make yourself and your team understand the use and benefit of a more functional or declarative code style. Getting accustomed to using those functions regularly is the first big step to writing more functional code.
+
+### Is `for` not necessary?
+**EDIT 15/09/2015:**
+
+I previously wrote that I liked to use maps for simple loops, like so:
+
+```Swift
+// Map instead of loops
+let views: [UIView] = // Fill array as needed
+views.map { self.addSubview($0) }
+// To suppress compiler warning
+_ = views.map { self.addSubview($0) }
+```
+
+I've recently changed opinion and I think it's better to use standard loops when not producing any result from mapping. We are not increasing readability of the code, but confusing future readers of what is going on. Therefore I don't recommend doing so, so use loops when they are needed.
+
+As you can see any technique can be abused so always keep in mind the benefit of writing code in a particular style.
 
 ## Operators
 
