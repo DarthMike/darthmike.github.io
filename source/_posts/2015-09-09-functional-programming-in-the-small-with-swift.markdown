@@ -157,6 +157,7 @@ class UserViewModel {
         func formatNickName(nickName: String) -> String {
             return "Known as \(nickName)"
         }
+
         // Here we avoid if let by taking advantage of map and nil coalescing operator.
         // Specifies intent with less noise
         return self.user.nickname.map(formatNickName) ?? ""
