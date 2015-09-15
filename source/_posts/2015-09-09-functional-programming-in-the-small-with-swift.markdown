@@ -142,8 +142,7 @@ let parsedModels = jsonItems.flatMap(MyDataModel.init)
 
 There's many times you can benefit from only these basic functions, which are already implemented in the Swift standard library. Starting to apply these standard functions when coding can go a long way to make yourself and your team understand the use and benefit of a more functional or declarative code style. Getting accustomed to using those functions regularly is the first big step to writing more functional code.
 
-### Is `for` not necessary?
-**EDIT 15/09/2015:**
+### EDIT 15/09/2015: Is 'for' not necessary?
 
 I previously wrote that I liked to use maps for simple loops, like so:
 
