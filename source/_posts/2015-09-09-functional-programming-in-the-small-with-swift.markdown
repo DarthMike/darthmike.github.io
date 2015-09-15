@@ -140,6 +140,33 @@ let jsonItems: [JSON] // Fetched from a remote server
 let parsedModels = jsonItems.flatMap(MyDataModel.init)
 ```
 
+```swift
+// Map on optionals
+
+struct User {
+    let name: String
+    let nickname: String?
+}
+
+class UserViewModel {
+    init(user: User) {
+        self.user = user
+    }
+    
+    var displayName: String {
+        func formatNickName(nickName: String) -> String {
+            return "Known as \(nickName)"
+        }
+        // Here we avoid if let by taking advantage of 
+				// map and nil coalescing operator. Code is more concise
+				// and clear
+        return self.user.nickname.map(formatNickName) ?? ""
+    }
+    
+    private let user: User
+}
+```
+
 There's many times you can benefit from only these basic functions, which are already implemented in the Swift standard library. Starting to apply these standard functions when coding can go a long way to make yourself and your team understand the use and benefit of a more functional or declarative code style. Getting accustomed to using those functions regularly is the first big step to writing more functional code.
 
 ### EDIT 15/09/2015: Is 'for' not necessary?
