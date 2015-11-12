@@ -36,7 +36,7 @@ cd <repo>
 gource
 ```
 
-Check the available options, like `seconds-per-day`, to customize how you see the animation.
+Check the available options, like `seconds-per-day`, to customize how you see the animation. I like to run it with 2 seconds per day, to make the visualization move faster (and be funnier to watch!).
 
 ## Commit messages
 
@@ -50,11 +50,30 @@ git log --reverse
 
 Having good commit messages helps a lot when dealing with bug fixes, using [git bisect][git_bisect]. When you're the new one in a project you don't have the domain and code knowledge to understand what changed or debug, you can save hours of pain for  bug fixes by using it, and when you nail down the commit that broke something, you can understand the motivation behind it much better.
 
-
-
 ## Structure
 
+Just a quick glance of the repository structure can give you a feel of the (lack of) organization and practices of the team. Step number 2 after checking commit logs is browsing the project structure. I'm not going to judge or give opinion on what project structure should be the best, as it very much depends on the project, but I generally will try to identify these kind of folders:
+
+- Code
+- Assets
+- Submodules or dependencies
+- Utility scripts
+
+If the repository does not even contain separate folders for this then you know what is your first task!
+
 ## Dependency management
+
+Once I've checked the commit logs, and project structure, before I move on to the code, my last step is to understand the strategy for dependency management. As I work on iOS projects, let's see the options for these:
+
+- Pre-built libraries
+- Copied code (ideally in a sub folder)
+- Submodule
+- Cocoapods
+- Carthage
+
+Every project will have a combination of strategies, as many times libraries come from various sources. But if there's a chance, I like to suggest and improve this if possible, and unify how libraries are managed in the project. My opinion is that it's easier to manage dependencies if they are contained, and imported the same way.
+
+Many projects will use Cocoapods as the dependency management, even for internal libraries. If that is the case, my last stop is the Podfile. If the team hasn't yet, I just suggest to fix the version for all but internal libraries. This is a practice I consider a must if working with 3rd party libraries, as many unexpected bugs can occur if you import libraries with relaxed version requirements, or just the latest one.
 
 # Code
 
