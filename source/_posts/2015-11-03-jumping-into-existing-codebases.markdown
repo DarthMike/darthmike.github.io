@@ -42,7 +42,7 @@ Check the available options, like `seconds-per-day`, to customize how you see th
 
 I like to just do a `git log` in terminal and understand if the team has any kind of agreement on what and how commit messages are structured. Having good commit messages beats any amount of commented code kept around and is a very integral part of the project.
 
-There has been plenty of discussion on the subject, I’m just going to link here 2 of my favorite articles: [this][commit_message] and [this one][commit_message2]. I don’t adhere to all the points presented but agree to many of them. You’ll get an overview of how a project was evolved by looking at some logs, specially from the beginning. Just do:
+There has been plenty of discussion on the subject, I’m just going to link here 2 of my favorite articles: [this][commit_message] and [this one][commit_message2]. I don’t adhere to all the points presented but agree to many of them. You’ll get an overview of how a project has evolved by looking at some logs, specially from the beginning. Just do:
 
 ```bash
 git log --reverse
@@ -52,7 +52,7 @@ Having good commit messages helps a lot when dealing with bug fixes, using [git 
 
 ## Structure
 
-Just a quick glance of the repository structure can give you a feel of the (lack of) organization and practices of the team. Step number 2 after checking commit logs is browsing the project structure. I'm not going to judge or give opinion on what project structure should be the best, as it very much depends on the project, but I generally will try to identify these kind of folders:
+Just a quick glance of the repository structure can give you a feel of the (lack of) organization and practices of the team. Step number 2 after checking commit logs is browsing the project structure. I'm not going to judge or give opinion on what project structure should be the best, as it very much depends on the project, but I generally will try to identify these kind of groups:
 
 - Code
 - Assets
