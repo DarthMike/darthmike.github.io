@@ -6,14 +6,16 @@ comments: true
 categories: iOS git tools productivity
 ---
 
-I’ve recently changed workplace, ([we’re hiring!][peak]), and I’ve jumped into an existing codebase. This is a good time to review what I like to do when I jump into unknown codebases.
+I’ve recently changed workplace - [we’re hiring!][peak] - and I’ve jumped into an existing codebase. This is a good time to review what I like to do when I start to work on a project in these circumstances.
 
 <!-- more -->
+
+When you don't start a greenfield project, which is most of the time for many developers, you need to rapidly and effectively get to grasp with all the code, so you can become productive and acknowledgeable with any changes that need to be done. There's some things I always do in these cases.
 
 # Examining the repository
 
 ## Git stats
-I always like to start with the repository itself; Looking at the history, commits and overall activity. Many times you will find that developers are not used to providing consistent and meaningful commit messages (how many times you’ve seem **WIP feature X** commit message?). So looking at the history is not informative. So I prefer to look at global statistics instead.
+I always like to start with the repository itself. Looking at the history, commits and overall activity. Many times you will find that developers are not used to providing consistent and meaningful commit messages (how many times you’ve seem **WIP feature X** commit message?). So looking at the history is not informative. So I prefer to look at global statistics instead.
 
 Assuming you will work with a git repository, the first tool I like to use is [git stats][git_stats]. As easy as:
 
@@ -71,7 +73,7 @@ Once I've checked the commit logs, and project structure, before I move on to th
 - Cocoapods
 - Carthage
 
-Every project will have a combination of strategies, as many times libraries come from various sources. But if there's a chance, I like to suggest and improve this if possible, and unify how libraries are managed in the project. My opinion is that it's easier to manage dependencies if they are contained, and imported the same way.
+Every project will have a combination of strategies, as many times libraries come from various sources. But if there's a chance, I like to suggest and improve this if possible, and unify how libraries are managed in the project. My opinion is that it's easier to manage dependencies if they are contained and imported the same way.
 
 Many projects will use Cocoapods as the dependency management, even for internal libraries. If that is the case, my last stop is the Podfile. If the team hasn't yet, I just suggest to fix the version for all but internal libraries. This is a practice I consider a must if working with 3rd party libraries, as many unexpected bugs can occur if you import libraries with relaxed version requirements, or just the latest one.
 
@@ -100,17 +102,13 @@ sloccount <source_directory>
 
 ## Dependency visualiser
 
-The biggest problem of reading new code is that everything is kind of new: Domain, code style, requirements, patterns.
+The biggest problem of reading new code is that everything is kind of new: Domain, code style, requirements, patterns. A very good way to get a grasp of the code structure is visualise the relationships. I know of two tools that do that for Objective-C: [objc-dependency-visualizer][dependency-visualizer] and [objc_dep][objc_dep].
 
-A very good way to get a grasp of the code structure is visualise the relationships. I know of two tools that do that for Objective-C: [objc-dependency-visualizer][dependency-visualizer] and [objc_dep][objc_dep].
-
-I quite like objc-dependency-visualizer because it's easier to use to get a broad picture of relative code size between classes and relationships. Just be warned that for medium to big projects the visualisations are just messy.
-
-That's when you can use obj_dep to get graphs for specific files.
+I quite like [objc-dependency-visualizer][dependency-visualizer] because it's easier to use to get a broad picture of relative code size between classes and relationships. Just be warned that for medium to big projects the visualisations are just messy. That's when you can use [obj_dep][objc_dep] to get graphs for specific files or modules.
 
 ## iOS projects
 
-Before I go into reading all the code, I do these checks first:
+Before I go into reading specific code, I do these checks first:
 
 - Run static analyser
 - Compile project and see warnings
@@ -123,11 +121,9 @@ I will run the static analyser, which is the part of the toolchain that will gen
 
 ### Compile warnings
 
-With Objective-C and Swift, we get a program to check our code before it's even run. Many see the compiler as a nuisance, specially those used to interpreted languages. I will run a compilation first to see if the project has warnings, treats warnings as errors, and how many outstanding warnings the team is used to have.
+With Objective-C and Swift, we get a program to check our code before it's even run. Many see the compiler as a nuisance, specially those used to interpreted languages. I will run a compilation first to see if the project has warnings, treats warnings as errors, and how many outstanding warnings the team is used to have. I consider Jon Reid's [xcconfig][xcconfig] a very good base line for any project.
 
-Ideally I would like to work on code with most warnings turned on, and warnings treated as error.
-
-The general problem with Xcode is that it creates projects with very lax default warning settings. So many developers don't bother changing them, thus having an unsafe environment for the project from the beginning. 
+Ideally I would like to work on code with most warnings turned on, and warnings treated as error, but this is not the case for many projects out there. The general problem with Xcode is that it creates projects with very lax default warning settings. So many developers don't bother changing them, thus having an unsafe environment for the project from the beginning. 
 
 If you start a new project, I'd recommend using a tool to configure properly the project, like [liftoff][liftoff] or [crafter][crafter]. For project warnings, I personally prefer to have a .xcconfig file because it's more readable, maintainable, and allows for comments of disabled warnings. See [xcconfig][xcconfig] or [xcconfigs][xcconfigs] for examples.
 
@@ -139,9 +135,9 @@ My last step when surveying new code, is checking the safety of the code. I'll c
 - Correct use of copy: For classes having mutable subclasses - NSArray, NSDictionary, NSString, NSData...
 - Safe use of blocks: Checking for nil block parameters
 - Memory leaks and blocks: Has the code a simple definition of [@weakify and @strongify][weakify], or dealing with retain cycles with blocks in a similar way?
-- Modern code: Uses nullability and generics?
+- Modern code: Uses [nullability][nullability] and [generics][generics]?
 
-# Code!
+# Start coding!
 
 I hope you get some useful tips from my review of tools and checks I do when jumping into new projects. I you've got any more, [tell me!][twitter].
 
@@ -161,3 +157,5 @@ I hope you get some useful tips from my review of tools and checks I do when jum
 [xcconfigs]: https://github.com/jspahrsummers/xcconfigs
 [twitter]: https://twitter.com/miguelquinon
 [weakify]: https://github.com/jspahrsummers/libextobjc/blob/master/extobjc/EXTScope.h
+[nullability]: {{site.url}}/blog/2015/04/17/adopting-nullability-annotations/
+[generics]: {{site.url}}/blog/2015/06/09/adopting-objectivec-generics/
