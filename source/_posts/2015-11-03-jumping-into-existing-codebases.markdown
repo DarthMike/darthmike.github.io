@@ -77,18 +77,73 @@ Many projects will use Cocoapods as the dependency management, even for internal
 
 # Code
 
-sloccount
-sloccount
-https://github.com/PaulTaykalo/objc-dependency-visualizer
+It is said that a programmer spends most of time reading code rather than writing it, and it will be specially true when you jump into an existing codebase.
 
-############
-analizer
-warnings
-basic stuff:
-copy vs strong array/dict/string
-weak refs and blocs
-#########
+Reading (and understanding) the code of an existing project is very daunting at first. How much will take you to understand the fundamental bits depends on many factors, including domain knowledge, code style, code organization and background of the key project developers.
 
+Before diving into specifics of the code, I like to get an overview:
+
+- Lines of code tool
+- Dependency visualiser
+
+## Sloccount
+
+[This tool][sloccount] will give you a summary of lines of code in the repository. You will get a feel of overall complexity of code, and if you have source code for dependencies, you can also check which are the bigger dependencies in terms of code size.
+
+Once you take part in more than one project you'll be able to get a feel when a project is *big* or *small*, which is very subjective, but useful to know, when you approach new code.
+
+This tool is again available via [homebrew][homebrew], so it's very easy to run in any project:
+```code
+brew install sloccount
+sloccount <source_directory>
+```
+
+## Dependency visualiser
+
+The biggest problem of reading new code is that everything is kind of new: Domain, code style, requirements, patterns.
+
+A very good way to get a grasp of the code structure is visualise the relationships. I know of two tools that do that for Objective-C: [objc-dependency-visualizer][dependency-visualizer] and [objc_dep][objc_dep].
+
+I quite like objc-dependency-visualizer because it's easier to use to get a broad picture of relative code size between classes and relationships. Just be warned that for medium to big projects the visualisations are just messy.
+
+That's when you can use obj_dep to get graphs for specific files.
+
+## iOS projects
+
+Before I go into reading all the code, I do these checks first:
+
+- Run static analyser
+- Compile project and see warnings
+- Basic objc good practices (swift is very new for practices yet)
+
+
+### Static analyser
+
+I will run the static analyser, which is the part of the toolchain that will generally be overlooked by most teams. Developers don't trust analyser because it can give false positives, but in my opinion clean code should have 0 analyser warnings. 
+
+### Compile warnings
+
+With Objective-C and Swift, we get a program to check our code before it's even run. Many see the compiler as a nuisance, specially those used to interpreted languages. I will run a compilation first to see if the project has warnings, treats warnings as errors, and how many outstanding warnings the team is used to have.
+
+Ideally I would like to work on code with most warnings turned on, and warnings treated as error.
+
+The general problem with Xcode is that it creates projects with very lax default warning settings. So many developers don't bother changing them, thus having an unsafe environment for the project from the beginning. 
+
+If you start a new project, I'd recommend using a tool to configure properly the project, like [liftoff][liftoff] or [crafter][crafter]. For project warnings, I personally prefer to have a .xcconfig file because it's more readable, maintainable, and allows for comments of disabled warnings. See [xcconfig][xcconfig] or [xcconfigs][xcconfigs] for examples.
+
+### Basic good practices
+
+My last step when surveying new code, is checking the safety of the code. I'll check for basic safe usage of Objective-C which is a very punishing language with lots of sharp edges that can cut the unaware developer ;)
+
+- Safe use of BOOL: See http://nshipster.com/bool/
+- Correct use of copy: For classes having mutable subclasses - NSArray, NSDictionary, NSString, NSData...
+- Safe use of blocks: Checking for nil block parameters
+- Memory leaks and blocks: Has the code a simple definition of [@weakify and @strongify][weakify], or dealing with retain cycles with blocks in a similar way?
+- Modern code: Uses nullability and generics?
+
+# Code!
+
+I hope you get some useful tips from my review of tools and checks I do when jumping into new projects. I you've got any more, [tell me!][twitter].
 
 [peak]: http://peak.net
 [git_stats]: https://github.com/tomgi/git_stats
@@ -97,3 +152,12 @@ weak refs and blocs
 [git_bisect]: https://git-scm.com/docs/git-bisect
 [gource]: http://gource.io
 [homebrew]: http://brew.sh
+[sloccount]: http://www.dwheeler.com/sloccount/
+[dependency-visualizer]: https://github.com/PaulTaykalo/objc-dependency-visualizer
+[objc_dep]: https://github.com/nst/objc_dep
+[liftoff]: https://github.com/thoughtbot/liftoff
+[crafter]: https://github.com/krzysztofzablocki/crafter
+[xcconfig]: https://github.com/jonreid/XcodeWarnings
+[xcconfigs]: https://github.com/jspahrsummers/xcconfigs
+[twitter]: https://twitter.com/miguelquinon
+[weakify]: https://github.com/jspahrsummers/libextobjc/blob/master/extobjc/EXTScope.h
