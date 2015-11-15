@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Jumping into existing codebases"
-date: 2015-11-03 22:15:18 +0000
+date: 2015-11-15 18:55:18 +0000
 comments: true
 categories: iOS git tools productivity
 ---
@@ -117,13 +117,13 @@ Before I go into reading specific code, I do these checks first:
 
 ### Static analyser
 
-I will run the static analyser, which is the part of the toolchain that will generally be overlooked by most teams. Developers don't trust analyser because it can give false positives, but in my opinion clean code should have 0 analyser warnings. 
+I will run the static analyser, which is the part of the toolchain that will generally be overlooked by most teams. Developers don't trust analyser because it can give false positives, but in my opinion clean code should have 0 analyser warnings.
 
 ### Compile warnings
 
 With Objective-C and Swift, we get a program to check our code before it's even run. Many see the compiler as a nuisance, specially those used to interpreted languages. I will run a compilation first to see if the project has warnings, treats warnings as errors, and how many outstanding warnings the team is used to have. I consider Jon Reid's [xcconfig][xcconfig] a very good base line for any project.
 
-Ideally I would like to work on code with most warnings turned on, and warnings treated as error, but this is not the case for many projects out there. The general problem with Xcode is that it creates projects with very lax default warning settings. So many developers don't bother changing them, thus having an unsafe environment for the project from the beginning. 
+Ideally I would like to work on code with most warnings turned on, and warnings treated as error, but this is not the case for many projects out there. The general problem with Xcode is that it creates projects with very lax default warning settings. So many developers don't bother changing them, thus having an unsafe environment for the project from the beginning.
 
 If you start a new project, I'd recommend using a tool to configure properly the project, like [liftoff][liftoff] or [crafter][crafter]. For project warnings, I personally prefer to have a .xcconfig file because it's more readable, maintainable, and allows for comments of disabled warnings. See [xcconfig][xcconfig] or [xcconfigs][xcconfigs] for examples.
 
