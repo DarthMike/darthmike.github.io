@@ -93,7 +93,7 @@ Before diving into specifics of the code, I like to get an overview:
 Once you take part in more than one project you'll be able to get a feel when a project is *big* or *small*, which is very subjective, but useful to know, when you approach new code.
 
 This tool is again available via [homebrew][homebrew], so it's very easy to run in any project:
-```code
+```bash
 brew install sloccount
 sloccount <source_directory>
 ```
