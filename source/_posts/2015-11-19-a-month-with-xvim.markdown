@@ -31,13 +31,12 @@ Tips and intro:
 - One muscle memory
 - Use graphical VIM cheatsheet
 - Atom (other editors) has vintage mode
-
-# TODO: Workflow
-
+- (mostly) unified set of keybindings
+- Muscle memory
 - CL for everything but code editing
 - Ssh into servers
 - Midpoint: IDE with vim keybindings (best of both??)
-
+- XCActionbar: https://github.com/pdcgomes/XCActionBar
 
 [xvim]: https://github.com/XVimProject/XVim
 [tip1]: http://www.viemu.com/a-why-vi-vim.html
