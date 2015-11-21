@@ -23,6 +23,22 @@ Tips and intro:
 - [configuration 2][tip4]
 - [cheat sheet][cheat-sheet]
 
+# TODO: Notes
+
+- Control at your fingers
+- Hands not moving home rows matters
+- Go to CL, fire VIM, do same thing
+- One muscle memory
+- Use graphical VIM cheatsheet
+- Atom (other editors) has vintage mode
+
+# TODO: Workflow
+
+- CL for everything but code editing
+- Ssh into servers
+- Midpoint: IDE with vim keybindings (best of both??)
+
+
 [xvim]: https://github.com/XVimProject/XVim
 [tip1]: http://www.viemu.com/a-why-vi-vim.html
 [tip2]: https://danielmiessler.com/study/vim/
