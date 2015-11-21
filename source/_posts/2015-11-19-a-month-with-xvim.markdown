@@ -27,6 +27,6 @@ Tips and intro:
 [tip1]: http://www.viemu.com/a-why-vi-vim.html
 [tip2]: https://danielmiessler.com/study/vim/
 [tip3]: http://nvie.com/posts/how-i-boosted-my-vim/ 
-[tip4]: https://robots.thoughtbot.com/writing-vim-syntax-plugins
+[tip4]: http://mislav.net/2011/12/vim-revisited/
 [cheat-sheet]: http://www.viemu.com/a_vi_vim_graphical_cheat_sheet_tutorial.html
 [atom]: http://atom.io
