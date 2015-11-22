@@ -6,7 +6,7 @@ comments: true
 categories: tools iOS productivity
 ---
 
-'Know your IDE' is the mantra of the productive programmer. And I've chosen to go and try to use same keybindings everywhere, by investing time and learning Vim. And using [xvim][xvim] for Xcode.
+'Know your IDE' is the mantra of the productive programmer. And I've chosen to go and try to use same keybindings everywhere, by investing time and learning Vim. And using [xvim][xvim] in Xcode. In this article I'm going to try to explain why I did this, share my experience, and maybe you'll be tempted to do similar move.
 
 <!-- more -->
 
@@ -14,16 +14,46 @@ Knowing your IDE, and being productive in it is one of the best investments you 
 
 # Vi(m)
 
-For those who don't know, vi is a very old command-line text editor. Surprisingly many people still use it nowadays, given that it looks rather old-fashioned. 
+vi is a command-line text editor. [Vim][vim] is an extended  of the same editor.
 
+The main difference from 'more modern' editors, is that it has two modes, and it's designed for proficiency in a kind of command language where the user specifies where he wants to navigate and what he wants to achieve.
+
+Many people still use it nowadays, which is surprising given that it looks rather old-fashioned, and the proliferation of different text editing modes has been massive.
+
+If you're interested but not familiar with the editor, you'll find that learning how to use it will be a significant time commitment. There's countless of sources of developers explaining why or why not they'd use such editor; you'll find them easily. The sources that inspired me and I go back to from time to time are:
+
+- [Why, by Jon Beltran de Heredia][tip1]: Very old source but explanatory for somebody not familiar with the editor.
+- [Daniel Miessler's intro][tip2]: Very well written examples and thinking mode that goes with the editor.
+
+# Investments
+
+Getting familiar and productive with your IDE is a time investment. It can take you from weeks to years, and it's very recommended you do so, because it's rather useful to produce code with less time to have time for other interesting tasks (or coffee!).
+
+About 3 years ago, I moved all my workflows to command-line. So any use of git, external text file editing, or remote server management, I would do through command line. For the command-line interface I chose vim as my *go-to* editor. But I never learnt more than the modes, and simple editing in one page of text.
+
+A year ago I was already familiar with Xcode, it's keybindings and was moderately productive with it. But I felt I had to improve. The main thing I noticed was I would switch to the mouse many times to navigate a file. Being also a user of [AppCode][appcode], I thought my vanilla Xcode experience was not very productive.
+
+And so I concluded why not try and invest more time with vim, given I would not only use it for iOS development? I installed [xvim][xvim] plugin for Xcode 3 months ago, and I don't want to go back to vanilla Xcode.
+
+# Pros
+
+# Cons
+
+# Learning process
+
+# The next step
+
+
+
+
+# TODO: --- REORGANIZE TO ARTICLE ITSELF
+# Tips and intro:
 Tips and intro:
-- [Why][tip1]
-- [Daniel Miessler's intro][tip2]
 - [Configuration1][tip3]
 - [configuration 2][tip4]
 - [cheat sheet][cheat-sheet]
 
-# TODO: Notes
+# Notes
 
 - Control at your fingers
 - Hands not moving home rows matters
@@ -38,6 +68,7 @@ Tips and intro:
 - Midpoint: IDE with vim keybindings (best of both??)
 - XCActionbar: https://github.com/pdcgomes/XCActionBar
 
+[vim]: https://en.wikipedia.org/wiki/Vim_(text_editor)
 [xvim]: https://github.com/XVimProject/XVim
 [tip1]: http://www.viemu.com/a-why-vi-vim.html
 [tip2]: https://danielmiessler.com/study/vim/
@@ -45,3 +76,4 @@ Tips and intro:
 [tip4]: http://mislav.net/2011/12/vim-revisited/
 [cheat-sheet]: http://www.viemu.com/a_vi_vim_graphical_cheat_sheet_tutorial.html
 [atom]: http://atom.io
+[appcode]: https://www.jetbrains.com/objc/
