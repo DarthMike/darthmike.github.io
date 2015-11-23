@@ -36,8 +36,18 @@ A year ago I was already familiar with Xcode, it's keybindings and was moderatel
 And so I concluded why not try and invest more time with vim, given I would not only use it for iOS development? I installed [xvim][xvim] plugin for Xcode 3 months ago, and I don't want to go back to vanilla Xcode.
 
 # Pros
+Control at your fingers
+- Hands not moving home rows matters
+- Go to CL, fire VIM, do same thing
+- One muscle memory
+- Use graphical VIM cheatsheet
+- Atom (other editors) has vintage mode
+- (mostly) unified set of keybindings
 
 # Cons
+- Learning curve
+- Integration with IDE / keybindings clash
+- Not complete vim
 
 # Learning process
 
@@ -55,13 +65,7 @@ Tips and intro:
 
 # Notes
 
-- Control at your fingers
-- Hands not moving home rows matters
-- Go to CL, fire VIM, do same thing
-- One muscle memory
-- Use graphical VIM cheatsheet
-- Atom (other editors) has vintage mode
-- (mostly) unified set of keybindings
+- 
 - Muscle memory
 - CL for everything but code editing
 - Ssh into servers
