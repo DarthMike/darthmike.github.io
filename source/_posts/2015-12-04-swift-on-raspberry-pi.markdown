@@ -13,11 +13,15 @@ Swift is [open source][swift-org]!
 
 #TODO: Notes:
 
+- PKG built for intel x86_64 archs, need ARM
+
 - Compile Swift on OSX first => Just to make sure understanding process
 - Get familiar with build script (ease of use, recommended way of building swift)
 
 - Raspbian
 - ninja => make
+- cmake udpate: Build from sources (apt-get version is 2.8.9 time of writing)
+- 
 - requirements: 
 	- not available: ninja
 	- not available:
