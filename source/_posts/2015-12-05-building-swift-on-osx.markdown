@@ -63,7 +63,7 @@ cd build/Ninja-DebugAssert/swift-macosx-x86_64/bin
 
 # Happy learning!
 
-I quite liked the quote on the [build-script][build-script], where a rationale is presented behind the decision to have a simple script to build the toolchain. 
+I quite liked the quote on the [build-script][build-script], where a rationale is presented behind the decision to have a unique simple wrapper script to build the toolchain. 
 
 > While you can invoke CMake directly to build Swift, this tool will save you
 time by taking away the mechanical parts of the process, providing you controls
@@ -85,3 +85,4 @@ The release of open source code so close to our day to day jobs is a very specia
 [swift-download]: https://swift.org/download/
 [erica-swift-2.2]: http://ericasadun.com/2015/12/03/how-to-compile-with-xcode-and-swift-2-2/
 [erica-twitter]: https://twitter.com/ericasadun
+[build-script]: https://github.com/apple/swift/blob/master/utils/build-script#L261
