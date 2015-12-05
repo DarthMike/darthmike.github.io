@@ -53,7 +53,6 @@ Once all repositories are cloned, you can build from the main swift repository, 
 With the default arguments, you'll find the build artifacts in a 'build' folder so go and explore. To see the version of the newly built swift compiler. So, go one directory upwards, and find the built binaries ready to use:
 
 ```bash
-cd ..
 cd build/Ninja-DebugAssert/swift-macosx-x86_64/bin
 ./swift --version
 #Swift version 2.2-dev (LLVM 46be9ff861, Clang 4deb154edc, Swift c959ce2c83)
