@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Building Swift on OSX"
-date: 2015-12-04 13:44:35 +0000
+date: 2015-12-05 00:38:35 +0000
 comments: true
 categories: swift tools
 ---
