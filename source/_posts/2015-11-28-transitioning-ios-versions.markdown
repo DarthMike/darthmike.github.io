@@ -52,7 +52,7 @@ For long time, Apple's [recommended][version-check] way of checking for API exis
 
 Starting with iOS 8 you can use `NSProcessInfo` to accurately fetch the OS version your app is running on. Use it in your macros.
 
-### Mark legacy code paths with a specific marker
+### ObjC: Mark legacy code paths with a specific marker
 
 This goes in line with the previous recommendation. It's good to mark paths that eventually will need to be removed. The problem with maintaining or having exceptions in the code for older versions of the OS, is that in the future that code will be dead, as your team will eventually drop support of that OS version. Say you still support iOS 7 today, and you need to implement use of newer API to convert points from one view coordinate system to another. In iOS8 a new API was introduced, and the previous one was not (yet) deprecated. You might want to migrate to use it when it is available. In swift, you can use *availability conditions* to check at compile-time:
 
@@ -81,7 +81,8 @@ code, related to an older OS version. It is useful to use the same macro to 'mar
 ```
 
 ### Control the number of 3rd party libraries
-Any 3rd party library that your project contains, adds a burden that is not negligible. Your team will need to be careful with the number of dependencies used in the project, because if Apple breaks compatibility with mostly every OS release, the maintainer may not be as fast as you to adapt to changes. Be mindful of this when considering to adopt another library, and always be ready to step in and help the maintainer by pushing changes upstream. If you can't afford to do this, chances are your team will suffer every year to update all dependencies.
+
+Any 3rd party library that your project contains adds a burden that is not negligible. Your team will need to be careful with the number of dependencies used in the project, because when Apple breaks compatibility with every OS release, the maintainer may not be as fast as you to adapt to changes. Be mindful of this when considering to adopt another library, and always be ready to step in and help the maintainer by pushing changes upstream. If you can't afford to do this, chances are your team will suffer every year to update all dependencies.
 
 ## Objective-C
 
@@ -89,11 +90,13 @@ Chances are your project still has lots of Objective-C code. And it's this code 
 
 ### Modernise all Objective-C code
 
-Not much has changed since Objective-C 2.0, but the addition of [nullability][nullability] and [generics][generics]. This will ease using older code from Swift, without the need for a rewrite.
+There's two important changes to the language since Objective-C 2.0. That is the addition of [nullability annotations][nullability] and [lightweight generics][generics]. 
+
+Be sure to use these features in every new Objective-C code, and change APIs of existing code to annotate it for the use from Swift. It will also make you think about exiting code, and possibly encounter bugs! The most important aspect of doing this is that it will ease using older code from Swift, without the need for a rewrite.
 
 ### Rewrites in Swift
 
-I think the future of Cocoa development is Swift, and any application-level Objective-C code is destined to die sooner rather than later. If you can afford to slowly rewrite part of your application using Swift, it's better because every year Apple will modernise and add features to Swift, not Objective-C.
+The future of Cocoa development is Swift, and any application-level Objective-C code is destined to die sooner rather than later. If you can afford to slowly rewrite part of your application using Swift, just do it.
 
 ### Keep code templates up to date
 
@@ -101,6 +104,9 @@ It might seem unimportant, but your team should have up to date code templates. 
 
 ## Swift
 
+Swift is changing a lot, but it is [open source][swift]. You can check the roadmap and be ready for adoption from day one, once the new version is released as part of Apple tools.
+
+Not modernising to newer Swift code is not an option. Mainly because there are breaking changes, so it will incur a cost on your development time, which is hopefully returned in developer happiness for using the language - The current state of tooling in Swift makes the experience sometimes slower, so no win there ;).
 
 ## Maintenance of previous releases
 
@@ -117,3 +123,4 @@ It might seem unimportant, but your team should have up to date code templates. 
 [generics]: {{site.url}}/blog/2015/06/09/adopting-objectivec-generics/
 [version-check]: TODO
 [transitioning-docs]: TODO
+[swift]: http://swift.org
