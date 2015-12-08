@@ -19,8 +19,9 @@ It's in longer-term projects that [software rot][rot] happens faster. A successf
 I've worked in teams where those questions were often raised:
 
 - How do we keep modernising our code, while maintaining backwards compatibility for our users?
-- What techniques  can be use to keep moving fast?
-- How do we throw away old code using deprecated APIs in a big codebase?
+- What techniques can be use to keep moving fast, while still supporting older OS versions?
+- How do we approach throwing away old code using deprecated APIs in a big codebase?
+- How do we write new code taking into account that we will remove support of an older OS version?
 
 # Fragmentation
 
