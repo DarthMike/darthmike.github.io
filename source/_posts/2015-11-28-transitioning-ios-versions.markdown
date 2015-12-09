@@ -118,12 +118,25 @@ To keep up to date to Swift developments, be sure that somebody in the developme
 
 ## Maintenance of previous releases
 
-- CI with beta/current/1 version before
-- Cocoapods in repository
+### Continous integration
 
+In my experience, I've found that to keep the development speed, the team generally needs to have access to 3 development environments in CI, available for any build:
+
+- Current stable version of Xcode
+- Beta version of Xcode
+- Previous version of Xcode (temporarily)
+
+Generally all builds should be scheduled to run against the stable version of Xcode. Apple is moving fast, and there generally is one new beta version of Xcode available. That version may or may not have breaking changes to your project.
+
+Sometimes, the team will find it necessary to build with a previous version of Xcode, for example to be able to deploy a hot fix for an application submitted with it. 
+
+### Cocoapods in repository
+
+Different teams have different approaches to dependencies. If you use cocoapods, most likely you'll want dependencies checked in your repository project. Even though there's disadvantages, the biggest advantage is that you'll be able to build previous releases out of a tag. This is very important when maintaining a project of a significant size, so be mindful of this.
 
 # Conclusion
 
+Maintaining software projects is hard, and if you are working with a team with a successful product (you should!), then most likely you'll maintain it over time. I've shared my experience and practices around maintaining across different iOS versions. I hope you find it useful.
 
 [rot]: https://en.wikipedia.org/wiki/Software_rot
 [fragmentation]: {{site.url}}/blog/2015/05/27/fragmentation/
