@@ -14,9 +14,9 @@ Having worked in companies developing their own products, I've faced many times 
 
 Unless you do consulting or freelancing, chances are that you will have to deal repeatedly with evolving code in the same project over the years. Even if you jump from project to project, chances are you land into existing projects where there's some code written some time ago.
 
-It's in longer-term projects that [software rot][rot] happens faster. A successful application will face this earlier than expected, and in the fast-paced market of Mobile applications, every year Apple is renovating and ruthlessly changing the  Operating System where our code lives. It requires non-trivial amount of work to keep up with changes, while still producing code for our users.
+In longer projects [software rot][rot] stays and the team needs to deal with it. A successful application will face this earlier than expected, and in the fast-paced market of mobile applications, every year Apple is renovating and ruthlessly changing the  Operating System where our code lives. It requires non-trivial amount of work to keep up with changes, while still delivering improvements and features for our users.
 
-I've worked in teams where those questions were often raised:
+I've worked in teams where these questions were often raised:
 
 - How do we keep modernising our code, while maintaining backwards compatibility for our users?
 - What techniques can be use to keep moving fast, while still supporting older OS versions?
@@ -25,11 +25,11 @@ I've worked in teams where those questions were often raised:
 
 # Fragmentation
 
-[As I wrote before][fragmentation], developers in the Apple ecosystem face a different kind of fragmentation. We're forced to adopt breaking changes every year, or 'die' in the process. Apple forces us to start using new features of the OS, and has a policy of deprecating APIs a lot faster than we like.
+[As I wrote before][fragmentation], developers in the Apple ecosystem face a different kind of fragmentation. We're forced to adopt breaking changes every year, or 'die' in the process. Apple forces us to start using new features of the OS, and has a policy of deprecating APIs a lot faster than we like. Instead of supporting a lot of older devices and operating systems, we face many breaking changes every year.
 
 A mobile engineering team should embrace change, knowing they'll need to assign some engineering resources to keep up with code changes required to support new and old OS versions. Otherwise the code will rot faster than expected. (Anybody heard about complete rewrite of a feature just written a year ago?).
 
-I'm going to share with you best practices I learned to keep up with OS upgrades in an iOS project.
+I'm going to share with you what in my opinion are best practices to keep up with OS upgrades with minimum effort involved.
 
 # Transitioning iOS versions gracefully
 
@@ -84,7 +84,7 @@ You can do the same with Objective-C, defining a function or macro that will det
 
 ### Control the number of 3rd party libraries
 
-Any 3rd party library that your project contains adds a cost to your project. If - most likely *when* - Apple breaks compatibility with every OS release, the maintainer may not be as fast as you to adapt to changes. 
+Any 3rd party library that your project contains adds a cost to your project. If - most likely *when* - Apple breaks compatibility with every OS release, the maintainer may not be as fast as you to adapt to changes.
 
 Be mindful of this maintenance cost when considering a new library, and always be ready to step in and help the maintainer by pushing changes upstream. If you can't afford to do this, chances are your team will suffer every year when updating all dependencies.
 
@@ -96,7 +96,7 @@ Chances are your project still has lots of Objective-C code. And it's this code 
 
 If you have such old code still using pre-2.0, please refer to [this][objc-2.0] guide.
 
-There's two important changes to the language since Objective-C 2.0, introduced in 2015; That is the addition of [nullability annotations][nullability] and [lightweight generics][generics]. 
+There's two important changes to the language since Objective-C 2.0, introduced in 2015; That is the addition of [nullability annotations][nullability] and [lightweight generics][generics].
 
 Be sure to use these features in your new Objective-C code, and change APIs of existing code to annotate it for the use from Swift. It will also make you think about exiting code, and possibly encounter bugs! The most important aspect of doing this is that it will ease using older code from Swift, without the need for a rewrite.
 
@@ -128,7 +128,7 @@ In my experience, I've found that to keep the development speed, the team genera
 
 Generally all builds should be scheduled to run against the stable version of Xcode. Apple is moving fast, and there generally is one new beta version of Xcode available. That version may or may not have breaking changes to your project.
 
-Sometimes, the team will find it necessary to build with a previous version of Xcode, for example to be able to deploy a hot fix for an application submitted with it. 
+Sometimes, the team will find it necessary to build with a previous version of Xcode, for example to be able to deploy a hot fix for an application submitted with it.
 
 ### Cocoapods in repository
 
