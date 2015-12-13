@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Transitioning iOS versions"
-date: 2015-11-28 20:06:25 +0000
+date: 2015-12-14 20:00:25 +0000
 comments: true
 categories: iOS tips Objective-C Swift
 ---
