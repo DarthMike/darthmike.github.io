@@ -26,7 +26,7 @@ Let's look at the features of Swift and the standard library that help write mor
 
 ## Better functions
 
-One of the first terms you will hear when diving into FP is that functions are **first-class** citizens, or the language supports **higher-order** functions. 
+One of the first terms you will hear when diving into FP is that functions are **first-class** citizens, or the language supports **higher-order** functions.
 
 What this means is that functions are treated like any other type. Think as functions being treated like objects; They can accept other functions as input, return other functions, and be stored and passed around.
 
@@ -61,7 +61,7 @@ Functions are everywhere, even disguised sometimes:
 - Computed properties are closures
 - Lazy variables are defined with a closure
 
-Given that functions are everywhere my first recommendation is that you should learn to read and understand the signature. This is specially important when generics are involved, which is a very fundamental part of the language. 
+Given that functions are everywhere my first recommendation is that you should learn to read and understand the signature. This is specially important when generics are involved, which is a very fundamental part of the language.
 
 A function signature conveys two crucial bits of information:
 
@@ -152,7 +152,7 @@ class UserViewModel {
     init(user: User) {
         self.user = user
     }
-    
+
     var displayName: String {
         func formatNickName(nickName: String) -> String {
             return "Known as \(nickName)"
@@ -162,7 +162,7 @@ class UserViewModel {
         // Specifies intent with less noise
         return self.user.nickname.map(formatNickName) ?? ""
     }
-    
+
     private let user: User
 }
 ```
@@ -263,7 +263,7 @@ ThoughtBot created two open source projects that are very helpful to understand 
 
 # Conclusion
 
-Changing programming habits is hard, but adopting a new way of writing code can be very rewarding if you understand the benefits that it provides. 
+Changing programming habits is hard, but adopting a new way of writing code can be very rewarding if you understand the benefits that it provides.
 
 I think smaller changes to ways we code are achievable by every team and it's just a matter of communicating and discussing the benefits through code reviews. Ultimately the goal is to make code simpler, clearer and easier to read and maintain.
 
@@ -273,7 +273,7 @@ We are all learning so don't hesitate to tell me if I'm wrong or disagree with m
 
 [part1]: {{site.url}}/blog/2015/08/31/poor-mans-functional-programming/
 [small_large]: http://www.johndcook.com/blog/2009/03/23/functional-in-the-small-oo-in-the-large/
-[fp_intro_swift]: http://harlankellaway.com/blog/2015/08/10/swift-functional-programming-intro/
+[fp_intro_swift]: http://harlankellaway.com/blog/2015/08/10/swift-functional-programming-intro
 [harken_twitter]: https://twitter.com/HarlanKellaway
 [twitter]: https://twitter.com/miguelquinon
 [swiftanimations]: https://github.com/DarthMike/SwiftAnimations
