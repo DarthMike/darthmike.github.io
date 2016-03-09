@@ -11,7 +11,7 @@ I [wrote]({{site.url}}/blog/2015/01/14/tip-exfat-hdd-with-raspberry-pi/) a while
 
 <!-- more -->
 
-I chose *exFat* over *NTFS* because at home I have 2 main OSes I use: Windows and OSX. My Windows computer is for historical reasons still used, mainly for gaming, but also for other family members. I have an Macbook as the main tool, so the choices for a common file system are a bit limited: *Fat32*, *NTFS*, or *exFat* as far as I know.
+I chose *exFat* over *NTFS* because at home I have 2 main OSes I use: Windows and OSX. My Windows computer is for historical reasons still used, mainly for gaming, but also for other family members. I have a Macbook as the main tool, so the choices for a common file system are a bit limited: *Fat32*, *NTFS*, or *exFat* as far as I know.
 
 I previously used *NTFS* on my Raspberry Pi external USB HDD, but I wanted to try *exFat* and assess the performance; hence that previous [post]({{site.url}}/blog/2015/01/14/tip-exfat-hdd-with-raspberry-pi/).
 
