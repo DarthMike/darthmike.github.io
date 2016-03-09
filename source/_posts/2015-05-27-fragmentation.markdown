@@ -13,7 +13,7 @@ As an iOS developer or Apple-centric developer, [WWDC][wwdc] is a time of excite
 
 # Fragmentation in iOS, really?
 
-Apple is a unique company	in the tech sector because it controls mostly everything that needs to be done to build a consumer electronics product. One of the company's strengths has always been the tight integration between design, hardware and software. 
+Apple is a unique company	in the tech sector because it controls mostly everything that needs to be done to build a consumer electronics product. One of the company's strengths has always been the tight integration between design, hardware and software.
 
 So one could safely say that, unlike [Android][android], it's main competitor in the mobile space, iOS does not have such level of fragmentation in hardware and software. This has historically been [one quality][frag1] when comparing the Operating Systems as a platform to build end user applications. Nevertheless I think that iOS developers need to cope with a different - but still critical - kind of fragmentation.
 
@@ -35,7 +35,7 @@ You may expect APIs to be deprecated with every iOS version, you can expect repl
 
 ## Bugs
 
-All software has bugs, this is a fact that every software engineer is acquainted with very early in his career. But moving fast means you can’t just wait for platform releases to be polished; to keep your application compatible, to keep *the 5 star ratings coming*, you need to support a potentially rough OS release from day (or week) 1. You may even need to provide workarounds in your code to specific bugs in the latest iOS version. 
+All software has bugs, this is a fact that every software engineer is acquainted with very early in his career. But moving fast means you can’t just wait for platform releases to be polished; to keep your application compatible, to keep *the 5 star ratings coming*, you need to support a potentially rough OS release from day (or week) 1. You may even need to provide workarounds in your code to specific bugs in the latest iOS version.
 
 Again this will lead to more entropy to the code, thus increasing the software rot.
 
@@ -43,7 +43,7 @@ Again this will lead to more entropy to the code, thus increasing the software r
 
 Apple users upgrade their devices fast. This is very good for application developers because you can target the *latest and greatest*, simplify code, and still be quite confident that your product will be available for the majority of the users in the platform.
 
-The flip-side of this is that users expect the latest features, furthermore they expect them in 3rd party applications. Many times the changes in the OS are not noticeable by users, like [autolayout][AutoLayout], [NSURLSesssion][nsurlsession] or 64 bit support. But sometimes those additions are noticeable, like support for TouchID, App Extensions, UIKit Dynamics or many changes that UIKit faces every year. Even if some features are not noticeable by users, they will notice the effect they have in an application behaviour. For example adding support for [background fetch][fetch] requires using NSURLSession and users will notice that content is ready when application is launched. 
+The flip-side of this is that users expect the latest features, furthermore they expect them in 3rd party applications. Many times the changes in the OS are not noticeable by users, like [autolayout][AutoLayout], [NSURLSesssion][nsurlsession] or 64 bit support. But sometimes those additions are noticeable, like support for TouchID, App Extensions, UIKit Dynamics or many changes that UIKit faces every year. Even if some features are not noticeable by users, they will notice the effect they have in an application behaviour. For example adding support for [background fetch][fetch] requires using NSURLSession and users will notice that content is ready when application is launched.
 
 As the application marketplace is very crowded, any kind of promotion is an opportunity to stand out from the crowd; new OS features are a very prominent way to get featured by Apple by the time the new OS version is released, and it is often used to promote applications. Apple does this on purpose, it’s on the users benefits that all applications converge to using new OS features, and presents the App Store with as positive and unified.
 
@@ -65,11 +65,11 @@ Developers not adopting the new language now, are slowly facing a kind of techni
 
 # Apples to Apples
 
-Let me be clear about the take of this post; I'm not, in any way, trying to compare Android and iOS. This is not even a fair comparison to begin with. 
+Let me be clear about the take of this post; I'm not, in any way, trying to compare Android and iOS. This is not even a fair comparison to begin with.
 
 In my opinion, fragmentation **is** a problem developers in Apple platforms need to cope with, if they want to work on software projects lasting more than a year. It is just faced in a different way. Every year the development team needs to spend resources to keep up with the changes in the platform, and still keeping support for existing OS versions and devices.
 
-These changes are not bad at all, but increase the workload for your project, and sometimes distract from the real business needs of your product. That said, keeping with the changes is generally satisfying for engineers as this is the bread and butter of our work. And for me personally, the pace of change is one of the reasons why I love mobile (and Apple in particular). 
+These changes are not bad at all, but increase the workload for your project, and sometimes distract from the real business needs of your product. That said, keeping with the changes is generally satisfying for engineers as this is the bread and butter of our work. And for me personally, the pace of change is one of the reasons why I love mobile (and Apple in particular).
 
 I can't wait for what Apple has to say on this year's [WWDC][wwdc]!
 
@@ -79,6 +79,6 @@ I can't wait for what Apple has to say on this year's [WWDC][wwdc]!
 [android]: http://www.android.com/
 [sizes]: https://developer.apple.com/library/prerelease/ios/releasenotes/General/WhatsNewIniOS/Articles/iOS8.html#//apple_ref/doc/uid/TP40014205-SW44
 [nsurlsession]: https://developer.apple.com/library/ios/documentation/Foundation/Reference/NSURLSession_class/index.html
-[autolayout]: https://developer.apple.com/library/ios/documentation/UserExperience/Conceptual/AutolayoutPG/Introduction/Introduction.html
+[autolayout]: https://developer.apple.com/library/ios/documentation/UserExperience/Conceptual/AutolayoutPG/index.html
 [fetch]: https://developer.apple.com/library/ios/documentation/iPhone/Conceptual/iPhoneOSProgrammingGuide/BackgroundExecution/BackgroundExecution.html#//apple_ref/doc/uid/TP40007072-CH4-SW5
 [swift]: https://developer.apple.com/library/ios/releasenotes/DeveloperTools/RN-Xcode/Chapters/xc6_release_notes.html#//apple_ref/doc/uid/TP40001051-CH4-SW3
