@@ -25,7 +25,7 @@ There are 3 new settings related to these new features: CLANG_ANALYZER_NONNULL, 
 
 # CLANG_ANALYZER_NONNULL and CLANG_ANALYZER_OBJC_GENERICS
 
-Objective-C continues to get some love! Adding into the changes for [nullability][nullability] and [generices][generics], now the analyzer will start to warn you about usage not in line with your annotations. That's very good news, considering that the compiler checks were a bit lacking. Additional kudos because both settings are enabled by default.
+Objective-C continues to get some love! Adding into the changes for [nullability][nullability] and [generics][generics], now the analyzer will start to warn you about usage not in line with your annotations. That's very good news, considering that the compiler checks were a bit lacking. Additional kudos because both settings are enabled by default.
 
 # CLANG_ANALYZER_LOCALIZABILITY
 
