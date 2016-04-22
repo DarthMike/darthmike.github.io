@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Dear SDK developer"
-date: 2016-04-19 22:46:27 +0100
+date: 2016-04-22 12:50:32 +0100
 comments: true
 categories: meta tools
 ---
