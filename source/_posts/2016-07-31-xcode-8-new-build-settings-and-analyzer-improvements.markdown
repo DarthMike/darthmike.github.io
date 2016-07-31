@@ -1,12 +1,14 @@
 ---
 layout: post
 title: "Xcode 8: New build settings and analyzer improvements"
-date: 2016-07-26 11:34:16 +0100
+date: 2016-07-31 21:50:16 +0100
 comments: true
 categories: tools ios xcode
 ---
 
 I always like to check the new build settings and analyzer improvements of every XCode release. And this year's main release includes a couple of goodies. Let's check them out!
+
+<!-- more -->
 
 # Analyzer improvements
 
@@ -35,6 +37,7 @@ Most possibly a minor one, but remember that the analyzer could give you new fal
 the Swift compiler.
 
 Previously, you had to declare your conditional compilation flags under **OTHER_SWIFT_FLAGS**, remembering to prepend "-D" to the setting. For example, to conditionally compile with a `MYFLAG` value:
+
 ```swift
 #if MYFLAG
 // do stuff
