@@ -6,7 +6,7 @@ comments: true
 categories: tools ios xcode
 ---
 
-I always like to check the new build settings and analyzer improvements of every XCode release. And this year's main release includes a couple of goodies. Let's check them out!
+I always like to check the new build settings and analyzer improvements of every Xcode release. And this year's main release includes a couple of goodies. Let's check them out!
 
 <!-- more -->
 
