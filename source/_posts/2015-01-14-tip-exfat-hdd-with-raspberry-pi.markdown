@@ -74,4 +74,4 @@ I'm seen a lot of traffic coming to this post, so I wanted to give a heads up to
 **I'm no longer using ExFat for my Raspberry Pi**. The reasons are in [this post][new-reference].
 If you want to try it yourself, you're very welcome, and the steps are still valid AFAIK.
 
-[new-reference]: {{site.url}}blog/2015/04/14/exfat-with-raspberry-pi-continued/
+[new-reference]: {{site.url}}/blog/2015/04/14/exfat-with-raspberry-pi-continued/
