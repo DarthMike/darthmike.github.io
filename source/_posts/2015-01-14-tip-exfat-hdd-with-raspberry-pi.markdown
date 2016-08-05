@@ -68,3 +68,10 @@ UUID=54AF-0252 /mnt/PIHDD exfat defaults,auto,umask=000,users,rw 0 0
 For the meaning of each value run the manual pages, but these are reasonable defaults for home drives.
 
 Now every time the Pi starts it knows how to mount that drive. Also, if you run *sudo mount -a* command, it will also know how to mount it. Good for quick system maintenance.
+
+**EDIT 05/08/2016**:
+I'm seen a lot of traffic coming to this post, so I wanted to give a heads up to anybody reading this:
+**I'm no longer using ExFat for my Raspberry Pi**. The reasons are in [this post][new-reference].
+If you want to try it yourself, you're very welcome, and the steps are still valid AFAIK.
+
+[new-reference]: {{site.url}}blog/2015/04/14/exfat-with-raspberry-pi-continued/
