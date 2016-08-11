@@ -55,7 +55,7 @@ Now we only need to pass the value `MYFLAG` to the new setting. Time to move all
 > Two new build settings have been added to enable Swift compiler options: -suppress-warnings
 (SWIFT_SUPPRESS_WARNINGS) and -warnings-as-errors (SWIFT_TREAT_WARNINGS_AS_ERRORS).
 
-I'm not completely sure how many warnings the Swift compiler emits right now. The default value for both is `NO`, so I'm inclined to turn **SWIFT_TREAT_WARNINGS_AS_ERRORS** directly to `YES`. Just letting the compiler help as much as it can.
+Given the compiler will emit warnings, specially during transition periods to future versions of the language, it's a good idea to turn this setting off temporarily. The default value for both is `NO`, but I'm inclined to turn **SWIFT_TREAT_WARNINGS_AS_ERRORS** directly and solve issues straight away.
 
 ## EMBEDDED_CONTENT_CONTAINS_SWIFT is deprecated
 
