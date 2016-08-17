@@ -6,7 +6,7 @@ comments: true
 categories: [tips, meta]
 ---
 
-Much of the literature and writing related to sofware development focuses on the creation, new ideas, fresh ideaas and things to improve in your next project. But when is it a good moment to delete the old stuff in an long term project? Here's my short rant about this; I recently deleted a chunk of code in my current project and just felt I wanted to write my thoughts.
+Much of the literature and writing related to sofware development focuses on the creation, new ideas, fresh ideas and things to improve in your next project. But when is it a good moment to delete the old stuff in an long term project? Here's my short rant about this; I recently deleted a chunk of code in my current project and just felt I wanted to write my thoughts.
 
 <!-- more -->
 
