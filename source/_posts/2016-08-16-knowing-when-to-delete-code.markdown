@@ -42,7 +42,7 @@ I think developers need to emotionally detach themselves from code they wrote, a
 
 To conclude, if you introduce any kind of prize contest in your engineering team, then please, give a prize to the engineer that deleted the most lines of code, not the one that wrote the most. You can be sure that that engineer didn't introduce any bugs nor regressions.
 
-Ripley out.
+Ripley signing off.
 
 [wikipedia]: https://en.wikipedia.org/wiki/Legacy_code
 [wat]: http://www.cnbc.com/2016/05/25/us-military-uses-8-inch-floppy-disks-to-coordinate-nuclear-force-operations.html
