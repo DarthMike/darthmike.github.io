@@ -1,0 +1,54 @@
+==================================================================
+https://keybase.io/miguelquinon
+--------------------------------------------------------------------
+
+I hereby claim:
+
+  * I am an admin of http://miqu.me
+  * I am miguelquinon (https://keybase.io/miguelquinon) on keybase.
+  * I have a public key ASALksyPwi1ehEUJbXM3DIqDRT8dp6FvURGw-t3HE2Jjjwo
+
+To do so, I am signing this object:
+
+{
+    "body": {
+        "key": {
+            "eldest_kid": "01200b92cc8fc22d5e8445096d73370c8a83453f1da7a16f5111b0faddc71362638f0a",
+            "host": "keybase.io",
+            "kid": "01200b92cc8fc22d5e8445096d73370c8a83453f1da7a16f5111b0faddc71362638f0a",
+            "uid": "4aaf96d418c9a51fac457fd4b5fe9c19",
+            "username": "miguelquinon"
+        },
+        "service": {
+            "hostname": "miqu.me",
+            "protocol": "http:"
+        },
+        "type": "web_service_binding",
+        "version": 1
+    },
+    "client": {
+        "name": "keybase.io go client",
+        "version": "1.0.17"
+    },
+    "ctime": 1473072408,
+    "expire_in": 504576000,
+    "merkle_root": {
+        "ctime": 1473072308,
+        "hash": "7fa431c047e1f14daa75c68b25b65de170b092b7e8d27ac322a38569759996a9a0ee8e45ded16bbb0ac9d42f73cbe3d82339b150aa6a9fa258e069c4db84e208",
+        "seqno": 619138
+    },
+    "prev": "2dbc79dc62f20e9d6e182d629a0f2c6a4357307e9a7f6d7a7d2578485f6c9a01",
+    "seqno": 6,
+    "tag": "signature"
+}
+
+which yields the signature:
+
+hKRib2R5hqhkZXRhY2hlZMOpaGFzaF90eXBlCqNrZXnEIwEgC5LMj8ItXoRFCW1zNwyKg0U/Haehb1ERsPrdxxNiY48Kp3BheWxvYWTFAvJ7ImJvZHkiOnsia2V5Ijp7ImVsZGVzdF9raWQiOiIwMTIwMGI5MmNjOGZjMjJkNWU4NDQ1MDk2ZDczMzcwYzhhODM0NTNmMWRhN2ExNmY1MTExYjBmYWRkYzcxMzYyNjM4ZjBhIiwiaG9zdCI6ImtleWJhc2UuaW8iLCJraWQiOiIwMTIwMGI5MmNjOGZjMjJkNWU4NDQ1MDk2ZDczMzcwYzhhODM0NTNmMWRhN2ExNmY1MTExYjBmYWRkYzcxMzYyNjM4ZjBhIiwidWlkIjoiNGFhZjk2ZDQxOGM5YTUxZmFjNDU3ZmQ0YjVmZTljMTkiLCJ1c2VybmFtZSI6Im1pZ3VlbHF1aW5vbiJ9LCJzZXJ2aWNlIjp7Imhvc3RuYW1lIjoibWlxdS5tZSIsInByb3RvY29sIjoiaHR0cDoifSwidHlwZSI6IndlYl9zZXJ2aWNlX2JpbmRpbmciLCJ2ZXJzaW9uIjoxfSwiY2xpZW50Ijp7Im5hbWUiOiJrZXliYXNlLmlvIGdvIGNsaWVudCIsInZlcnNpb24iOiIxLjAuMTcifSwiY3RpbWUiOjE0NzMwNzI0MDgsImV4cGlyZV9pbiI6NTA0NTc2MDAwLCJtZXJrbGVfcm9vdCI6eyJjdGltZSI6MTQ3MzA3MjMwOCwiaGFzaCI6IjdmYTQzMWMwNDdlMWYxNGRhYTc1YzY4YjI1YjY1ZGUxNzBiMDkyYjdlOGQyN2FjMzIyYTM4NTY5NzU5OTk2YTlhMGVlOGU0NWRlZDE2YmJiMGFjOWQ0MmY3M2NiZTNkODIzMzliMTUwYWE2YTlmYTI1OGUwNjljNGRiODRlMjA4Iiwic2Vxbm8iOjYxOTEzOH0sInByZXYiOiIyZGJjNzlkYzYyZjIwZTlkNmUxODJkNjI5YTBmMmM2YTQzNTczMDdlOWE3ZjZkN2E3ZDI1Nzg0ODVmNmM5YTAxIiwic2Vxbm8iOjYsInRhZyI6InNpZ25hdHVyZSJ9o3NpZ8RADPiYdEf2mlBR7k6+g/+81R9HDRAw+c4vSc9NbsEP8BY9GjTzmXOkLHGm9Kb2bKvKEXoWopuAcyCDHBZ58wZbA6hzaWdfdHlwZSCkaGFzaIKkdHlwZQildmFsdWXEIGeMLIxzvYzi08AgXWj4kq83xGZWozmd1Ar52fLXt8GYo3RhZ80CAqd2ZXJzaW9uAQ==
+
+And finally, I am proving ownership of this host by posting or
+appending to this document.
+
+View my publicly-auditable identity here: https://keybase.io/miguelquinon
+
+==================================================================
