@@ -3,7 +3,7 @@ layout: post
 title: "Controlling time in the app"
 date: 2016-10-26 19:38:37 +0100
 comments: true
-categories: tips, ios, tools
+categories: tips ios tools
 ---
 
 Today I want to share a small utility we've been using for a while at [Peak][peak], my current workplace, to control the time inside the application and save time while testing or debugging.
