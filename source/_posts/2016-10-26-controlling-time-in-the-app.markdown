@@ -40,9 +40,9 @@ The traditional way to test this kind of interactions is to change the date on t
 
 ## Time travel
 
-To control the time from a debugging menu in the application, we used a library called [TUDelorean][tudelorean]. This library does some runtime method substitutions to trick any user of `Date` to a date that is no longer tied to the system, but controlled by us. This class is intended to used for unit tests, and that's how I've used it before. But you can also use it inside your app for testing purposes, and shift the time all the code, even system code, sees.
+To control the time from a debugging menu in the application, we used a library called [TUDelorean][tudelorean]. This library does some runtime method substitutions to trick any user of `Date` to a date that is no longer tied to the system, but controlled by us. This class is intended to used for unit tests, and that's how I've used it in the past. But you can also use it inside your app for testing purposes, and offset the time all the code, even system code, sees.
 
-You can build a small in-app debugging menu where you can specify the amount of time to shift from the system date, and trigger the update through the library while you run the app.
+You can build a small in-app debugging menu where you can specify the amount of time to move from the system date, and trigger the update through the library while you run the app.
 
 Shifting the time is very easy:
 ```swift
