@@ -10,7 +10,7 @@ Today I want to share a small utility we've been using for a while at [Peak][pea
 
 <!-- more -->
 
-In most application code you'll eventually end up with tasks that need to execute periodically, or after some time has passed. The periods of time will depend on the actual feature of the application, and might change from the order of seconds to days. For example, you might have a data cleanup every 30 days, your application might ping a backend for synchronization every 10 minutes, or by the start of every day, some data needs to be generated and presented to the user.
+In most application code you'll eventually end up with tasks that need to execute periodically, or after some time has passed.  The period of time will depend on the actual application requirements, and might change from the order of seconds to days. For example, you might have a data cleanup every 30 days, your application might ping a backend for synchronization every 10 minutes, or by the start of every day, some data needs to be generated and presented to the user.
 
 ## Foundation and dates
 
