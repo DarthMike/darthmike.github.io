@@ -51,7 +51,7 @@ let futureDate: Date // Calculate your future date here
 TUDelorean.timeTravel(to: futureDate)
 ```
 
-After this, any code calling `Date` will be handled a fake date not tied to the system anymore. With this you can influence your components, and even trigger application events. For example, if you move your date a day forward, the system will emit `UIApplicationSignificantTimeChange` as if a real new day passed in the system clock. This is very useful because you'll be able to test integrations otherwise impossible from unit tests.
+After this, any code calling `Date` will be handled a fake date not tied to the system anymore. If you build this testing facility, you can also trigger events on behalf of the system, just to test your assumptions. For example, if you move your date a day forward, you can emit `UIApplicationSignificantTimeChange` as if a real new day passed in the system clock. This is very useful because you'll be able to test integrations otherwise impossible from unit tests.
 
 When you're done with testing, and want to return to your 'current' system date, just reset it with the provided method:
 ```swift
