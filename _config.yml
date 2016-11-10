@@ -3,7 +3,9 @@
 # ----------------------- #
 
 
-url: http://DarthMike.github.io
+url: https://miqu.me
+enforce_ssl: miqu.me
+
 title: Miguel's blog
 subtitle: "var blog = Human.write()"
 author: Miguel Angel Quiñones
