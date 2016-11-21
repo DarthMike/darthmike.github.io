@@ -6,9 +6,9 @@ comments: true
 categories: tips tools swift localization
 ---
 
-Last thursday I gave a talk at [NSLondon meetup][NSLondon] called 'Minimum Viable Tooling'. The topic was examples of approaching tooling and automation in a small case for small teams. All real examples of what we do at [Peak][Peak], where I currently work. One of the things people showed interest in and asked more afterwards was how we deal with localizations.
+Last thursday I gave a talk at [NSLondon meetup][NSLondon] called 'Minimum Viable Tooling'. The topic was examples of approaching tooling and automation for small teams. I showed real examples of what we do at [Peak][Peak], where I currently work. One of the things people showed interest in after the talk was how we deal with localizations.
 
-In this post I will replicate the simple solution from scratch, so you can follow along and implement it for your own projects. And we will be using Swift for the scripting, just because we can!
+In this post I will replicate the simple solution from scratch, so you can follow along and get started with your own projects. And we will be using Swift for the scripting, just because we can!
 
 <!-- more -->
 
@@ -110,13 +110,13 @@ let task = session.dataTask(with: spreadsheetURL) { data, response, error in
 task.resume()
 ```
 
-The only thing worthy of note is using `PlaygroundSupport` to enable asynchrous execution. All the other code is straightforward use of `URLSesssion` to parse JSON. All that is left is converting the playground to a script. The script doesn't save contents to any file, because when running in playground we're constrained to the sandbox. When moving to a script we can generate the folders and files as appropiate for our application. We're not going to do all these finishing touches for this example, but it's very simple indeed.
+The only thing worthy of note is using `PlaygroundSupport` to enable asynchrous execution. All the other code is straightforward use of `URLSesssion` to parse JSON. All that is left is converting the playground to a script. The script doesn't save contents to any file, because when running in playground we're constrained to the sandbox. When moving to a script we can generate the folders and files as appropiate for our application. We're not going to do all these finishing touches now, but it's very simple to continue from here.
 
-It only took me 1 hours to setup, and considering I had to search how to use `PlaygroundSupport`, I would say it's very quick to implement!
+It only took me 1 hours to setup, and considering I had to look up how to use `PlaygroundSupport`, I would say it's very quick to implement!
 
 # Caveats
 
-With this approach we can quickly build automation around localizations, and we can share the spreadsheet with our translators. This example spreadhseet does not contain strings with placeholders (for example: `"WELCOME_MESSAGE" = "Hello %@!"`). This will require handling validation, because the translators can (and will) make mistakes when writing their new strings. In a later post I will elaborate the required validation of strings with placeholders, and how we can reduce human errors with human-readable tokens.
+With this approach we can quickly build automation around localizations, and we can share the spreadsheet with our translators. This example spreadsheet does not contain strings with placeholders (for example: `"WELCOME_MESSAGE" = "Hello %@!"`). This will require handling validation, because the translators can - and will - make mistakes when writing their new strings. In a later post I will elaborate the required validation of strings with placeholders, and how we can reduce errors with human-readable tokens.
 
 I hope this is useful to you.
 
