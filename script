@@ -1,0 +1,90 @@
+#!/usr/bin/swift
+
+import Foundation
+import Dispatch
+
+typealias RawLocalizationData = [[String:String]]
+
+extension URLSession {
+    func synchronousDataTask(with url: URL, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void ) {
+        let semaphore = DispatchSemaphore(value: 0)
+
+        var responseData: Data?
+        var theResponse: URLResponse?
+        var theError: Error?
+
+        URLSession.shared.dataTask(with: url) { (data, response, error) -> Void in
+            responseData = data
+            theResponse = response
+            theError = error
+
+            semaphore.signal()
+
+            }.resume()
+
+        _ = semaphore.wait(timeout: .distantFuture)
+
+        completionHandler(responseData, theResponse, theError)
+    }
+}
+
+struct Entry {
+    var key: String
+    var value: String
+}
+
+struct Localization {
+    var languageKey: String
+    var entries: [Entry]
+}
+
+extension Localization {
+    func export() -> [String] {
+        return entries.map { entry in
+            let value = entry.value.characters.count > 0 ? entry.value : "NOT_TRANSLATED"
+            return "\"\(entry.key)\" = \"\(value)\""
+        }
+    }
+}
+
+func findLanguages(in data: RawLocalizationData) -> [String] {
+    guard let firstEntry = data.first else { return [] }
+    assert(firstEntry["key"] != nil)
+    let languages = firstEntry.keys.filter { $0 != "key" }
+    return languages.map { $0 }
+}
+
+func parse(_ data: RawLocalizationData) -> [Localization] {
+    let languages = findLanguages(in: data)
+    var localizations = [String:Localization]()
+
+    for entry in data {
+        let key = entry["key"] ?? "__ERROR__NO_KEY__"
+        let values = languages.map { (language: $0, entry: Entry(key: key, value: entry[$0]!)) }
+        for value in values {
+            var localization = localizations[value.language] ?? Localization(languageKey: value.language, entries: [])
+            localization.entries.append(value.entry)
+            localizations[value.language] = localization
+        }
+    }
+
+    print(localizations)
+    return localizations.values.map { $0 }
+}
+
+func write(_ localizations: [Localization]) {
+    for localization in localizations {
+        print(localization.export().joined(separator: "\n"))
+    }
+}
+
+let spreadsheetURL = URL(string: "https://sheetsu.com/apis/v1.0/a96943d37c32", relativeTo: nil)!
+
+let session = URLSession.shared
+session.synchronousDataTask(with: spreadsheetURL) { data, response, error in
+    guard let data = data else { print("Error"); return }
+
+    let json = try? JSONSerialization.jsonObject(with: data, options: []) as! RawLocalizationData
+    let localizations = parse(json ?? [])
+    write(localizations)
+}
