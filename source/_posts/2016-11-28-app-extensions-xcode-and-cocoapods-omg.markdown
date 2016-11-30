@@ -33,6 +33,13 @@ Since the introduction of [Application extensions][app-extensions] several years
 @property(class, nonatomic, readonly) UIApplication *sharedApplication NS_EXTENSION_UNAVAILABLE_IOS("Use view controller based solutions where appropriate instead.");
 ```
 
+or in Swift:
+
+```swift
+@available(iOSApplicationExtension, unavailable)
+open class var shared: UIApplication { get }
+```
+
 Apple is using a new macro, `NS_EXTENSION_UNAVAILABLE_IOS` to mark API as unavailable. There's a new setting on Xcode, `APPLICATION_EXTENSION_API_ONLY`, and if set, the code will not compile if it contains a call to `sharedApplication`. This setting is automatically enabled for extension targets so you get the error in your code when you are writing it.
 
 Writing separate code for an App target and and extension target is not an issue. You just don't use the unavailable API in the extension. But what about reusable libraries?
@@ -57,6 +64,10 @@ So you can't compile, you can't just disable all unavailable API for your main A
 
 Hopefully this writeup will help you find the solution to your problem (and understand it) if you ever face it. Kudos for the CocoaPods team to offer support on these issues. We're always catching up with Apple after they break (again) Xcode.
 
+# A note about Swift
+
+I've found an issue created for Swift, [SR-1226][swift-issue], that is still unresolved and might cause you problems. It seems that as of now, marking API as unavailable for extensions in Swift still doesn't let you compile for App extensions. So be aware of this limitation.
+
 [app-extensions]: https://developer.apple.com/library/content/documentation/General/Conceptual/ExtensibilityPG/index.html
 [afnetworking]: https://github.com/AFNetworking/AFNetworking/blob/master/UIKit%2BAFNetworking/AFNetworkActivityIndicatorManager.h#L44
 [pincache]: https://github.com/pinterest/PINCache/pull/72
@@ -64,3 +75,4 @@ Hopefully this writeup will help you find the solution to your problem (and unde
 [neonacho]: https://twitter.com/neonacho
 [example]: https://github.com/snowplow/snowplow-objc-tracker/blob/86c1049e960f72966ed61faa8824dbf1a73840f4/Snowplow/OpenIDFA.m#L48-L52
 [1.1.0]: http://blog.cocoapods.org/CocoaPods-1.1.0/
+[swift-issue]: https://bugs.swift.org/browse/SR-1226
