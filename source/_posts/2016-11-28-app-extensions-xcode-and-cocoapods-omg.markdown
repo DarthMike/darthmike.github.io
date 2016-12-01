@@ -52,7 +52,7 @@ But then, there might be code that is executing a different code path when compi
 
 # Enter CocoaPods
 
-The problem comes with the integration with CocoaPods, as they (correctly) deduplicate targets. This means that you'll compile the library once (say without unavailable API) and link it to your targets. But sometimes you want to compile with usage of unavailable APIs against your main app, and removing unavailable usage against your target. If you want this, you're out of luck as it's not directly supported by Cocoapods.
+The problem comes with the integration with CocoaPods, as they (correctly) deduplicate targets. This means that you'll compile the library once (say without unavailable API) and link it to your targets. But sometimes you want to compile with usage of unavailable APIs against your main app, and removing unavailable usage on the extension. If you want this, you're out of luck as it's not directly supported by Cocoapods.
 
 ## What changed?
 
@@ -60,9 +60,59 @@ Since [Cocoapods 1.1.0][1.1.0], they improved integration with App extensions, a
 
 # Solutions
 
-So you can't compile, you can't just disable all unavailable API for your main App target. What do you do? There is hope! See [this discussion](cocoapods-issue), and you'll see [neonacho][neonacho] suggesting to use a subspec to duplicate the targets. This is a very practical solution, but it requires the library author to modify their podspec.
+So you can't compile, you can't just disable all unavailable API for your main App target. What do you do? There is hope! See [this discussion](cocoapods-issue), and you'll see [neonacho][neonacho] suggests to use a subspec to duplicate the targets. This is a very practical solution, but it requires the library author to modify their podspec.
 
-Hopefully this writeup will help you find the solution to your problem (and understand it) if you ever face it. Kudos for the CocoaPods team to offer support on these issues. We're always catching up with Apple after they break (again) Xcode.
+## Example
+
+Let's see an example for a specific library. I had to fork Snowplow (the library we're using) and add the subspec. If you want to check the real changes, a PR is [here][pr]. Now let's work it out with a fictional example replicating what's required. Say you're owner of `MyLibrary`:
+
+```ruby
+Pod::Spec.new do |s|
+  s.name             = "MyLibrary"
+  # Omitting metadata stuff and deployment targets
+
+  s.source_files = 'MyLibrary/*.{m,h}'
+end
+```
+
+You use unavailable API, so the code conditionally compiles some parts based on a preprocessor macro called `MYLIBRARY_APP_EXTENSIONS`. We declare a subspec, called **Core** with all the code, but the flag off. We make that subspec the default one if user doesn't specify one. Then we'll declare an additional subspec, called **AppExtension** including all the code, but setting the preprocessor macro:
+
+```ruby
+Pod::Spec.new do |s|
+  s.name             = "MyLibrary"
+  # Omitting metadata stuff and deployment targets
+  s.default_subspec = 'Core'
+
+  s.subspec 'Core' do |core|
+    core.source_files = 'MyLibrary/*.{m,h}'
+  end
+
+  s.subspec 'AppExtension' do |ext|
+    ext.source_files = 'MyLibrary/*.{m,h}'
+    # For app extensions, disabling code paths using unavailable API
+    ext.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'MYLIBRARY_APP_EXTENSIONS=1' }
+  end
+end
+```
+
+Then in your application Podfile you'll link against **Core** in your main app target, and against **AppExtension** in your extension, like so:
+
+```ruby
+abstract_target 'App' do
+  # Shared pods between App and extension, compiled with same preprocessor macros
+  pod 'AFNetworking'
+
+  target 'MyApp' do
+    pod 'MyLibrary/Core'
+  end
+
+  target 'MyExtension' do
+    pod 'MyLibrary/AppExtension'
+  end
+end
+```
+
+That's it! [neonacho's][neonacho] suggestion works very well and it's kind of simple. Hopefully this writeup will help you find the solution to your problem (and understand it) if you ever face it. Kudos for the CocoaPods team to offer support on these issues. We're always catching up with Apple after they break (again) Xcode.
 
 # A note about Swift
 
@@ -76,3 +126,4 @@ I've found an issue created for Swift, [SR-1226][swift-issue], that is still unr
 [example]: https://github.com/snowplow/snowplow-objc-tracker/blob/86c1049e960f72966ed61faa8824dbf1a73840f4/Snowplow/OpenIDFA.m#L48-L52
 [1.1.0]: http://blog.cocoapods.org/CocoaPods-1.1.0/
 [swift-issue]: https://bugs.swift.org/browse/SR-1226
+[pr]: https://github.com/snowplow/snowplow-objc-tracker/pull/303
