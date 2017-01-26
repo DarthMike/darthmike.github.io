@@ -47,7 +47,7 @@ Combine `xcodebuild` with [ios-sim][ios-sim] in a `post-checkout` script:
 ```bash
 #!/bin/sh
 set -e
-xcodebuild -arch x86_64 -sdk iphonesimulator10.2 -derivedDataPath ".build" -scheme tintcolortest
+xcodebuild -arch x86_64 -sdk iphonesimulator10.2 -derivedDataPath ".build" -scheme myScheme
 
 ios-sim launch --devicetypeid com.apple.CoreSimulator.SimDeviceType.iPhone-6-Plus .build/Build/Products/Debug-iphonesimulator/myapp.app
 ```
