@@ -59,7 +59,7 @@ extension Localization {
     func export() -> [String] {
         return entries.map { entry in
             let value = entry.value.characters.count > 0 ? entry.value : "NOT_TRANSLATED"
-            return "\"\(entry.key)\" = \"\(value)\""
+            return "\"\(entry.key)\" = \"\(value)\";"
         }
     }
 }
