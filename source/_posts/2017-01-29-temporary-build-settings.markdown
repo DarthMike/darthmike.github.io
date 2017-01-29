@@ -3,7 +3,7 @@ layout: post
 title: "Build settings depending on Xcode version"
 date: 2017-01-29 23:26:54 +0000
 comments: true
-categories: xcode tips
+categories: swift xcode tips
 ---
 
 This weekend I wanted to setup [Precompiled Bridging Headers][headers] for my project. This setting is available in the new Xcode 8.3 beta.  Then building for latest official XCode (8.2.1) the code will not compile because the Swift compiler doesn't recognize it. How do we use different build settings for different Xcode versions? **Only possible with xcconfig files**.
