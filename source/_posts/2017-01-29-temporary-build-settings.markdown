@@ -23,4 +23,4 @@ OTHER_SWIFT_FLAGS = $(OTHER_SWIFT_FLAGS_XCODE_$(XCODE_VERSION_MINOR))
 Full credit to Samantha Marshall's [excellent writeups of xcconfig files][xcconfig]. Take a read, very useful to refer to.
 
 [headers]: https://swift.org/blog/bridging-pch/
-[xcconfig]: [https://pewpewthespells.com/blog/migrating_code_signing.html#working-in-both-worlds]
+[xcconfig]: https://pewpewthespells.com/blog/migrating_code_signing.html#working-in-both-worlds
