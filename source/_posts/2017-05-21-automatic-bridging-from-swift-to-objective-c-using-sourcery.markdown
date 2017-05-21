@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Automatic bridging from Swift to Objective-C using Sourcery"
-date: 2017-04-19 09:55:58 +0100
+date: 2017-05-21 22:30:00 +0100
 comments: true
 categories: tools meta-programming swift Objective-C
 ---
