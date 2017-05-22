@@ -17,4 +17,4 @@ after_script:
 env:
   global:
   - GH_REPO="DarthMike/darthmike.github.io"
-  - secure: SF8l/xWaW2Ucr8BBu9RYseQcCAF0SyrunZjRl4Ud0zZbu3aHBwduFaUYH+K8BQQ29H9i7IcUGzVxZUUraf6VqVNeylzcotWpTi82DqhJEMEtwnV7kMYfxkaEvkoZ23CNcQK3gWbYYL0ceqem/HZKytfEzs5+dOwJpGY5pFlE1lA=
+  - secure: HjpJrszAByX3gw56FWt090RWH6pDBdoQp6yGgEIPeqDHUr+H338orzcz3MBNvuqecbDO1VsNAUIUSwOCrf6f6fXfwgzX7UTVRUpUuRwVrwrNnO+5seudgrUI952wvrXqMIUlM5e6bthobv1w9oS2z2YipNB4eKMAl4aKtkW6Fjo=
