@@ -6,7 +6,7 @@
 url: https://miqu.me
 enforce_ssl: miqu.me
 
-title: miqu.me 
+title: miqu.me
 subtitle: "var blog = Human.write()"
 author: Miguel Angel Quiñones
 #simple_search: https://www.google.com/search
@@ -113,5 +113,7 @@ navigation:
   url: /about/
 - text: 'Games'
   url: /games/
+- text: 'Speaking'
+  url: /speaking/
 
 linkedin_user: 'miguelquinon'
