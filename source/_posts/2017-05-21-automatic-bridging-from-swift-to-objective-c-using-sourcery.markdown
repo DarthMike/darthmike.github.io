@@ -6,7 +6,7 @@ comments: true
 categories: tools meta-programming swift Objective-C
 ---
 
-I recently read a [great post][Bridging-post] by [Benjamin Encz][encz] about bridging Swift to Objective-C by creating bridging types that can be exposed to the older language. I wondered if his idea can be improved and automated using meta-programming with [Sourcery][Sourcery] by [Krzystof Zablocki][zablocki]. The answer is a very impressive ObjC-like uppercase **YES**.
+I recently read a [great article][Bridging-post] by [Benjamin Encz][encz] about bridging Swift to Objective-C by creating bridging types that can be exposed to the older language. I wondered if his idea can be improved and automated using meta-programming with [Sourcery][Sourcery] by [Krzystof Zablocki][zablocki]. The answer is a very impressive ObjC-like uppercase **YES**.
 
 <!-- more -->
 
