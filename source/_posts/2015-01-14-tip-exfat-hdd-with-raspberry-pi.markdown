@@ -36,7 +36,7 @@ So note the location of the partition - in my example **/dev/sda1**.
 Test that you can mount it with *mnt* command:
 ```bash
 mkdir /mnt/PIHDD
-mnt /dev/sda1 /mnt/PIHDD
+mount /dev/sda1 /mnt/PIHDD
 ```
 If you then check the contents they should be visible:
 ```bash
