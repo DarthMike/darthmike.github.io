@@ -6,7 +6,7 @@ comments: true
 categories: swift Objective-C tips xcode
 ---
 
-This year I had the privilege of attending WWDC for the first time. I knew the labs were very important, and I want to share a resolution to fix a problem for our big project at [Peak][peak]: Autocompletion on Swift code was not working most of the time in the IDE. With the help of Apple engineer in the labs we got it sorted, and I wanted to share how to fix it in case you have same issue.
+This year I had the privilege of attending WWDC for the first time. I knew the labs were very important, and I want to share a resolution to fix a problem for our big project at [Peak][peak]: Autocompletion on Swift code was not working most of the time in the IDE, and with the help of an Apple engineer in the labs we got it sorted.
 
 <!-- more -->
 
@@ -26,7 +26,7 @@ For example, a class in some library:
 
 `#import "MyClass.h"`
 
-Code will compile fine but your code completion in Swift side might break because the indexer fails when encountering this file. I'm still unsure if it's because of importing the file somewhere else differently or if it's just a bug in the indexer. Anyway, the way to work around it to fix it (Apple is supposedly aware of this) is to import with the framework or library style, including the path:
+Code will compile fine but your code completion in Swift side might break because the indexer fails when encountering this file. I'm still unsure if it's because of importing the file somewhere else differently or if it's just a bug in the indexer. Anyway, the way to work around it (Apple is supposedly aware of this) is to import with the framework or library style, including the path:
 
 `#import "path-to-library/MyClass.h"`
 
