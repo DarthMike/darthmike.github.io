@@ -62,7 +62,7 @@ DEVELOPER_DIR=/Applications/Xcode.app xcrun swift -frontend -primary-file "/proj
 ```
 
 After running the command, you'll see errors like this one:
-/project/path/My-Bridging-Header.h:10:9: note: in file included from /project/path/My-Bridging-Header.h:10:9: #import "MyClass.h"
+*/project/path/My-Bridging-Header.h:10:9: note: in file included from /project/path/My-Bridging-Header.h:10:9: #import "MyClass.h"*
 
 You now know the headers that need fixing and now can change in the briding header.
 
