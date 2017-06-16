@@ -52,8 +52,17 @@ To investigate the code completion problem:
     - Add "-primary-file" for the file mentioned in "key.sourcefile:"
     - Remove "-Xfrontend" flags
     - Remove "-j<N>" flags
-- Run the command, you'll see errors like:
-path/My-Bridging-Header.h:10:9: note: in file included from path/My-Bridging-Header.h:10:9: #import "MyClass.h"
+
+Juggling the arguments is easier to handle if you copy all the argument list to a file and make it executable by bash, as you would run the script in the file instead of pasting arguments into command line.
+
+Here's example of how the command would look like, for a file "/project/path/myfile.swift". I'm omitting whole argument list, just ilustrating how it would look like.
+
+```bash
+DEVELOPER_DIR=/Applications/Xcode.app xcrun swift -frontend -primary-file "/project/path/myfile.swift" "-module-name" "Peak" "-Onone" "-DDEBUG" "-sdk" "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.3.sdk" "-target" "arm64-apple-ios8.0" <many more>
+```
+
+After running the command, you'll see errors like this one:
+/project/path/My-Bridging-Header.h:10:9: note: in file included from /project/path/My-Bridging-Header.h:10:9: #import "MyClass.h"
 
 You now know the headers that need fixing and now can change in the briding header.
 
