@@ -6,6 +6,8 @@ footer: true
 
 I like to share what I learn here and on the stage.
 
+**Patters for Offline-first Applications**: September 2017 @ [iOSCon Bytes](https://skillsmatter.com/skillscasts/9769-patterns-for-offline-first-applications-with-miguel-angel-quinones)
+
 **Minimal Viable Tooling**: March 2017 @ [iOSCon](https://skillsmatter.com/skillscasts/9600-minimal-viable-tooling),  November 2016 @ [NSLondon](https://www.meetup.com/NSLondon/)
 <iframe src="https://player.vimeo.com/video/193550119" width="640" height="360" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
 
