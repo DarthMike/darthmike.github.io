@@ -8,6 +8,11 @@ categories: swift Objective-C tips xcode
 
 This year I had the privilege of attending WWDC for the first time. I knew the labs were very important, and I want to share a resolution to fix a problem for our big project at [Peak][peak]: Autocompletion on Swift code was not working most of the time in the IDE, and with the help of an Apple engineer in the labs we got it sorted.
 
+**Update on 30/10/2017:**
+
+
+*The issues described here seem to be fixed with latest release version of Xcode 9.0.1 (9A1004). Also the 'internal' menu doesn't seem to be accessible anymore. If you know how to access it I'd love to hear from you!*
+
 <!-- more -->
 
 # The issue
