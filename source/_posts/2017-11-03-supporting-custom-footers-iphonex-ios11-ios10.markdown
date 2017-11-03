@@ -33,11 +33,15 @@ Let's see how we can achieve this with our custom views across OS versions tryin
 
 I will be assuming you use Auto layout, because it's simpler and the modern way to lay out interfaces under iOS. Using manual layout with safe areas is supported but I won't cover it here.
 
-## iOS 11 options: Use 'additionalSafeAreaInsets' or not
+## iOS 11 options
 
-## iOS 10 compatibility
+### Use 'additionalSafeAreaInsets' or not
 
-## Using safe area layout guide
+Along the new APIs related to safe area, there's a new property called `additionalSafeAreaInsets` on `UIViewController`. Setting it on the view controller will allow you to specify the height of the footer (relative to the safe area). It will automatically adjust `safeAreaInsets` in it's view and subviews accordingly, and also modify the `contentInset` of a contained `UIScrollView`.
+
+This property is great for generic container view controllers, like a custom UITabbarController, that you would build yourself. For our case, building a general footer that we can **compose** into our view controllers, it has the tradeoff of only making it available for iOS 11. We would need to handle the iOS 10 case specially.
+
+### Safe area layout guide
 
 # Final solution
 
