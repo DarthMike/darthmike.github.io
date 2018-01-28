@@ -3,7 +3,7 @@ layout: post
 title: Continuously improving with your tools
 date: 2014-10-18 13:17:49 +0100
 comments: true
-categories: productivity cli git
+categories: productivity cli git learning
 ---
 
 Have you ever setup your tools in half an hour? In my opinion, the key to improving your tools is gradually evolving what you use, and how you use them. Here’s what I think about it.
