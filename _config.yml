@@ -32,6 +32,7 @@ email: "miguel@miqu.me"
 root: /
 permalink: /blog/:year/:month/:day/:title/
 source: source
+include: [".well-known"]
 destination: public
 plugins: plugins
 code_dir: downloads/code
