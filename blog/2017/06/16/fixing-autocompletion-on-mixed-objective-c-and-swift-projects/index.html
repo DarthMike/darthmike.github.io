@@ -1,0 +1,299 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Fixing autocompletion on mixed Objective-C and Swift projects - miqu.me</title>
+  <meta name="author" content="Miguel Angel Quiñones">
+
+   
+  <meta name="description" content="Software engineering thoughts">
+  
+  <meta name="keywords" content="">
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://miqu.me/blog/2017/06/16/fixing-autocompletion-on-mixed-objective-c-and-swift-projects">
+  <link href="/favicon.png" rel="icon">
+  <link href='https://fonts.googleapis.com/css?family=Quicksand:300,400' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="miqu.me" type="application/atom+xml">
+  <script src="/js/jquery.js"></script>
+  <script src="/js/bootstrap-collapse.js"></script>
+  <script src="/js/modernizr-2.0.js"></script>
+  <script src="/js/octopress.js" type="text/javascript"></script>
+  <script src="/js/application.js"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="https://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="https://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <div class="navbar navbar-inverse navbar-static-top">
+  	<div class="navbar-inner">
+  	  <div class="container">
+        <a class="btn btn-navbar" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+          <span class="fui-menu-24"></span>
+        </a>
+  	  	<div class="nav-collapse collapse navbar-responsive-collapse" style="height:0;">
+  	      <ul class="nav">
+    
+        <li ><a href="/">Blog</a></li>
+    
+        <li ><a href="/about/">Who?</a></li>
+    
+        <li ><a href="/games/">Games</a></li>
+    
+        <li ><a href="/speaking/">Speaking</a></li>
+    
+</ul>
+
+<ul class="nav pull-right">
+    
+    <li><a href="https://github.com/DarthMike" title="Github Profile"><i class="icon-github-sign social-navbar"></i></a></li>
+    
+    
+    
+    <li><a href="https://linkedin.com/in/miguelquinon" title="Linkedin Profile"><i class="icon-linkedin-sign social-navbar"></i></a></li>
+    
+    
+    <li><a href="https://twitter.com/@miguelquinon" title="Twitter Profile"><i class="icon-twitter-sign social-navbar"></i></a></li>
+    
+    
+    
+    
+
+    
+    <li><a href="mailto:miguel@miqu.me" title="Email"><i class="icon-envelope social-navbar"></i></a></li>
+    
+</ul>
+
+  	    </div>
+  	  </div>
+  	</div>
+  </div>
+  <div class="container" id="main">
+      <div class="row-fluid">
+        <div id="content">
+          <div>
+<article class="hentry" role="article">
+  
+
+  <header>
+  <div class="jumbotron">
+    Fixing Autocompletion on Mixed Objective-C and Swift Projects
+	<h5>
+
+
+
+
+
+
+
+
+  
+
+
+
+<i class="icon-calendar-empty"></i> <time datetime="2017-06-16T22:55:27+00:00" pubdate data-updated="true">16 Jun 2017</time></h5>
+  </div>
+</header>
+  <div class="row-fluid">
+    <div class="span12">
+      <p>This year I had the privilege of attending WWDC for the first time. I knew the labs were very important, and I want to share a resolution to fix a problem for our big project at <a href="http://peak.net">Peak</a>: Autocompletion on Swift code was not working most of the time in the IDE, and with the help of an Apple engineer in the labs we got it sorted.</p>
+
+<p><strong>Update on 30/10/2017:</strong></p>
+
+<p><em>The issues described here seem to be fixed with latest release version of Xcode 9.0.1 (9A1004). Also the &lsquo;internal&rsquo; menu doesn&rsquo;t seem to be accessible anymore. If you know how to access it I&rsquo;d love to hear from you!</em></p>
+
+<!-- more -->
+
+
+<h1>The issue</h1>
+
+<p>If you are using Xcode 8 or Xcode 9 (beta 1 as of this writing), when you have a project with mixed Objective-C and Swift, you might encounters problems with autocompletion inside the Swift code.</p>
+
+<p>We&rsquo;ve had this intermitently and most recent IDE versions made work very difficult as we would not have any autocompletion for our Swift code, or it would work intermitently.</p>
+
+<p>Our gut feeling was that the bridging header had some classes that were causing SourceKit to fail, but we didn&rsquo;t know how to debug the issue nor provide good feedback for Apple to fix it. Our chance came while visiting the labs at the conference, and a very helpful and patient Apple engineer worked with our project to understand what was wrong.</p>
+
+<h1>Bridging header imports</h1>
+
+<p>It turns out that if you import classes from libraries (in our case using CocoaPods) omitting the path may result in Sourcekit unable to index properly.</p>
+
+<p>For example, a class in some library:</p>
+
+<p><code>#import "MyClass.h"</code></p>
+
+<p>Code will compile fine but your code completion in Swift side might break because the indexer fails when encountering this file. I&rsquo;m still unsure if it&rsquo;s because of importing the file somewhere else differently or if it&rsquo;s just a bug in the indexer. Anyway, the way to work around it (Apple is supposedly aware of this) is to import with the framework or library style, including the path:</p>
+
+<p><code>#import "path-to-library/MyClass.h"</code></p>
+
+<h1>How to debug</h1>
+
+<p>The engineer kindly made a wrote up for us the steps to be able to debug this in the future. He also shared how to start Xcode in debug mode. I knew that would be possible, but didn&rsquo;t know how to do it before.</p>
+
+<p>To open Xcode with debug menu, open it from command line with the argument:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>/Applications/Xcode.app/Contents/MacOS/Xcode -ShowDVTDebugMenu YES
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>There&rsquo;s many debugging entries enabled! For our exact problem we&rsquo;re interested in Sourcekit, and the menu entry is i &ldquo;Xcode -> Internal -> SourceKit -> Service Log&rdquo;.</p>
+
+<p>To investigate the code completion problem:</p>
+
+<ul>
+<li>Invoke code-completion, then close the log window</li>
+<li>Open /tmp/sourcekit-service-log.txt</li>
+<li>Search for &ldquo;key.request: source.request.codecomplete&rdquo;</li>
+<li>Get the compiler arguments from &ldquo;key.compilerargs:&rdquo; and create a swift invocation with them:
+
+<ul>
+<li>Add &ldquo;DEVELOPER_DIR=/Applications/Xcode.app xcrun swift -frontend &rdquo; in front of the arguments</li>
+<li>Add &ldquo;-primary-file&rdquo; for the file mentioned in &ldquo;key.sourcefile:&rdquo;</li>
+<li>Remove &ldquo;-Xfrontend&rdquo; flags</li>
+<li>Remove &ldquo;-j<N>&rdquo; flags</li>
+</ul>
+</li>
+</ul>
+
+
+<p>Juggling the arguments is easier to handle if you copy all the argument list to a file and make it executable by bash, as you would run the script in the file instead of pasting arguments into command line.</p>
+
+<p>Here&rsquo;s example of how the command would look like, for a file &ldquo;/project/path/myfile.swift&rdquo;. I&rsquo;m omitting whole argument list, just ilustrating how it would look like.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">DEVELOPER_DIR</span><span class="o">=</span>/Applications/Xcode.app xcrun swift -frontend -primary-file <span class="s2">&quot;/project/path/myfile.swift&quot;</span> <span class="s2">&quot;-module-name&quot;</span> <span class="s2">&quot;Peak&quot;</span> <span class="s2">&quot;-Onone&quot;</span> <span class="s2">&quot;-DDEBUG&quot;</span> <span class="s2">&quot;-sdk&quot;</span> <span class="s2">&quot;/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.3.sdk&quot;</span> <span class="s2">&quot;-target&quot;</span> <span class="s2">&quot;arm64-apple-ios8.0&quot;</span> &lt;many more&gt;
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>After running the command, you&rsquo;ll see errors like this one:
+<em>/project/path/My-Bridging-Header.h:10:9: note: in file included from /project/path/My-Bridging-Header.h:10:9: #import &ldquo;MyClass.h&rdquo;</em></p>
+
+<p>You now know the headers that need fixing and now can change in the briding header.</p>
+
+<h1>Conclusion</h1>
+
+<p>We got a functional IDE once more! Apple is very helpful at the WWDC and it is very good for these and many other questions to be answered or investigated. If you attend the conference anytime, be sure to bring your questions, code, and issues to talk directly with Apple engineers.</p>
+
+<p>I hope this helps anybody that is asking &lsquo;why my autocompletion in Swift broke in Xcode&rsquo;. This might be cause of the issue. The debug menu can be helpful to poke into the internals of the IDE, or just to help Apple fix bugs by providing more detailed logs.</p>
+
+<p>Happy bug hunting!</p>
+
+    </div>
+  </div>
+
+
+
+  <footer>
+    <hr>
+    
+    <div class="row-fluid">
+      
+      <div class="span6">
+        <p class="meta">
+        
+        
+
+
+
+  <a href="/blog/categories/objective-c/"><span class="badge">objective-c</span></a>
+
+  <a href="/blog/categories/swift/"><span class="badge">swift</span></a>
+
+  <a href="/blog/categories/tips/"><span class="badge">tips</span></a>
+
+  <a href="/blog/categories/xcode/"><span class="badge">xcode</span></a>
+
+
+
+
+        </p>
+      </div>
+      
+      <div class="span6 social-sharing">
+        <div class="sharing">
+  <div class="addthis_toolbox addthis_default_style ">
+  
+  
+  <a class="addthis_button_tweet"></a>
+  
+  
+  <a class="addthis_counter addthis_pill_style"></a>
+  </div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
+</div>
+
+      </div>
+      
+      
+    </div>
+    
+    <div class="row-fluid">
+      <div class="span12">
+        <p class="meta">
+          
+            <a class="basic-alignment left" href="/blog/2017/05/21/automatic-bridging-from-swift-to-objective-c-using-sourcery/" title="Previous Post: Automatic bridging from Swift to Objective-C using Sourcery">&laquo; Automatic bridging from Swift to Objective-C using Sourcery</a>
+          
+          
+            <a class="basic-alignment right" href="/blog/2018/01/28/top-5-must-have-technical-books/" title="Next Post: My top 5 must-have technical books">My top 5 must-have technical books &raquo;</a>
+          
+        </p>
+      </div>
+    </div>
+  </footer>
+</article>
+
+</div>
+
+
+
+        </div>
+      </div>
+      <div class="row-fluid">
+        <footer class="footer-page" role="contentinfo">
+          <p>
+  Copyright &copy; 2018 - Miguel Angel Quiñones -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span> - Theme by <a href="http://alexgaribay.com">Alex Garibay</a>
+</p>
+
+
+        </footer>
+      </div>
+  </div>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'https://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

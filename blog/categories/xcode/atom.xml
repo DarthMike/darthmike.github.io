@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: xcode | miqu.me]]></title>
+  <link href="http://miqu.me/blog/categories/xcode/atom.xml" rel="self"/>
+  <link href="http://miqu.me/"/>
+  <updated>2018-11-21T10:05:53+00:00</updated>
+  <id>http://miqu.me/</id>
+  <author>
+    <name><![CDATA[Miguel Angel Quiñones]]></name>
+    <email><![CDATA[miguel@miqu.me]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Fixing autocompletion on mixed Objective-C and Swift projects]]></title>
+    <link href="http://miqu.me/blog/2017/06/16/fixing-autocompletion-on-mixed-objective-c-and-swift-projects/"/>
+    <updated>2017-06-16T22:55:27+00:00</updated>
+    <id>http://miqu.me/blog/2017/06/16/fixing-autocompletion-on-mixed-objective-c-and-swift-projects</id>
+    <content type="html"><![CDATA[<p>This year I had the privilege of attending WWDC for the first time. I knew the labs were very important, and I want to share a resolution to fix a problem for our big project at <a href="http://peak.net">Peak</a>: Autocompletion on Swift code was not working most of the time in the IDE, and with the help of an Apple engineer in the labs we got it sorted.</p>
+
+<p><strong>Update on 30/10/2017:</strong></p>
+
+<p><em>The issues described here seem to be fixed with latest release version of Xcode 9.0.1 (9A1004). Also the &lsquo;internal&rsquo; menu doesn&rsquo;t seem to be accessible anymore. If you know how to access it I&rsquo;d love to hear from you!</em></p>
+
+<!-- more -->
+
+
+<h1>The issue</h1>
+
+<p>If you are using Xcode 8 or Xcode 9 (beta 1 as of this writing), when you have a project with mixed Objective-C and Swift, you might encounters problems with autocompletion inside the Swift code.</p>
+
+<p>We&rsquo;ve had this intermitently and most recent IDE versions made work very difficult as we would not have any autocompletion for our Swift code, or it would work intermitently.</p>
+
+<p>Our gut feeling was that the bridging header had some classes that were causing SourceKit to fail, but we didn&rsquo;t know how to debug the issue nor provide good feedback for Apple to fix it. Our chance came while visiting the labs at the conference, and a very helpful and patient Apple engineer worked with our project to understand what was wrong.</p>
+
+<h1>Bridging header imports</h1>
+
+<p>It turns out that if you import classes from libraries (in our case using CocoaPods) omitting the path may result in Sourcekit unable to index properly.</p>
+
+<p>For example, a class in some library:</p>
+
+<p><code>#import "MyClass.h"</code></p>
+
+<p>Code will compile fine but your code completion in Swift side might break because the indexer fails when encountering this file. I&rsquo;m still unsure if it&rsquo;s because of importing the file somewhere else differently or if it&rsquo;s just a bug in the indexer. Anyway, the way to work around it (Apple is supposedly aware of this) is to import with the framework or library style, including the path:</p>
+
+<p><code>#import "path-to-library/MyClass.h"</code></p>
+
+<h1>How to debug</h1>
+
+<p>The engineer kindly made a wrote up for us the steps to be able to debug this in the future. He also shared how to start Xcode in debug mode. I knew that would be possible, but didn&rsquo;t know how to do it before.</p>
+
+<p>To open Xcode with debug menu, open it from command line with the argument:</p>
+
+<pre><code class="bash">/Applications/Xcode.app/Contents/MacOS/Xcode -ShowDVTDebugMenu YES
+</code></pre>
+
+<p>There&rsquo;s many debugging entries enabled! For our exact problem we&rsquo;re interested in Sourcekit, and the menu entry is i &ldquo;Xcode -> Internal -> SourceKit -> Service Log&rdquo;.</p>
+
+<p>To investigate the code completion problem:</p>
+
+<ul>
+<li>Invoke code-completion, then close the log window</li>
+<li>Open /tmp/sourcekit-service-log.txt</li>
+<li>Search for &ldquo;key.request: source.request.codecomplete&rdquo;</li>
+<li>Get the compiler arguments from &ldquo;key.compilerargs:&rdquo; and create a swift invocation with them:
+
+<ul>
+<li>Add &ldquo;DEVELOPER_DIR=/Applications/Xcode.app xcrun swift -frontend &rdquo; in front of the arguments</li>
+<li>Add &ldquo;-primary-file&rdquo; for the file mentioned in &ldquo;key.sourcefile:&rdquo;</li>
+<li>Remove &ldquo;-Xfrontend&rdquo; flags</li>
+<li>Remove &ldquo;-j<N>&rdquo; flags</li>
+</ul>
+</li>
+</ul>
+
+
+<p>Juggling the arguments is easier to handle if you copy all the argument list to a file and make it executable by bash, as you would run the script in the file instead of pasting arguments into command line.</p>
+
+<p>Here&rsquo;s example of how the command would look like, for a file &ldquo;/project/path/myfile.swift&rdquo;. I&rsquo;m omitting whole argument list, just ilustrating how it would look like.</p>
+
+<pre><code class="bash">DEVELOPER_DIR=/Applications/Xcode.app xcrun swift -frontend -primary-file "/project/path/myfile.swift" "-module-name" "Peak" "-Onone" "-DDEBUG" "-sdk" "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.3.sdk" "-target" "arm64-apple-ios8.0" &lt;many more&gt;
+</code></pre>
+
+<p>After running the command, you&rsquo;ll see errors like this one:
+<em>/project/path/My-Bridging-Header.h:10:9: note: in file included from /project/path/My-Bridging-Header.h:10:9: #import &ldquo;MyClass.h&rdquo;</em></p>
+
+<p>You now know the headers that need fixing and now can change in the briding header.</p>
+
+<h1>Conclusion</h1>
+
+<p>We got a functional IDE once more! Apple is very helpful at the WWDC and it is very good for these and many other questions to be answered or investigated. If you attend the conference anytime, be sure to bring your questions, code, and issues to talk directly with Apple engineers.</p>
+
+<p>I hope this helps anybody that is asking &lsquo;why my autocompletion in Swift broke in Xcode&rsquo;. This might be cause of the issue. The debug menu can be helpful to poke into the internals of the IDE, or just to help Apple fix bugs by providing more detailed logs.</p>
+
+<p>Happy bug hunting!</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Build settings depending on Xcode version]]></title>
+    <link href="http://miqu.me/blog/2017/01/29/temporary-build-settings/"/>
+    <updated>2017-01-29T23:26:54+00:00</updated>
+    <id>http://miqu.me/blog/2017/01/29/temporary-build-settings</id>
+    <content type="html"><![CDATA[<p>This weekend I wanted to setup <a href="https://swift.org/blog/bridging-pch/">Precompiled Bridging Headers</a> for my project. This setting is available in the new Xcode 8.3 beta.  Then building for latest official XCode (8.2.1) the code will not compile because the Swift compiler doesn&rsquo;t recognize it. How do we use different build settings for different Xcode versions? <strong>Only possible with xcconfig files</strong>.</p>
+
+<p>There&rsquo;s an undocumented build setting called <code>XCODE_VERSION_MINOR</code> that we can use here. And after some variable substitution we&rsquo;ll make it work. Here&rsquo;s the gist:</p>
+
+<pre><code class="bash">// Setting for last Xcode
+OTHER_SWIFT_FLAGS_XCODE_0820 = //&lt;previous flags, if any&gt;
+// Setting for Xcode Beta
+OTHER_SWIFT_FLAGS_XCODE_0830 = -enable-bridging-pch
+// Switch configuration based on Xcode version
+OTHER_SWIFT_FLAGS = $(OTHER_SWIFT_FLAGS_XCODE_$(XCODE_VERSION_MINOR))
+</code></pre>
+
+<p>Full credit to Samantha Marshall&rsquo;s <a href="https://pewpewthespells.com/blog/migrating_code_signing.html#working-in-both-worlds">excellent writeups of xcconfig files</a>. Take a read, very useful to refer to.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Reducing the pain of git bisect with Xcode]]></title>
+    <link href="http://miqu.me/blog/2017/01/22/reducing-the-pain-of-git-bisect-with-xcode/"/>
+    <updated>2017-01-22T11:49:01+00:00</updated>
+    <id>http://miqu.me/blog/2017/01/22/reducing-the-pain-of-git-bisect-with-xcode</id>
+    <content type="html"><![CDATA[<p>There&rsquo;s times when you need to investigate regressions in your project, and you don&rsquo;t know have any clue as why something is happening. <a href="https://git-scm.com/docs/git-bisect">Git bisect</a> is the best tool for this cases, but it can be painful to use in non small projects using CocoaPods and Xcode. I want to share what I&rsquo;ve been doing to ease the pain.</p>
+
+<!-- more -->
+
+
+<p>If you never used Git bisect, check this <a href="https://git-scm.com/book/en/v2/Git-Tools-Debugging-with-Git">introduction</a>. The git command performs a <a href="https://en.wikipedia.org/wiki/Binary_search_algorithm">binary search</a> across your repository history, starting from two known commits you provide to the algorithm: &lsquo;Good&rsquo; and &lsquo;Bad&rsquo;. &lsquo;Bad&rsquo; will usually be your last commit, and &lsquo;Good&rsquo; will be a commit back in the history of your repository, when you know the code was working as expected. For every step of the search you need to tell git if a commit is good or bad, either manually or automatically by running a script.</p>
+
+<h1>Pain points</h1>
+
+<p>When we enter the realm of iOS development, there&rsquo;s a some factors that make bisect tedious to use.</p>
+
+<p>If you use CocoaPods, and if you don&rsquo;t check in the &lsquo;Pods&rsquo; directory in source control, every time you change branch or bisect selects a new commit, you might need to run <code>pod install</code> in order to have all dependencies available and compile correctly.</p>
+
+<p>If you are searching for a regression, chances are you don&rsquo;t have an automated test suite, so you&rsquo;ll need to run your app manually and reproduce the issue you are searching for. There will be cases when you&rsquo;re dealing with a bug that needs an app reinstall or needs to run on device to reproduce. To top all this, Xcode will start the long indexing process every time there&rsquo;s changes to the sources due to change of commit, so your computer will start doing lot of work.</p>
+
+<p>All of these nuances makes the process of searching for issues using bisect very tedious and not so &lsquo;magical&rsquo; as it is supposed to be. I&rsquo;ve nevertheless used bisect many times to save time otherwise wasted reading code and navigating breakpoints during long debugging sessions. You just need some patience and the will to automate some stuff.</p>
+
+<h1>Reducing the pain</h1>
+
+<h2>Automate pod install</h2>
+
+<p>If you don&rsquo;t check in the &lsquo;Pods&rsquo; directory in source control, you might want to run <code>pod install</code> after every bisect step, to refresh all dependencies. Make use of git&rsquo;s <code>post-checkout</code> <a href="https://git-scm.com/docs/githooks">hook</a> and just perform the operation automatically. I like to close Xcode while updating pods so it doesn&rsquo;t turn crazy and slows down computer even more than usual:</p>
+
+<pre><code class="bash">#!/bin/sh
+# Script for .git/hooks/post-checkout
+set -e
+osascript -e 'quit app "Xcode"'
+pod install
+open -a Xcode
+</code></pre>
+
+<p>After you say &lsquo;good&rsquo; or &lsquo;bad&rsquo;, bisect chooses another commit, and automatically close Xcode, update dependencies and open Xcode again. You can be more sophisticated and open the current project directly. See this <a href="https://github.com/robbyrussell/oh-my-zsh/blob/57fcee0f1c520a7c5e3aa5e2bde974154cdaf0c3/plugins/xcode/xcode.plugin.zsh">example</a>.</p>
+
+<h2>Automate build and run</h2>
+
+<p>As I&rsquo;ve mentioned before, if you end up doing a bisect in the codebase you don&rsquo;t have unit tests covering the issue, or any other kind of regression suite covering the issue. You&rsquo;ll need to manually run the project and reproduce the bug. You can still automate the building and running, so you just need to wait to reproduce, and tell git if the commit was good or bad.</p>
+
+<p>Combine <code>xcodebuild</code> with <a href="https://github.com/phonegap/ios-sim">ios-sim</a> in a <code>post-checkout</code> script:</p>
+
+<pre><code class="bash">#!/bin/sh
+set -e
+xcodebuild -arch x86_64 -sdk iphonesimulator10.2 -derivedDataPath ".build" -scheme myScheme
+
+ios-sim launch --devicetypeid com.apple.CoreSimulator.SimDeviceType.iPhone-6-Plus .build/Build/Products/Debug-iphonesimulator/myapp.app
+</code></pre>
+
+<p>Here we force a simulator-only build and run it straight away so you can do your painful manual testing. You can combine the update of dependencies to just leave reproducing the issue and feedback as manual steps in the process.</p>
+
+<h2>Repository discipline</h2>
+
+<p>In order to be able to bisect faster and achieve meaningful results there&rsquo;s some practices to follow in your commits:</p>
+
+<ul>
+<li><strong>Granular commits are better</strong>: Smaller commits will make results of bisect more useful as the commit will have small changes, and will be easier to determine the source of the problem.</li>
+<li><strong>Ensure every commit compiles</strong>: It will make a potential bisect easier by not struggling with commits that need to be fixed before tested</li>
+<li><strong>Check in CocoaPods</strong>: There&rsquo;s many <a href="https://www.dzombak.com/blog/2014/03/including-pods-in-source-control.html">advantages some disadvantages</a> of keeping Pods in the repository. And one advantage will be the code compiles as-is without need of fetching dependencies.</li>
+<li><strong>Write meaningful commits</strong>: This should be general practice in the team, but a meaningful commit might tell you what went wrong without even looking at the code, and will help teammates understand your changes.</li>
+</ul>
+
+
+<h1>Use bisect</h1>
+
+<p>Everybody makes mistakes, and there will be the time when you&rsquo;ll be the one tasked to find out why something is not working, with no clue whatsoever of why. This is the time to think about using <code>git bisect</code>. It can be tedious under iOS projects, but you can ease the pain by automating some bits of the process and some patience.</p>
+
+<p>And if you find finally find a commit of your 1-month younger self, you&rsquo;ll thank yourself if you wrote a meaningful commit message.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Xcode 8: New build settings and analyzer improvements]]></title>
+    <link href="http://miqu.me/blog/2016/07/31/xcode-8-new-build-settings-and-analyzer-improvements/"/>
+    <updated>2016-07-31T20:50:16+00:00</updated>
+    <id>http://miqu.me/blog/2016/07/31/xcode-8-new-build-settings-and-analyzer-improvements</id>
+    <content type="html"><![CDATA[<p>I always like to check the new build settings and analyzer improvements of every Xcode release. And this year&rsquo;s main release includes a couple of goodies. Let&rsquo;s check them out!</p>
+
+<!-- more -->
+
+
+<h1>Analyzer improvements</h1>
+
+<p>From the current Xcode 8 beta 3 <a href="http://adcdownload.apple.com/Developer_Tools/Xcode_8_beta_3/Release_Notes_for_Xcode_8_beta_3.pdf">release notes</a>:</p>
+
+<h2>&lsquo;Misuse of null&rsquo; or CLANG_ANALYZER_NONNULL</h2>
+
+<blockquote><p>The static analyzer check for nullability violations supports both aggressive and less aggressive levels
+of checking. The more aggressive level checks for nullability violations in all calls</p></blockquote>
+
+<p>This is a very nice addition for anybody dealing with <em>legacy</em> Objective-C code and audited APIs. So remember to enable the more aggressive setting in your project as it won&rsquo;t be enabled after your upgrade.</p>
+
+<p>Most likely you&rsquo;ll find that some APIs were not used correctly, and you&rsquo;ll get more warnings. You should set it to <code>YES</code> instead of <code>YES_NONAGRESSIVE</code> for the most strict checking.</p>
+
+<p>Remember you can revert (hopefully temporarily) to <code>YES_NONAGRESSIVE</code> so you can make your code compile while you audit the analyzer warnings again.</p>
+
+<h2>New setting: CLANG_ANALYZER_OBJC_DEALLOC</h2>
+
+<blockquote><p>The clang static analyzer now checks for improper cleanup of synthesized instance variables in
+-dealloc methods</p></blockquote>
+
+<p>Possibly a minor one, but remember that the analyzer could give you new false positives in legacy code. I couldn&rsquo;t make it trigger in a test project, so I don&rsquo;t really know what it will warn you about.</p>
+
+<h1>New build settings</h1>
+
+<h2>New setting: SWIFT_ACTIVE_COMPILATION_CONDITIONS</h2>
+
+<blockquote><p>“Active Compilation Conditions” is a new build setting for passing conditional compilation flags to
+the Swift compiler.</p></blockquote>
+
+<p>Previously, we had to declare your conditional compilation flags under <strong>OTHER_SWIFT_FLAGS</strong>, remembering to prepend &ldquo;-D&rdquo; to the setting. For example, to conditionally compile with a <code>MYFLAG</code> value:</p>
+
+<pre><code class="swift">#if MYFLAG
+// do stuff
+#endif
+</code></pre>
+
+<p>The value to add to the setting <code>-DMYFLAG</code></p>
+
+<p>Now we only need to pass the value <code>MYFLAG</code> to the new setting. Time to move all those conditional compilation values!</p>
+
+<h2>New settings: SWIFT_SUPPRESS_WARNINGS and SWIFT_TREAT_WARNINGS_AS_ERRORS</h2>
+
+<blockquote><p>Two new build settings have been added to enable Swift compiler options: -suppress-warnings
+(SWIFT_SUPPRESS_WARNINGS) and -warnings-as-errors (SWIFT_TREAT_WARNINGS_AS_ERRORS).</p></blockquote>
+
+<p>Given the compiler will emit warnings, specially during transition periods to future versions of the language, it&rsquo;s a good idea to turn this setting off temporarily. The default value for both is <code>NO</code>, but I&rsquo;m inclined to turn <strong>SWIFT_TREAT_WARNINGS_AS_ERRORS</strong> directly and solve issues straight away.</p>
+
+<h2>EMBEDDED_CONTENT_CONTAINS_SWIFT is deprecated</h2>
+
+<p>Basically this setting has been deprecated. See what it was doing here in the <a href="https://developer.apple.com/library/ios/qa/qa1881/_index.html">Apple technote</a>. You might encounter problems when building your application so it&rsquo;s worth upgrading to the new setting if you are using it.</p>
+
+<blockquote><p>The new build setting ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES replaces the use of
+EMBEDDED_CONTENT_CONTAINS_SWIFT. This setting indicates that Xcode should always embed
+Swift standard libraries in a target for which it has been set, whether or not the target contains Swift
+code.</p></blockquote>
+
+<p>I&rsquo;m guessing these are changes preparing ahead of a binary compatible Swift 4 release. But otherwise I don&rsquo;t see what the new build setting does differently.</p>
+
+<h1>XCConfig files</h1>
+
+<p>If you&rsquo;re like me and like to use <a href="https://pewpewthespells.com/blog/xcconfig_guide.html">xcconfig files</a> then this new release has some small improvements as well. I&rsquo;m very happy!</p>
+
+<blockquote><p>.xcconfig files support conditional inclusion of other .xcconfig files, using the syntax #include?</p></blockquote>
+
+<p>If you have a use case for this one, please let me <a href="https://twitter.com/miguelquinon">know</a>!</p>
+
+<p>And the last, but not least:</p>
+
+<blockquote><p>Xcode takes build settings set in xcconfig files into account when suggesting updates to your build
+settings.</p></blockquote>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Xcode 7.3 analyzer improvements]]></title>
+    <link href="http://miqu.me/blog/2016/01/21/xcode-7-dot-3-analyzer-improvements/"/>
+    <updated>2016-01-21T20:39:53+00:00</updated>
+    <id>http://miqu.me/blog/2016/01/21/xcode-7-dot-3-analyzer-improvements</id>
+    <content type="html"><![CDATA[<p>The <a href="https://developer.apple.com/xcode/download/">latest xcode beta</a> is available for downloading. There are many improvements, and the usual problems with stuff that stops working&hellip; Ah the love of Apple for it&rsquo;s developers :). But I want to tell you about a feature that caught my attention: <strong>New analyzer settings!</strong></p>
+
+<h1>New analyzer settings</h1>
+
+<p>From the <a href="http://adcdownload.apple.com/Developer_Tools/Xcode_7.3_beta/Xcode_7.3_beta_Release_Notes.pdf">release notes</a>:</p>
+
+<blockquote><p>The static analyzer warns when nil is returned from a method or function with a nonnull return
+type or is passed to a parameter marked nonnull.</p>
+
+<p>The static analyzer checks for common misuses of Objective-C generics.</p>
+
+<p>The static analyzer checks for missing localizability. This check is off by default and can be
+enabled by selecting ‘Yes’ for ‘Missing localizability’ in the &lsquo;Static Analyzer - Generic Issues’ build
+settings.</p></blockquote>
+
+<p>There are 3 new settings related to these new features: CLANG_ANALYZER_NONNULL, CLANG_ANALYZER_OBJC_GENERICS  and CLANG_ANALYZER_LOCALIZABILITY.</p>
+
+<h1>CLANG_ANALYZER_NONNULL and CLANG_ANALYZER_OBJC_GENERICS</h1>
+
+<p>Objective-C continues to get some love! Adding into the changes for <a href="http://miqu.me/blog/2015/04/17/adopting-nullability-annotations/">nullability</a> and <a href="http://miqu.me/blog/2015/06/09/adopting-objectivec-generics/">generics</a>, now the analyzer will start to warn you about usage not in line with your annotations. That&rsquo;s very good news, considering that the compiler checks were a bit lacking. Additional kudos because both settings are enabled by default.</p>
+
+<h1>CLANG_ANALYZER_LOCALIZABILITY</h1>
+
+<p>This is an intriguing one. Let&rsquo;s investigate further; Let&rsquo;s say you have some code where you set a string to a label:</p>
+
+<pre><code class="swift">label.text = @"not-localized";
+</code></pre>
+
+<p>You&rsquo;ll now get a nice analyzer warning: &ldquo;User-facing text should use localized string macro&rdquo;</p>
+
+<p><img src="/images/posts/user-facing-warning.png" alt="warning1" /></p>
+
+<p>But you won&rsquo;t get a warning when the key is not localized. Like:
+<code>swift
+label.text = NSLocalizedString(@"not-localized", nil);
+</code>
+Hey, we can&rsquo;t have everything, but here&rsquo;s my <a href="http://openradar.appspot.com/radar?id=4993758374395904">request for improvement submitted</a>.</p>
+
+<p>Anyway, go ahead and enable these new settings! And use the analyzer!</p>
+]]></content>
+  </entry>
+  
+</feed>

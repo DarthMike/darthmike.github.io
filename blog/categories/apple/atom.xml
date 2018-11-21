@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: apple | miqu.me]]></title>
+  <link href="http://miqu.me/blog/categories/apple/atom.xml" rel="self"/>
+  <link href="http://miqu.me/"/>
+  <updated>2018-11-21T10:05:53+00:00</updated>
+  <id>http://miqu.me/</id>
+  <author>
+    <name><![CDATA[Miguel Angel Quiñones]]></name>
+    <email><![CDATA[miguel@miqu.me]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Adopting Objective-C generics]]></title>
+    <link href="http://miqu.me/blog/2015/06/09/adopting-objectivec-generics/"/>
+    <updated>2015-06-09T21:53:14+00:00</updated>
+    <id>http://miqu.me/blog/2015/06/09/adopting-objectivec-generics</id>
+    <content type="html"><![CDATA[<p>This year in <a href="https://developer.apple.com/wwdc/">WWDC</a>, Apple introduced Objective-C ‘lightweight’ <a href="https://developer.apple.com/library/prerelease/ios/documentation/Swift/Conceptual/BuildingCocoaApps/InteractingWithObjective-CAPIs.html#//apple_ref/doc/uid/TP40014216-CH4-ID35">generics</a> for XCode7. This builds upon the improvements to Objective-C to document the code and improve the interoperability with Swift. I wrote previously about <a href="http://miqu.me/blog/2015/04/17/adopting-nullability-annotations/">nullability annotations</a> and I continue to be delighted by these changes to the language. Here’s what I think.</p>
+
+<!-- more -->
+
+
+<h1>‘Lightweight’ generics</h1>
+
+<p>Let me say it before we begin, the syntax is simple so we will not see (indispensable) sites like <a href="http://fuckingblocksyntax.com/">this one</a>. This addition to the language allows to specify the compile-time type of the objects contained in <strong>collections</strong>. It looks like this:</p>
+
+<pre><code class="objc">@interface Wheel : NSObject
+@property (nonatomic, strong) UIColor *color;
+@end
+
+@interface Vehicle : NSObject
+@property (nonatomic, copy) NSArray&lt;Wheel *&gt; *wheels;
+@end
+</code></pre>
+
+<p>Note the brackets on the declaration of the NSArray property. It lets the compiler check the types of APIs accepting <code>id</code> and it will generate warnings by comparing the pointer types:</p>
+
+<pre><code class="objc">Wheel *wheel = [[Wheel alloc] init];
+wheel.color = [UIColor blackColor];
+
+Vehicle *car = [[Vehicle alloc] init];
+car.wheels = @[wheel];
+
+// All is fine for normal case
+Wheel *w = car.wheels[0];
+UIColor *color = w.color;
+
+// Will generate a warning “Incompatible pointer types initializing ...”
+NSString *str = car.wheels[0];
+</code></pre>
+
+<p>So now you can remove all the pesky comments to tell your colleagues and future self what these collections contain. Be aware that the generated code does not change, as we will see in the next sections.</p>
+
+<p>All Foundation collections support generics: NSArray, NSMutableArray, NSSet, NSMutableSet, NSOrderedSet, NSMutableOrderedSet, NSDictionary, NSMutableDictionary, NSHashTable, NSMapTable.</p>
+
+<h1>Kindof</h1>
+
+<p>The compiler will compare direct pointer types. This works correctly many times, but sometimes you want to still use the behaviour of <code>id</code> but restricted to a base class. This is technically not safe, but is code you that you normally write. In this case you can use <code>kindof</code>. Let’s add a subclass to our previous models. A handy square wheel:</p>
+
+<pre><code class="objc">@interface SquareWheel : Wheel
+@property (nonatomic, assign) double size;
+@end
+</code></pre>
+
+<p>Now that’s how you would use it sometimes, assuming that you will get the subclass:</p>
+
+<pre><code class="objc">SquareWheel *squarewheel = [[SquareWheel alloc] init];    
+squarewheel.size = 10;
+
+Vehicle *car = [[Vehicle alloc] init];   
+car.wheels = @[squarewheel];
+
+// Generates warning, as pointer types do not match.
+SquareWheel *w = car.wheels[0];
+</code></pre>
+
+<p>In this case you can annotate the types with the <code>kindof</code> keyword, to let the compiler know that you want to freely assume that subclasses of the specified type are also valid:</p>
+
+<pre><code class="objc">@interface Vehicle : NSObject
+@property (nonatomic, copy) NSArray&lt;__kindof Wheel *&gt; *wheels;
+@end
+</code></pre>
+
+<h1>In your own code</h1>
+
+<p>You can also annotate APIs in your code. Let’s see an example:</p>
+
+<pre><code class="objc">
+@interface MyDataSource&lt;ObjectType&gt; : NSObject
+- (ObjectType)modelAtIndex:(NSUInteger)index;
+- (void)addModel:(ObjectType)model;
+@end
+
+@interface MyDataSource()
+@property (nonatomic, strong) NSMutableArray *items;
+@end
+
+@implementation MyDataSource
+- (instancetype)init {
+    self = [super init];
+
+    if (self) {
+        _items = [NSMutableArray array];
+    }
+
+    return self;
+}
+
+- (id)modelAtIndex:(NSUInteger)index {
+    return self.items[index];
+}
+
+- (void)addModel:(id)model {
+    [self.items addObject:model];
+}
+
+@end
+</code></pre>
+
+<p>The annotations are only for the API, and then your implementations are normal code. Then using the annotated API the compiler will check the static types:</p>
+
+<pre><code class="objc">MyDataSource&lt;NSString *&gt; *stringDS = [[MyDataSource alloc] init];
+
+// Retrieving and adding strings to the datasource. OK
+[stringDS addModel:@“hi!”];
+NSString *model = [stringDS modelAtIndex:0];
+
+MyDataSource&lt;Vehicle *&gt; *vehicleDS = [[MyDataSource alloc] init];
+
+// Generates warning. Pointer types do not match    
+[vehicleDS addModel:@“Audi”];
+NSString *string = [vehicleDS modelAtIndex:0];
+</code></pre>
+
+<h1>Caveats</h1>
+
+<p>The language didn’t change, and I would argue this is good. Apple didn’t hack it just for this feature. So you can still crash at runtime if your code works around this.</p>
+
+<p>Let’s try to break it. A crashy example:</p>
+
+<pre><code class="objc">    MyDataSource&lt;Vehicle *&gt; *vehicleDS = [[MyDataSource alloc] init];
+// NOTE: Adding NSString in a contrived way. But REAL code is sometimes like that in even more twisted ways ;)
+    NSString *v = @“Audi”;
+    Vehicle *vh = (Vehicle *)v;
+    [vehicleDS addModel:vh];
+
+    Vehicle *crashyVehicle = [vehicleDS modelAtIndex:0];
+// Will crash here, as even though it compiled, actual
+// runtime type is string.
+    if (crashyVehicle.wheels.count) {
+        // Do stuff
+    }
+</code></pre>
+
+<h1>Adopting generics for existing projects</h1>
+
+<p>As with nullability, adopting this language changes will be tedious. I think the best candidates for this are the lower level parts of your code, specially domain and model objects. This will have higher impact on your codebase with the least amount of effort.</p>
+
+<h1>Conclusion</h1>
+
+<p>Objective-C advances to slowly make way to Swift. Apple is going full-steam with Swift and this change is more in favour of that language than of Objective-C itself.</p>
+
+<p>But as many of us need to work with ‘legacy’ Objective-C code, ‘lightweight generics’ is nevertheless a welcomed addition.</p>
+
+<p>I will mention again this is not a full ’generics’ implementation for Objective-C, but rather annotations for the compiler to check your API usage, and intention. It also changes how Swift sees the Objective-C code and improves interoperability between the languages. A win-win situation.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Fragmentation]]></title>
+    <link href="http://miqu.me/blog/2015/05/27/fragmentation/"/>
+    <updated>2015-05-27T14:16:50+00:00</updated>
+    <id>http://miqu.me/blog/2015/05/27/fragmentation</id>
+    <content type="html"><![CDATA[<p>As an iOS developer or Apple-centric developer, <a href="https://developer.apple.com/wwdc/">WWDC</a> is a time of excitement and news. The yearly event at Apple offers many networking opportunities, but most importantly sets the stage for the next year of development in the company&rsquo;s platform. As this year event is closing in, I wanted to write my thoughts on a related, and often overlooked topic; <a href="https://en.wikipedia.org/wiki/Fragmentation_(programming)">fragmentation</a></p>
+
+<!-- more -->
+
+
+<h1>Fragmentation in iOS, really?</h1>
+
+<p>Apple is a unique company   in the tech sector because it controls mostly everything that needs to be done to build a consumer electronics product. One of the company&rsquo;s strengths has always been the tight integration between design, hardware and software.</p>
+
+<p>So one could safely say that, unlike <a href="http://www.android.com/">Android</a>, it&rsquo;s main competitor in the mobile space, iOS does not have such level of fragmentation in hardware and software. This has historically been <a href="http://bgr.com/2013/12/13/android-fragmentation-vs-ios-fragmentation/">one quality</a> when comparing the Operating Systems as a platform to build end user applications. Nevertheless I think that iOS developers need to cope with a different - but still critical - kind of fragmentation.</p>
+
+<h1>Moving fast</h1>
+
+<p>The mobile sector of IT moves very fast. New technologies, APIs, and fast releases are standard. Apple in particular, releases new versions of the iPhone and iPad devices and iOS version every year. A yearly cycle may not seem a short term, but it is short for long-lasting products; the kind of products that are valuable for users and for the people building them.</p>
+
+<p>There are some inconveniences related to moving fast in mobile, in particular in iOS. Let’s see what developers need to cope with every year or in the immediate future.</p>
+
+<h2>Breaking API changes</h2>
+
+<p>You may expect APIs to be deprecated with every iOS version, you can expect replacements to be announced for APIs your application uses. Or new additions and different behaviour for existing APIs. What it means for your code:</p>
+
+<ul>
+<li><p><strong>Increase of software rot</strong>: This entropy and yearly variation of the platform only increases the rate at which your code, specially UI code, becomes <em>legacy</em>.</p></li>
+<li><p><strong>Adopting new APIs takes developer time</strong>: Time that may not be aligned by your product priorities, but time you need to spend to learn and adopt them.</p></li>
+<li><p><strong>Breaking changes</strong>: App developers need to keep support of older iOS versions for some time. Breaking changes, be it API SDK behaviour, mean you potentially need to either rewrite parts of your existing code or maintain different code paths for different OS versions.</p></li>
+</ul>
+
+
+<h2>Bugs</h2>
+
+<p>All software has bugs, this is a fact that every software engineer is acquainted with very early in his career. But moving fast means you can’t just wait for platform releases to be polished; to keep your application compatible, to keep <em>the 5 star ratings coming</em>, you need to support a potentially rough OS release from day (or week) 1. You may even need to provide workarounds in your code to specific bugs in the latest iOS version.</p>
+
+<p>Again this will lead to more entropy to the code, thus increasing the software rot.</p>
+
+<h2>New OS features</h2>
+
+<p>Apple users upgrade their devices fast. This is very good for application developers because you can target the <em>latest and greatest</em>, simplify code, and still be quite confident that your product will be available for the majority of the users in the platform.</p>
+
+<p>The flip-side of this is that users expect the latest features, furthermore they expect them in 3rd party applications. Many times the changes in the OS are not noticeable by users, like <a href="https://developer.apple.com/library/ios/documentation/UserExperience/Conceptual/AutolayoutPG/index.html">autolayout</a>, <a href="https://developer.apple.com/library/ios/documentation/Foundation/Reference/NSURLSession_class/index.html">NSURLSesssion</a> or 64 bit support. But sometimes those additions are noticeable, like support for TouchID, App Extensions, UIKit Dynamics or many changes that UIKit faces every year. Even if some features are not noticeable by users, they will notice the effect they have in an application behaviour. For example adding support for <a href="https://developer.apple.com/library/ios/documentation/iPhone/Conceptual/iPhoneOSProgrammingGuide/BackgroundExecution/BackgroundExecution.html#//apple_ref/doc/uid/TP40007072-CH4-SW5">background fetch</a> requires using NSURLSession and users will notice that content is ready when application is launched.</p>
+
+<p>As the application marketplace is very crowded, any kind of promotion is an opportunity to stand out from the crowd; new OS features are a very prominent way to get featured by Apple by the time the new OS version is released, and it is often used to promote applications. Apple does this on purpose, it’s on the users benefits that all applications converge to using new OS features, and presents the App Store with as positive and unified.</p>
+
+<p>The problem with all this is that many times adding support for these new features is not aligned with your project needs. But you may feel pressure to do it because of the aforementioned reasons. Again we are adding development time, potentially every year.</p>
+
+<h2>More devices</h2>
+
+<p>iOS devices have traditionally been very uniform in terms of screen size, that is, until the trend was broken almost 2 years ago with iPhone 5. Even though the relationship and differences in screen sizes is <em>sane</em> (retina vs non-retina, or just height increase), still, there are differences.</p>
+
+<p>Last year apple introduced a <a href="https://developer.apple.com/library/prerelease/ios/releasenotes/General/WhatsNewIniOS/Articles/iOS8.html#//apple_ref/doc/uid/TP40014205-SW44">new API called ‘Size classes’</a>. This API can be used to provide a more robust and easier way to reuse code, and also to change user interface for different screen sizes or orientations. I would say Apple acknowledged that developers can’t ignore different screen sizes anymore.</p>
+
+<p>I am not considering Apple Watch here, firstly because your application might not need an extension for it, and secondly because you can see it as a different application altogether.</p>
+
+<h1>Swift</h1>
+
+<p>If you are mildly interested in mobile, you have heard of Swift, the new programming language introduced by Apple last year. It has been a wild and bumpy road for early adopters, and the language is still in it’s infancy, even though it’s currently <a href="https://developer.apple.com/library/ios/releasenotes/DeveloperTools/RN-Xcode/Chapters/xc6_release_notes.html#//apple_ref/doc/uid/TP40001051-CH4-SW3">1.2 version</a>.</p>
+
+<p>Developers not adopting the new language now, are slowly facing a kind of technical debt (and knowledge gap) that they will possibly need to pay years from now. Existing projects, if they go down the road of mixed Objective-C and Swift codebases, face adding even more entropy to the code. The impact this has on existing projects can’t be ignored.</p>
+
+<h1>Apples to Apples</h1>
+
+<p>Let me be clear about the take of this post; I&rsquo;m not, in any way, trying to compare Android and iOS. This is not even a fair comparison to begin with.</p>
+
+<p>In my opinion, fragmentation <strong>is</strong> a problem developers in Apple platforms need to cope with, if they want to work on software projects lasting more than a year. It is just faced in a different way. Every year the development team needs to spend resources to keep up with the changes in the platform, and still keeping support for existing OS versions and devices.</p>
+
+<p>These changes are not bad at all, but increase the workload for your project, and sometimes distract from the real business needs of your product. That said, keeping with the changes is generally satisfying for engineers as this is the bread and butter of our work. And for me personally, the pace of change is one of the reasons why I love mobile (and Apple in particular).</p>
+
+<p>I can&rsquo;t wait for what Apple has to say on this year&rsquo;s <a href="https://developer.apple.com/wwdc/">WWDC</a>!</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Apple watch: love it and hate it]]></title>
+    <link href="http://miqu.me/blog/2014/09/11/apple-watch-love-it-and-hate-it/"/>
+    <updated>2014-09-11T21:35:04+00:00</updated>
+    <id>http://miqu.me/blog/2014/09/11/apple-watch-love-it-and-hate-it</id>
+    <content type="html"><![CDATA[<p>Let me confess: I always loved smart watches. I am a geek and I like gadgets, I love to see new features ‘just because they are cool’. I own a Pebble watch and I love it, and I most probably will buy Apple Watch. But I think Apple did not solve the main issue with today’s mobile technology, and Smart watches in particular.</p>
+
+<!-- more -->
+
+
+<h2>It’s all about energy</h2>
+
+<p>My experience with <a href="https://getpebble.com/">Pebble</a> is that it’s really reliable and I can forget I have to charge it, for really some time. It’s true battery can last up to 5 or 6 days. But it’s also true battery can drain in 2 days. And when you need to load your watch at night, or in the middle of the day, then you realise how much of a problem it can be.</p>
+
+<p>Then Apple announced the <a href="http://www.apple.com/watch/">Apple Watch</a>. I must say I love the design. From hardware to software, I think it is very well thought and it has really nice ideas.</p>
+
+<p>But Apple is very good at marketing, and very good at not saying what problems their products may have. Battery? Water proof? Those a very important issues for a smart watch. And it is the <a href="https://www.linkedin.com/pulse/article/20140909222153-10400206-apple-hasn-t-solved-the-smart-watch-dilemma">Smartwatch dilemma</a>. Battery is crucial.</p>
+
+<p>You can ‘tweak’ how much battery your Pebble consumes by removing automatic backlight on motion, or disabling vibrations. You can even save battery by using watch faces which don’t update every second! I’ve seen too much waste on Apple’s demo of this new watch. Too much lovely stuff, 3d smileys in a watch, high-res and colourful display…</p>
+
+<p>When Apple does not mention battery life, it means they still didn’t figure it out. It seems Apple didn’t crack the problem with current smart watches, which is battery life. There was no mention of kinetic battery loading, or solar charging. v1.0 seems to be, battery-wise, as bad as <a href="http://www.android.com/wear/">competitors</a>. I expect battery to last for 10-15 hours, being very optimistic.</p>
+
+<p>On the other hand, I can’t wait till I get my hands on WatchKit…</p>
+]]></content>
+  </entry>
+  
+</feed>

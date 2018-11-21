@@ -1,0 +1,293 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Controlling time in the app - miqu.me</title>
+  <meta name="author" content="Miguel Angel Quiñones">
+
+   
+  <meta name="description" content="Software engineering thoughts">
+  
+  <meta name="keywords" content="">
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://miqu.me/blog/2016/10/26/controlling-time-in-the-app">
+  <link href="/favicon.png" rel="icon">
+  <link href='https://fonts.googleapis.com/css?family=Quicksand:300,400' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="miqu.me" type="application/atom+xml">
+  <script src="/js/jquery.js"></script>
+  <script src="/js/bootstrap-collapse.js"></script>
+  <script src="/js/modernizr-2.0.js"></script>
+  <script src="/js/octopress.js" type="text/javascript"></script>
+  <script src="/js/application.js"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="https://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="https://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <div class="navbar navbar-inverse navbar-static-top">
+  	<div class="navbar-inner">
+  	  <div class="container">
+        <a class="btn btn-navbar" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+          <span class="fui-menu-24"></span>
+        </a>
+  	  	<div class="nav-collapse collapse navbar-responsive-collapse" style="height:0;">
+  	      <ul class="nav">
+    
+        <li ><a href="/">Blog</a></li>
+    
+        <li ><a href="/about/">Who?</a></li>
+    
+        <li ><a href="/games/">Games</a></li>
+    
+        <li ><a href="/speaking/">Speaking</a></li>
+    
+</ul>
+
+<ul class="nav pull-right">
+    
+    <li><a href="https://github.com/DarthMike" title="Github Profile"><i class="icon-github-sign social-navbar"></i></a></li>
+    
+    
+    
+    <li><a href="https://linkedin.com/in/miguelquinon" title="Linkedin Profile"><i class="icon-linkedin-sign social-navbar"></i></a></li>
+    
+    
+    <li><a href="https://twitter.com/@miguelquinon" title="Twitter Profile"><i class="icon-twitter-sign social-navbar"></i></a></li>
+    
+    
+    
+    
+
+    
+    <li><a href="mailto:miguel@miqu.me" title="Email"><i class="icon-envelope social-navbar"></i></a></li>
+    
+</ul>
+
+  	    </div>
+  	  </div>
+  	</div>
+  </div>
+  <div class="container" id="main">
+      <div class="row-fluid">
+        <div id="content">
+          <div>
+<article class="hentry" role="article">
+  
+
+  <header>
+  <div class="jumbotron">
+    Controlling Time in the App
+	<h5>
+
+
+
+
+
+
+
+
+  
+
+
+
+<i class="icon-calendar-empty"></i> <time datetime="2016-10-26T18:38:37+00:00" pubdate data-updated="true">26 Oct 2016</time></h5>
+  </div>
+</header>
+  <div class="row-fluid">
+    <div class="span12">
+      <p>Today I want to share a small utility we&rsquo;ve been using for a while at <a href="http://www.peak.net">Peak</a>, my current workplace, to control the system time inside the application and save time while testing or debugging.</p>
+
+<!-- more -->
+
+
+<p>In most application code you&rsquo;ll eventually end up with tasks that need to execute periodically, or after some time has passed.  The period of time will depend on the actual application requirements, and might change from the order of seconds to days. For example, you might have a data cleanup every 30 days, your application might ping a backend for synchronization every 10 minutes, or by the start of every day, some data needs to be generated and presented to the user.</p>
+
+<h2>Foundation and dates</h2>
+
+<p>You&rsquo;ll eventually use <code>NSDate</code> and <code>NSCalendar</code> (or <code>Date</code> and <code>Calendar</code> in Swift) to calculate when your tasks should be executed. As an example, say you have a task scheduler, and it will run tasks after a specific amount of time passed:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='swift'><span class='line'><span class="k">protocol</span> <span class="n">Task</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">func</span> <span class="n">execute</span><span class="p">()</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="n">Scheduler</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">func</span> <span class="n">schedule</span><span class="p">(</span><span class="n">_</span> <span class="nl">task</span><span class="p">:</span> <span class="n">Task</span><span class="p">,</span> <span class="nl">every</span><span class="p">:</span> <span class="n">TimeInterval</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="c1">// Schedule and save task to run every x seconds</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">func</span> <span class="n">run</span><span class="p">(</span><span class="n">with</span> <span class="nl">date</span><span class="p">:</span> <span class="n">Date</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="c1">// Actually perform the calculations and fire due tasks</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>For this code to be testable it&rsquo;s a very common practice to pass the <code>Date</code> in, as we do in the example above. This will improve testability as the date can be controlled from unit tests, thus isolating the system date from the date the component uses to operate.</p>
+
+<p>But what about the times when you want to check the integration between the code and the system date? What if you want to trigger code that reacts to <code>UIApplicationSignificantTimeChange</code>?</p>
+
+<p>The traditional way to test this kind of interactions is to change the date on the device, be it on iOS directly, or you or computer if running the simulator. But it would be very useful to control the system date and time inside the application without having to change the system date in the device or your computer.</p>
+
+<h2>Time travel</h2>
+
+<p>To control the time from a debugging menu in the application, we used a library called <a href="https://github.com/tuenti/TUDelorean">TUDelorean</a>. This library does some runtime method substitutions to trick any user of <code>Date</code> to a date that is no longer tied to the system, but controlled by us. This class is intended to used for unit tests, and that&rsquo;s how I&rsquo;ve used it in the past. But you can also use it inside your app for testing purposes, and offset the time all the code, even system code, sees.</p>
+
+<p>You can build a small in-app debugging menu where you can specify the amount of time to move from the system date, and trigger the update through the library while you run the app.</p>
+
+<p>Shifting the time is very easy:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='swift'><span class='line'><span class="k">let</span> <span class="nl">futureDate</span><span class="p">:</span> <span class="n">Date</span> <span class="c1">// Calculate your future date here</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">TUDelorean</span><span class="p">.</span><span class="n">timeTravel</span><span class="p">(</span><span class="nl">to</span><span class="p">:</span> <span class="n">futureDate</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>After this, any code calling <code>Date</code> will be handled a fake date not tied to the system anymore. If you build this testing facility, you can also trigger events on behalf of the system, just to test your assumptions. For example, if you move your date a day forward, you can emit <code>UIApplicationSignificantTimeChange</code> as if a real new day passed in the system clock. This is very useful because you&rsquo;ll be able to test integrations otherwise impossible from unit tests.</p>
+
+<p>When you&rsquo;re done with testing, and want to return to your &lsquo;current&rsquo; system date, just reset it with the provided method:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='swift'><span class='line'><span class="n">TUDelorean</span><span class="p">.</span><span class="n">backToThePresent</span><span class="p">()</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Conclusion</h2>
+
+<p>Using a tool designed for unit tests, you can build a small utility that can make your day to day development tasks more effective and less tedious. Here we looked at how controlling the time while running your application is useful, and we used a <a href="https://github.com/tuenti/TUDelorean">library</a> designed for use in unit tests for our in-app debugging usage.</p>
+
+<p>I hope you find this as useful as we&rsquo;ve found it. Suffice to say that it should not be used for more than testing and debugging.</p>
+
+    </div>
+  </div>
+
+
+
+  <footer>
+    <hr>
+    
+    <div class="row-fluid">
+      
+      <div class="span6">
+        <p class="meta">
+        
+        
+
+
+
+  <a href="/blog/categories/ios/"><span class="badge">ios</span></a>
+
+  <a href="/blog/categories/tips/"><span class="badge">tips</span></a>
+
+  <a href="/blog/categories/tools/"><span class="badge">tools</span></a>
+
+
+
+
+        </p>
+      </div>
+      
+      <div class="span6 social-sharing">
+        <div class="sharing">
+  <div class="addthis_toolbox addthis_default_style ">
+  
+  
+  <a class="addthis_button_tweet"></a>
+  
+  
+  <a class="addthis_counter addthis_pill_style"></a>
+  </div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
+</div>
+
+      </div>
+      
+      
+    </div>
+    
+    <div class="row-fluid">
+      <div class="span12">
+        <p class="meta">
+          
+            <a class="basic-alignment left" href="/blog/2016/08/16/knowing-when-to-delete-code/" title="Previous Post: Knowing when to delete code">&laquo; Knowing when to delete code</a>
+          
+          
+            <a class="basic-alignment right" href="/blog/2016/11/19/easy-localizations-management-with-spreadsheets/" title="Next Post: Easy localization management with Google spreadsheets">Easy localization management with Google spreadsheets &raquo;</a>
+          
+        </p>
+      </div>
+    </div>
+  </footer>
+</article>
+
+</div>
+
+
+
+        </div>
+      </div>
+      <div class="row-fluid">
+        <footer class="footer-page" role="contentinfo">
+          <p>
+  Copyright &copy; 2018 - Miguel Angel Quiñones -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span> - Theme by <a href="http://alexgaribay.com">Alex Garibay</a>
+</p>
+
+
+        </footer>
+      </div>
+  </div>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'https://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: cocoapods | miqu.me]]></title>
+  <link href="http://miqu.me/blog/categories/cocoapods/atom.xml" rel="self"/>
+  <link href="http://miqu.me/"/>
+  <updated>2018-11-21T10:05:53+00:00</updated>
+  <id>http://miqu.me/</id>
+  <author>
+    <name><![CDATA[Miguel Angel Quiñones]]></name>
+    <email><![CDATA[miguel@miqu.me]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[App extensions, Xcode and Cocoapods, OMG!]]></title>
+    <link href="http://miqu.me/blog/2016/11/28/app-extensions-xcode-and-cocoapods-omg/"/>
+    <updated>2016-11-28T09:44:54+00:00</updated>
+    <id>http://miqu.me/blog/2016/11/28/app-extensions-xcode-and-cocoapods-omg</id>
+    <content type="html"><![CDATA[<p>Have you encountered this error when upgrading to the latest CocoaPods (1.1.0), or sharing a library between your iOS App and your extension?</p>
+
+<pre><code class="bash">'sharedApplication' is unavailable: not available on iOS (App Extension) - Use view controller based solutions where appropriate instead.
+</code></pre>
+
+<p>If yes, continue reading, as you might have encountered same issue as myself. I&rsquo;ve recently had to upgrade a project to using Cocoapods 1.1.0. Things stopped compiling, and I had to investigate the root cause of the problem. It has to do with iOS App extensions, unavailable APIs and how fragile our tooling is ;).</p>
+
+<!-- more -->
+
+
+<h1>TL;DR</h1>
+
+<ul>
+<li>The first cause of error can be fixed by conditionally compiling with a macro. See example <a href="https://github.com/snowplow/snowplow-objc-tracker/blob/86c1049e960f72966ed61faa8824dbf1a73840f4/Snowplow/OpenIDFA.m#L48-L52">here</a></li>
+<li>It&rsquo;s better if you define whole classes or API unavailable using <code>NS_EXTENSION_UNAVAILABLE_IOS</code></li>
+<li>If you had this error in a 3rd party library you&rsquo;ll need it to be fixed by the author (see below)</li>
+<li>If you are a library author and need to have different code paths via preprocessor macros, read <a href="cocoapods-issue">this thread</a>, and follow the recommendation to create a separated subspec for an extension target</li>
+</ul>
+
+
+<h1>Unavailable API for App extensions</h1>
+
+<p>Since the introduction of <a href="https://developer.apple.com/library/content/documentation/General/Conceptual/ExtensibilityPG/index.html">Application extensions</a> several years ago, Apple has marked some API as unavailable for these targets. For example, <code>sharedApplication</code> from <code>UIApplication</code>:</p>
+
+<pre><code class="objc">@property(class, nonatomic, readonly) UIApplication *sharedApplication NS_EXTENSION_UNAVAILABLE_IOS("Use view controller based solutions where appropriate instead.");
+</code></pre>
+
+<p>or in Swift:</p>
+
+<pre><code class="swift">@available(iOSApplicationExtension, unavailable)
+open class var shared: UIApplication { get }
+</code></pre>
+
+<p>Apple is using a new macro, <code>NS_EXTENSION_UNAVAILABLE_IOS</code> to mark API as unavailable. There&rsquo;s a new setting on Xcode, <code>APPLICATION_EXTENSION_API_ONLY</code>, and if set, the code will not compile if it contains a call to <code>sharedApplication</code>. This setting is automatically enabled for extension targets so you get the error in your code when you are writing it.</p>
+
+<p>Writing separate code for an App target and and extension target is not an issue. You just don&rsquo;t use the unavailable API in the extension. But what about reusable libraries?</p>
+
+<h1>Libraries using unavailable API for extensions</h1>
+
+<p>You might be using several libraries, and some of these might be using unavailable API for extensions. Notably AFNetworking is one of these, check the <a href="https://github.com/AFNetworking/AFNetworking/blob/master/UIKit%2BAFNetworking/AFNetworkActivityIndicatorManager.h#L44">sources</a>. The developer of the library must take care of this in their code, and mark API that is unavailable for extensions because of the usage of restricted system API.</p>
+
+<p>But then, there might be code that is executing a different code path when compiled against an extension, for example <a href="https://github.com/pinterest/PINCache/pull/72">PinCache</a>. If this is the case, the library is forcing you to decide between using unsafe API or not using it. You&rsquo;ll need to define the designated macro in your project to achieve this. See an example <a href="https://github.com/snowplow/snowplow-objc-tracker/blob/86c1049e960f72966ed61faa8824dbf1a73840f4/Snowplow/OpenIDFA.m#L48-L52">here</a>.</p>
+
+<h1>Enter CocoaPods</h1>
+
+<p>The problem comes with the integration with CocoaPods, as they (correctly) deduplicate targets. This means that you&rsquo;ll compile the library once (say without unavailable API) and link it to your targets. But sometimes you want to compile with usage of unavailable APIs against your main app, and removing unavailable usage on the extension. If you want this, you&rsquo;re out of luck as it&rsquo;s not directly supported by Cocoapods.</p>
+
+<h2>What changed?</h2>
+
+<p>Since <a href="http://blog.cocoapods.org/CocoaPods-1.1.0/">Cocoapods 1.1.0</a>, they improved integration with App extensions, and the generated project will enable the flag <code>APPLICATION_EXTENSION_API_ONLY</code> for libraries linking against an extension target. This is correct, but then you&rsquo;ll start seeing compilation errors that can be a bit puzzling. Bear in mind that the code will not compile even if you don&rsquo;t use the offending API. The compiler just complains that there is code that uses unavailable API.</p>
+
+<h1>Solutions</h1>
+
+<p>So you can&rsquo;t compile, you can&rsquo;t just disable all unavailable API for your main App target. What do you do? There is hope! See <a href="cocoapods-issue">this discussion</a>, and you&rsquo;ll see <a href="https://twitter.com/neonacho">neonacho</a> suggests to use a subspec to duplicate the targets. This is a very practical solution, but it requires the library author to modify their podspec.</p>
+
+<h2>Example</h2>
+
+<p>Let&rsquo;s see an example for a specific library. I had to fork Snowplow (the library we&rsquo;re using) and add the subspec. If you want to check the real changes, a PR is <a href="https://github.com/snowplow/snowplow-objc-tracker/pull/303">here</a>. Now let&rsquo;s work it out with a fictional example replicating what&rsquo;s required. Say you&rsquo;re owner of <code>MyLibrary</code>:</p>
+
+<pre><code class="ruby">Pod::Spec.new do |s|
+  s.name             = "MyLibrary"
+  # Omitting metadata stuff and deployment targets
+
+  s.source_files = 'MyLibrary/*.{m,h}'
+end
+</code></pre>
+
+<p>You use unavailable API, so the code conditionally compiles some parts based on a preprocessor macro called <code>MYLIBRARY_APP_EXTENSIONS</code>. We declare a subspec, called <strong>Core</strong> with all the code, but the flag off. We make that subspec the default one if user doesn&rsquo;t specify one. Then we&rsquo;ll declare an additional subspec, called <strong>AppExtension</strong> including all the code, but setting the preprocessor macro:</p>
+
+<pre><code class="ruby">Pod::Spec.new do |s|
+  s.name             = "MyLibrary"
+  # Omitting metadata stuff and deployment targets
+  s.default_subspec = 'Core'
+
+  s.subspec 'Core' do |core|
+    core.source_files = 'MyLibrary/*.{m,h}'
+  end
+
+  s.subspec 'AppExtension' do |ext|
+    ext.source_files = 'MyLibrary/*.{m,h}'
+    # For app extensions, disabling code paths using unavailable API
+    ext.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' =&gt; 'MYLIBRARY_APP_EXTENSIONS=1' }
+  end
+end
+</code></pre>
+
+<p>Then in your application Podfile you&rsquo;ll link against <strong>Core</strong> in your main app target, and against <strong>AppExtension</strong> in your extension, like so:</p>
+
+<pre><code class="ruby">abstract_target 'App' do
+  # Shared pods between App and extension, compiled with same preprocessor macros
+  pod 'AFNetworking'
+
+  target 'MyApp' do
+    pod 'MyLibrary/Core'
+  end
+
+  target 'MyExtension' do
+    pod 'MyLibrary/AppExtension'
+  end
+end
+</code></pre>
+
+<p>That&rsquo;s it! <a href="https://twitter.com/neonacho">neonacho&rsquo;s</a> suggestion works very well and it&rsquo;s kind of simple. Hopefully this writeup will help you find the solution to your problem (and understand it) if you ever face it. Kudos for the CocoaPods team to offer support on these issues. We&rsquo;re always catching up with Apple after they break (again) Xcode.</p>
+
+<h1>A note about Swift</h1>
+
+<p>I&rsquo;ve found an issue created for Swift, <a href="https://bugs.swift.org/browse/SR-1226">SR-1226</a>, that is still unresolved and might cause you problems. It seems that as of now, marking API as unavailable for extensions in Swift still doesn&rsquo;t let you compile for App extensions. So be aware of this limitation.</p>
+]]></content>
+  </entry>
+  
+</feed>

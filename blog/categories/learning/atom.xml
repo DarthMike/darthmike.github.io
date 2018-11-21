@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: learning | miqu.me]]></title>
+  <link href="http://miqu.me/blog/categories/learning/atom.xml" rel="self"/>
+  <link href="http://miqu.me/"/>
+  <updated>2018-11-21T10:05:53+00:00</updated>
+  <id>http://miqu.me/</id>
+  <author>
+    <name><![CDATA[Miguel Angel Quiñones]]></name>
+    <email><![CDATA[miguel@miqu.me]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[My top 5 must-have technical books]]></title>
+    <link href="http://miqu.me/blog/2018/01/28/top-5-must-have-technical-books/"/>
+    <updated>2018-01-28T19:06:09+00:00</updated>
+    <id>http://miqu.me/blog/2018/01/28/top-5-must-have-technical-books</id>
+    <content type="html"><![CDATA[<p>Quite recently a team member wanted to suggest interesting technical books to read for a junior engineer. I figured I might as well write my top 5
+books here, in no particular order. I believe every Software Engineer should own these books, but reading them is a very good start ;)</p>
+
+<!-- more -->
+
+
+<h1>The Pragmatic Programmer: From journeyman to master</h1>
+
+<p>If you have to read just one book, specially when starting to write software, it should be <a href="https://www.amazon.com/Pragmatic-Programmer-Journeyman-Master/dp/020161622X">The Pragmatic Programmer</a>. It covers ideas, always
+focused on self-improvement, mastery of the craft, and professinalism. I see this book as an extended list of ideas and suggestions for self-improvement,
+similar to the <a href="http://www.starling-software.com/employment/programmer-competency-matrix.html">programmer competency matrix</a>. While reading it, it&rsquo;s better to keep growing a list of topics to investigate
+further, as the book covers wildly different practices, ideas, and techniques.</p>
+
+<h1>The Art of Unit Testing</h1>
+
+<p><a href="https://www.amazon.com/Art-Unit-Testing-examples/dp/1617290890">This book</a> opened my eyes into the world of unit testing, from a practical (not philosophical) point of view. It introduced me to practical
+techniques to use in unit testing. Most imporptantly, it helps understand the crucial understanding of the necessity of maintainable test code, and &lsquo;good&rsquo; tests. I think it&rsquo;s the best introductory book on unit testing. Period.</p>
+
+<h1>Seven Languages in Seven Weeks</h1>
+
+<p>More than a book, <a href="https://www.amazon.com/Seven-Languages-Weeks-Programming-Programmers/dp/193435659X">&ldquo;Seven Languages in Seven Weeks&rdquo;</a> is an exploration into wildly different concepts across programming languages.
+It&rsquo;s a book about paradigms, and crucially, sparks the curiosity of why these exist at all. The way that the concepts
+are introduced, focusing on the reasons, advantages, disadvantages and design decisions of a language were very insightful for me. If you don&rsquo;t try
+the proposed challenges the book still will give you a lot of material to think about and to take ideas from.</p>
+
+<h1>Domain-Driven Design</h1>
+
+<p>Most software projects are about tackling complexity, and I must say many projects fail in this regards. <a href="https://www.amazon.com/Domain-Driven-Design-Tackling-Complexity-Software/dp/0321125215">The book</a> taught me how to think about
+the act of writing code in a more abstracted way, as a modelling problem. Eric Evans introduces many concepts that in
+my opinion should be as ubiquitous as the OO Design patterns of the <a href="https://www.amazon.com/Design-Patterns-Elements-Reusable-Object-Oriented/dp/0201633612">Gang of Four book</a>.</p>
+
+<h1>The Algorithm Design Manual</h1>
+
+<p>I prefer <a href="https://www.amazon.com/Algorithm-Design-Manual-Steven-Skiena/dp/1848000693">&ldquo;The Algorithm Design Manual&rdquo;</a> over the canonical <a href="https://www.amazon.com/Introduction-Algorithms-3rd-MIT-Press/dp/0262033844">&ldquo;Introduction to Algorithms&rdquo;</a>, because of the &lsquo;Catalog&rsquo; section. The section focuses on problems first, and acts as an index to get ideas for solutions. This section alone is very helpful, not only for practical reasons, but also to understand motivations and see the breath
+of problems tackled by algorithms.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Continuously improving with your tools]]></title>
+    <link href="http://miqu.me/blog/2014/10/18/continously-improving-with-your-tools/"/>
+    <updated>2014-10-18T12:17:49+00:00</updated>
+    <id>http://miqu.me/blog/2014/10/18/continously-improving-with-your-tools</id>
+    <content type="html"><![CDATA[<p>Have you ever setup your tools in half an hour? In my opinion, the key to improving your tools is gradually evolving what you use, and how you use them. Here’s what I think about it.</p>
+
+<!-- more -->
+
+
+<h1>Continuous improvement</h1>
+
+<p>I like to improve and learn incrementally. This means I start using new tools, improve how I use existing ones, and in the 21st century, working in different computers at different times during the day.</p>
+
+<p>So, I usually find myself in situations where I tweak my config files or I add a new tool to my favourites, and then I customise it a bit. You would expect to have all these new settings across different computers. Wouldn’t it be great if we could automate all this?</p>
+
+<h1>Enter git</h1>
+
+<p>So I decided a while ago to version my config files using git, as many other programmers do nowadays. I like to keep my dotfiles and configuration files for applications I use in the same repo.</p>
+
+<p>I take the approach to hard link dotfiles to my $HOME from my cloned repository. Regarding links, <a href="http://stackoverflow.com/questions/11786623/cant-hard-link-the-gitconfig-file">others have tried it before</a> and you can have problems, specially with .gitconfig. I never had any problem with it, because I edit files manually.</p>
+
+<h1>Remember: There is life after origin</h1>
+
+<p>Sometimes we are used to git origin to be the repo we push code to, or github/bitbucket for our personal or open source projects. But you can do more. I like having those settings stored in Dropbox as a remote for my settings. The advantage is that I don’t have to remember the remote urls of my public source repo, just reference a local disk url, which is usually ~/Dropbox/reponame.</p>
+
+<p>You can setup a new remote in dropbox like this:
+<code>bash
+cd /path/to/dropbox/
+git init --bare myrepo.git
+</code>
+Then from your local repo:
+<code>bash
+git remote add dropbox /path/to/dropbox/myrepo.git
+</code>
+That’s it! You can push to it normally:
+<code>bash
+git push dropbox master
+</code>
+Bonus for push/pull speed, as both repos are local to your machine.</p>
+
+<h1>Conclusion</h1>
+
+<p>So the goal is to improve gradually, because we learn new tools and tweak existing ones. Git can help you with that, and you can take <a href="http://dotfiles.github.io/">many approaches</a> to how you manage your dotiles. Whatever your approach to keeping these settings, it&rsquo;s important to take care of them normally, improve them, tweak them as you use them.
+<br/>
+Spend 20 minutes now to think about how to gradually improve your workflow, and you will be saving hours of time in the long term.</p>
+]]></content>
+  </entry>
+  
+</feed>

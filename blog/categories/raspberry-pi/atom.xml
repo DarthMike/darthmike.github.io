@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: raspberry pi | miqu.me]]></title>
+  <link href="http://miqu.me/blog/categories/raspberry-pi/atom.xml" rel="self"/>
+  <link href="http://miqu.me/"/>
+  <updated>2018-11-21T10:05:53+00:00</updated>
+  <id>http://miqu.me/</id>
+  <author>
+    <name><![CDATA[Miguel Angel Quiñones]]></name>
+    <email><![CDATA[miguel@miqu.me]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[exFat with Raspberry Pi (continued)]]></title>
+    <link href="http://miqu.me/blog/2015/04/14/exfat-with-raspberry-pi-continued/"/>
+    <updated>2015-04-14T21:35:50+00:00</updated>
+    <id>http://miqu.me/blog/2015/04/14/exfat-with-raspberry-pi-continued</id>
+    <content type="html"><![CDATA[<p>I <a href="http://miqu.me/blog/2015/01/14/tip-exfat-hdd-with-raspberry-pi/">wrote</a> a while ago a tip, mostly for my future reference, how to set up a HDD with Raspberry Pi formatted using <a href="https://en.wikipedia.org/wiki/ExFAT">exFat</a>. After more intensive testing on my Samba setup, I&rsquo;ve decided to go back to NTFS as my format of choice.</p>
+
+<!-- more -->
+
+
+<p>I chose <em>exFat</em> over <em>NTFS</em> because at home I have 2 main OSes I use: Windows and OSX. My Windows computer is for historical reasons still used, mainly for gaming, but also for other family members. I have a Macbook as the main tool, so the choices for a common file system are a bit limited: <em>Fat32</em>, <em>NTFS</em>, or <em>exFat</em> as far as I know.</p>
+
+<p>I previously used <em>NTFS</em> on my Raspberry Pi external USB HDD, but I wanted to try <em>exFat</em> and assess the performance; hence that previous <a href="http://miqu.me/blog/2015/01/14/tip-exfat-hdd-with-raspberry-pi/">post</a>.</p>
+
+<p>So for anybody reading this, as of today I don&rsquo;t recommend <em>exFat</em> for your NAS setup. I&rsquo;ve found the <a href="https://packages.debian.org/unstable/main/exfat-fuse">driver implementation</a> to be unstable - it <strong>is</strong> actually labelled as unstable, to the point of having the disk disconnected for no apparent reason, and being forced to restart the Pi.</p>
+
+<p>Let&rsquo;s see if the driver improves in the future.</p>
+
+<h3>EDIT 29/10/2016: Raspbian updated</h3>
+
+<p><a href="https://twitter.com/tienbuiDE">@tienbuiDE</a> recently <a href="https://twitter.com/tienbuide/status/789170927061786625">told me</a> that the installed package with newer Raspbian versions has been marked as <a href="https://packages.debian.org/de/jessie/exfat-fuse">stable</a>. I think this is due to Raspbian being based on newer Debian Jessie (not Wheezy). So it&rsquo;s a good time to test the drive with exFat again!. So please do your tests and see if it works for you. I&rsquo;ll report when I do mine.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Tip: ExFat HDD with Raspberry Pi]]></title>
+    <link href="http://miqu.me/blog/2015/01/14/tip-exfat-hdd-with-raspberry-pi/"/>
+    <updated>2015-01-14T10:11:11+00:00</updated>
+    <id>http://miqu.me/blog/2015/01/14/tip-exfat-hdd-with-raspberry-pi</id>
+    <content type="html"><![CDATA[<p>A few days ago I switched my HDD on my Raspberry Pi to a SSD drive. I use the Pi as a NAS serving files at home and I wanted to use a HDD for music with less storage but more reliability. This drive runs 24/7. I also chose exFat for the filesystem. I write this as a future self-reference, but may be useful for somebody else, so here it goes.</p>
+
+<!-- more -->
+
+
+<p>Steps:</p>
+
+<h2>Find the drive</h2>
+
+<p>First you need to find the drive you want to mount. Run:
+<code>bash
+sudo fdisk -l
+</code></p>
+
+<p>Which will list disk partitions in the system. In my case the interesting bit is:
+<code>bash
+Disk /dev/sda: 240.1 GB, 240057409024 bytes
+</code>
+And this one:</p>
+
+<pre><code class="bash">Disk identifier: 0xb6474e4f
+
+   Device Boot      Start         End      Blocks   Id  System
+/dev/sda1               2   468862126   234431062+   7  HPFS/NTFS/exFAT
+</code></pre>
+
+<p>So note the location of the partition - in my example <strong>/dev/sda1</strong>.</p>
+
+<h2>Mount it manually</h2>
+
+<p>Test that you can mount it with <em>mnt</em> command:
+<code>bash
+mkdir /mnt/PIHDD
+mount /dev/sda1 /mnt/PIHDD
+</code>
+If you then check the contents they should be visible:
+<code>bash
+ls /mnt/PIHDD
+…
+</code></p>
+
+<h2>ExFat</h2>
+
+<p>If you have an exFat drive, mounting will not work, as you need a driver with support for it. On Debian and Raspbian, just install it with the package manager:
+<code>bash
+sudo apt-get install exfat-fuse
+</code></p>
+
+<h2>Mount it automatically</h2>
+
+<p>So you can mount and unmount the USB drive manually. But you can automate it even further so every time you start the Pi, it mounts the drive to the specified location. For this you need the UUID, not just the location, as it could potentially change.
+<code>bash
+sudo blkid
+</code>
+Gives you a list of devices and their UUIDs. Note the one for your partition:
+<code>bash
+/dev/mmcblk0p1: SEC_TYPE="msdos" LABEL="boot" UUID="787C-2FD4" TYPE="vfat"
+/dev/mmcblk0p2: UUID="3d81d9e2-7d1b-4015-8c2c-29ec0875f762" TYPE="ext4"
+/dev/sda1: LABEL="Music" UUID="54AF-0252" TYPE="exfat"
+</code>
+Then last step is to modify the file in /ect/fstab to mount your  partition:
+<code>bash
+UUID=54AF-0252 /mnt/PIHDD exfat defaults,auto,umask=000,users,rw 0 0
+</code></p>
+
+<p>For the meaning of each value run the manual pages, but these are reasonable defaults for home drives.</p>
+
+<p>Now every time the Pi starts it knows how to mount that drive. Also, if you run <em>sudo mount -a</em> command, it will also know how to mount it. Good for quick system maintenance.</p>
+
+<p><strong>EDIT 05/08/2016</strong>:
+I&rsquo;m seen a lot of traffic coming to this post, so I wanted to give a heads up to anybody reading this:
+<strong>I&rsquo;m no longer using ExFat for my Raspberry Pi</strong>. The reasons are in <a href="http://miqu.me/blog/2015/04/14/exfat-with-raspberry-pi-continued/">this post</a>.
+If you want to try it yourself, you&rsquo;re very welcome, and the steps are still valid AFAIK.</p>
+]]></content>
+  </entry>
+  
+</feed>

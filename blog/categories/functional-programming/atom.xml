@@ -1,0 +1,377 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: functional programming | miqu.me]]></title>
+  <link href="http://miqu.me/blog/categories/functional-programming/atom.xml" rel="self"/>
+  <link href="http://miqu.me/"/>
+  <updated>2018-11-21T10:05:53+00:00</updated>
+  <id>http://miqu.me/</id>
+  <author>
+    <name><![CDATA[Miguel Angel Quiñones]]></name>
+    <email><![CDATA[miguel@miqu.me]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Functional programming in the small, with Swift]]></title>
+    <link href="http://miqu.me/blog/2015/09/09/functional-programming-in-the-small-with-swift/"/>
+    <updated>2015-09-09T15:00:23+00:00</updated>
+    <id>http://miqu.me/blog/2015/09/09/functional-programming-in-the-small-with-swift</id>
+    <content type="html"><![CDATA[<p>In a <a href="http://miqu.me/blog/2015/08/31/poor-mans-functional-programming/">previous post</a>, I wrote about the choice of paradigms that Swift presents for it&rsquo;s target audience. I also gave my opinion on how people with different backgrounds might see and approach the Functional Programming paradigm.</p>
+
+<p>In this post I want to share how I started to take advantage of FP with Swift for the practical domain of iOS developers: Building apps.</p>
+
+<!-- more -->
+
+
+<h1>Silver bullets</h1>
+
+<p>In software development there are no silver bullets to kill your problems and move on. We always need to find tradeoffs and evaluate our options to decide what would be the best choice. We often need to consider not only the technical aspects but cultural or team aspects too.</p>
+
+<p>iOS applications involve a great deal of <strong>UI</strong> programming. The iOS frameworks are object-oriented, and Swift is not a pure FP language. Throwing away all the code from Apple&rsquo;s frameworks just to make our code more functional is not a realistic approach.</p>
+
+<p>Thus we need to balance where we want to use from different programming paradigms. For a beginner, or a team with not too much experience with FP, my choice would be doing <a href="http://www.johndcook.com/blog/2009/03/23/functional-in-the-small-oo-in-the-large/">Functional Programming in the small, Object Oriented in the large</a>.</p>
+
+<h1>FP in the small using Swift</h1>
+
+<p>Let&rsquo;s look at the features of Swift and the standard library that help write more &lsquo;functional&rsquo; without having to restructure or change how we build a project.</p>
+
+<h2>Better functions</h2>
+
+<p>One of the first terms you will hear when diving into FP is that functions are <strong>first-class</strong> citizens, or the language supports <strong>higher-order</strong> functions.</p>
+
+<p>What this means is that functions are treated like any other type. Think as functions being treated like objects; They can accept other functions as input, return other functions, and be stored and passed around.</p>
+
+<p>Under this definition Objective-C <em>kind of</em> supports this, but it&rsquo;s lacking in several areas. Firstly, there&rsquo;s a difference between blocks and selectors, the way to use them is different and the syntax is more complex. Secondly, in Swift a closure is a function without name, and they both have the same type, whereas in Objective-C closures can only be expressed with blocks.</p>
+
+<p>A simple example for iOS developers is:</p>
+
+<pre><code class="Swift">func animation() {
+    view.transform = CGAffineTransformMakeScale(0.5, 0.5)
+}
+
+UIView.animateWithDuration(0.4, animations: animation)
+</code></pre>
+
+<p>Or with a closure:
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='Swift'><span class='line'><span class="k">let</span> <span class="n">animation</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">view</span><span class="p">.</span><span class="n">transform</span> <span class="o">=</span> <span class="n">CGAffineTransformMakeScale</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="bp">UIView</span><span class="p">.</span><span class="n">animateWithDuration</span><span class="p">(</span><span class="mf">0.4</span><span class="p">,</span> <span class="nl">animations</span><span class="p">:</span> <span class="n">animation</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p>You couldn&rsquo;t do the first example with Objective-C selectors, specially considering that you can declare a function locally inside another function. The bigger difference for me is that the syntax is very concise and easy to understand. The language also has special handling for trailing closures which is very handy to keep the code readable. A side effect of this is that implementing DSLs using closures is very easy (check my library <a href="https://github.com/DarthMike/SwiftAnimations">SwiftAnimations</a> or Robert Böhnke&rsquo;s <a href="https://github.com/robb/Cartography">Cartography</a>). This might seem a minor point, but in my opinion readability of a programming language is very important.</p>
+
+<h2>Functions (and closures) everywhere</h2>
+
+<p>Functions are everywhere, even disguised sometimes:</p>
+
+<ul>
+<li>Reference and value type methods are functions that take an implicit &lsquo;self&rsquo; first argument</li>
+<li>Computed properties are closures</li>
+<li>Lazy variables are defined with a closure</li>
+</ul>
+
+
+<p>Given that functions are everywhere my first recommendation is that you should learn to read and understand the signature. This is specially important when generics are involved, which is a very fundamental part of the language.</p>
+
+<p>A function signature conveys two crucial bits of information:</p>
+
+<ul>
+<li>The <strong>shape</strong> it has, so it can be used somewhere else where another function expects same signature</li>
+<li><strong>What</strong> the function does. In some cases, specially in the standard library, reading the name and understanding the signature of a function, you can infer what it does. I don&rsquo;t think it replaces documentation but it&rsquo;s a big helper when reading code.</li>
+</ul>
+
+
+<p>For example take the definition of map for optionals in Swift 2.0 standard library (T is the generic type of the optional itself):</p>
+
+<pre><code class="swift">/// If `self == nil`, returns `nil`.  Otherwise, returns `f(self!)`.
+    func map&lt;U&gt;(f: @noescape (T) -&gt; U) -&gt; U?
+</code></pre>
+
+<p>Just looking at the declaration, specifically focusing on it&rsquo;s signature, we could say that mapping the optional returns an optional of different type, based on the function we pass in, that transforms between the two types.</p>
+
+<p>Even though <strong>Swift compiler does not guarantee functions are pure</strong>, so we could be accessing the network, reading disk or returning nil for every input value, we can tell a lot from a function signature.</p>
+
+<h2>Elementary functions</h2>
+
+<p>Given that FP is about functions, many programming languages offer similar &lsquo;basic&rsquo; basic ones which are the building blocks of more complex logic. Understanding and knowing how to use these can make you start applying a more functional style across all your code easily.</p>
+
+<blockquote><p><strong>Swift 2.0</strong>: Many of the free functions in the standard library have been moved to methods in types or generic protocols. This is more in line with Apple&rsquo;s &lsquo;Protocol Oriented Programming&rsquo;, but the fundamentals of FP are still the same. You can see see those methods as if they were namespaced functions by the type, rather than global functions overloaded for specific types.</p></blockquote>
+
+<p>Learn how the basic functions work, and how you can apply them to your day to day code:</p>
+
+<ul>
+<li>Map</li>
+<li>Filter</li>
+<li>Reduce</li>
+<li>flatMap</li>
+</ul>
+
+
+<p><a href="https://twitter.com/HarlanKellaway">Harken Hallway</a> wrote an <a href="http://harlankellaway.com/blog/2015/08/10/swift-functional-programming-intro">excellent post</a> that gives practical introduction to some of them.</p>
+
+<p>Here are some ways I&rsquo;ve changed my programming style by using those more often. It generally boils down to avoiding &lsquo;if&rsquo; statements and loops:</p>
+
+<pre><code class="Swift">// Map for... mapping. You might be surprised how many times you might need this simple concept
+
+struct MyDataModel {
+    // Your app model values
+}
+
+class MyViewModel {
+    init(model: Model) {
+        self.model = model
+    }
+    // ViewModel logic/presentation values
+    private let model: MyDataModel
+}
+
+let models: [MyDataModel] //Read from somewhere, maybe DB or remote
+let viewModels = models.map(MyViewModel.init)
+</code></pre>
+
+<pre><code class="Swift">// Reduce instead of loops. Useful when finding aggregate information
+let anySubViewEmpty: Bool = self.subviews.reduce(false) { empty, view
+     return empty || CGRectEqualToRect(view.frame, CGRectZero)
+}
+</code></pre>
+
+<pre><code class="Swift">// Flatmap with optionals. For example parsing some model array and every parse operation can fail, and it's described with a failable initialializer.
+
+struct MyDataModel {
+    // Model values
+}
+
+extension MyDataModel {
+    init?(json: JSON) {
+        // Parsing
+    }
+}
+
+let jsonItems: [JSON] // Fetched from a remote server
+// flatMap in Swift 2.0 has special knowledge of optionals, we take advantage of that
+let parsedModels = jsonItems.flatMap(MyDataModel.init)
+</code></pre>
+
+<pre><code class="swift">// Map on optionals
+
+struct User {
+    let name: String
+    let nickname: String?
+}
+
+class UserViewModel {
+    init(user: User) {
+        self.user = user
+    }
+
+    var displayName: String {
+        func formatNickName(nickName: String) -&gt; String {
+            return "Known as \(nickName)"
+        }
+
+        // Here we avoid if let by taking advantage of map and nil coalescing operator.
+        // Specifies intent with less noise
+        return self.user.nickname.map(formatNickName) ?? ""
+    }
+
+    private let user: User
+}
+</code></pre>
+
+<p>There&rsquo;s many times you can benefit from only these basic functions, which are already implemented in the Swift standard library. Starting to apply these standard functions when coding can go a long way to make yourself and your team understand the use and benefit of a more functional or declarative code style. Getting accustomed to using those functions regularly is the first big step to writing more functional code.</p>
+
+<h3>EDIT 15/09/2015: Is &lsquo;for&rsquo; not necessary?</h3>
+
+<p>I previously wrote that I liked to use maps for simple loops, like so:</p>
+
+<pre><code class="Swift">// Map instead of loops
+let views: [UIView] = // Fill array as needed
+views.map { self.addSubview($0) }
+// To suppress compiler warning
+_ = views.map { self.addSubview($0) }
+</code></pre>
+
+<p>I&rsquo;ve recently changed opinion and I think it&rsquo;s better to use standard loops when not producing any result from mapping. We are not increasing readability of the code, but confusing future readers of what is going on. Therefore I don&rsquo;t recommend doing so, so use loops when they are needed.</p>
+
+<p>As you can see any technique can be abused so always keep in mind the benefit of writing code in a particular style.</p>
+
+<h2>Operators</h2>
+
+<p>Spend some time reading about FP and you will eventually bump into some crazy-looking operators. Even though I don&rsquo;t think they increase readability of code, it&rsquo;s useful to understand how they work.</p>
+
+<p>If you start working only with functions, you&rsquo;ll need to connect them in somehow. As far as FP is concerned, the connection should be done by, you guessed it, another function. This &lsquo;connecting&rsquo; function will act as an adapter between the output type of the first one, and the input type of the second one.</p>
+
+<p>A typical example is when you have an optional type. Then you have a function that transforms non-optional types and can fail, represented as an optional return. Here&rsquo;s a dummy example:</p>
+
+<pre><code class="swift">// Converts number to string if it is valid
+let toValidString: Int -&gt; String? = { number in
+    guard number &lt; 10 else { return nil }
+    return "Number is small: \(number)"
+}
+
+// Converts number to number if it's even
+let toEvenNumber: Int -&gt; Int? = { number in
+    guard number % 2 == 0 else { return nil }
+    return number
+}
+</code></pre>
+
+<p>If we want to combine those two functions, the input type of one does not match the output type of the other. The functions do not accept optionals, as it does not make sense to do so.</p>
+
+<p>You can bind those two functions with another function, that will translate the output to the input of the next one:</p>
+
+<pre><code class="swift">func bind&lt;A,B&gt;(from: A, transform: A-&gt;B?) -&gt; B? {
+    if let from = from {
+        return transform(from)
+    }
+
+    return nil
+}
+</code></pre>
+
+<p>Then combining the operations using bind, the code would be:
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='swift'><span class='line'><span class="c1">// Outputs &amp;ldquo;Number is small: 2&amp;rdquo;</span>
+</span><span class='line'><span class="n">bind</span><span class="p">(</span><span class="n">bind</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nl">transform</span><span class="p">:</span> <span class="n">toEvenNumber</span><span class="p">),</span> <span class="nl">transform</span><span class="p">:</span> <span class="n">toValidString</span><span class="p">)</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="c1">// Outputs nil</span>
+</span><span class='line'><span class="n">bind</span><span class="p">(</span><span class="n">bind</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="nl">transform</span><span class="p">:</span> <span class="n">toEvenNumber</span><span class="p">),</span> <span class="nl">transform</span><span class="p">:</span> <span class="n">toValidString</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p>There&rsquo;s one big problem with the previous code: It&rsquo;s very hard to read and know what is going on. The connection function takes over the space and pollutes that we are actually just connecting two other functions together.</p>
+
+<p>Remember that an operator in Swift is just a function. It can take two forms, depending on the operands it works with; A single operand, or two operands. We can then define a cryptic symbol can be defined to express &lsquo;bind&rsquo;:</p>
+
+<pre><code class="swift">// Bind operator, also called 'flatmap'
+func &gt;&gt;-&lt;A,B&gt;(from: A?, transform: A-&gt;B?) -&gt; B? {
+    return bind(from, transform: transform)
+}
+</code></pre>
+
+<p>Then the two previous examples read a lot better, assuming you know what &lsquo;bind&rsquo; is, and you know how to interpret the operator:
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='swift'><span class='line'><span class="c1">// Outputs &amp;ldquo;Number is small: 2&amp;rdquo;</span>
+</span><span class='line'><span class="mi">2</span> <span class="o">&gt;&gt;-</span> <span class="n">toEvenNumber</span> <span class="o">&gt;&gt;-</span> <span class="n">toValidString</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="c1">// Outputs nil</span>
+</span><span class='line'><span class="mi">20</span> <span class="o">&gt;&gt;-</span> <span class="n">toEvenNumber</span> <span class="o">&gt;&gt;-</span> <span class="n">toValidString</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p>I think the only reason why many custom operators exist in FP languages is because it improves readability of the code. If you know what an operator does - and it&rsquo;s likely you will because they are very common connectors - then you read code and immediately understand the intention of the code. Using them the code should more declarative, with the tradeoff that somebody not used to those operators will thing it is very foreign syntax.</p>
+
+<p>There&rsquo;s other custom operators you will see when reading about FP. There&rsquo;s the two I&rsquo;ve encountered most often:</p>
+
+<ul>
+<li>Bind, also called <strong>FlatMap</strong> in Swift: Expressed as >>>, >>= or <strong>>>-</strong></li>
+<li><strong>Apply</strong>, or &lsquo;Applicative functors&rsquo;: Expressed as <strong>&lt;*></strong></li>
+</ul>
+
+
+<p>ThoughtBot created two open source projects that are very helpful to understand practical operators used for function composition: <a href="https://github.com/thoughtbot/Runes">Runes</a> and <a href="https://github.com/thoughtbot/Argo">Argo</a>. Those projects are concise and helped me a lot to grasp some FP concepts, I encourage you to check them.</p>
+
+<blockquote><p><strong>Swift 2.0</strong>: As Swift moves towards removing usage of free functions in favour of methods in protocols and protocol extensions, you&rsquo;ll see less use of these custom operators in the language. But still, it&rsquo;s a nice concept to understand.</p></blockquote>
+
+<h1>Conclusion</h1>
+
+<p>Changing programming habits is hard, but adopting a new way of writing code can be very rewarding if you understand the benefits that it provides.</p>
+
+<p>I think smaller changes to ways we code are achievable by every team and it&rsquo;s just a matter of communicating and discussing the benefits through code reviews. Ultimately the goal is to make code simpler, clearer and easier to read and maintain.</p>
+
+<p>Given Swift is a multi-paradigm language it&rsquo;s up to the programmer to choose how to write code, so it&rsquo;s important to  explore various ways until we find what we could call &lsquo;idiomatic&rsquo; Swift.</p>
+
+<p>We are all learning so don&rsquo;t hesitate to tell me if I&rsquo;m wrong or disagree with me. If you have any comments I&rsquo;d love to <a href="https://twitter.com/miguelquinon">discuss them</a>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Poor man's functional programming]]></title>
+    <link href="http://miqu.me/blog/2015/08/31/poor-mans-functional-programming/"/>
+    <updated>2015-08-31T20:00:00+00:00</updated>
+    <id>http://miqu.me/blog/2015/08/31/poor-mans-functional-programming</id>
+    <content type="html"><![CDATA[<p>It&rsquo;s a very exciting time to be an iOS or Mac developer. The platform moves very fast and we got a new toy (language) to play with: Swift. It&rsquo;s the perfect time to reevaluate, learn and evolve as a programmer, because you will be forced to adopt this new language (yes, I think Swift is the future, 100%).</p>
+
+<p>I want to relate this to the fact that most iOS engineers, or mobile application developers, are traditionally familiar with Object Oriented Programming paradigm. But Swift offers more than different syntax and OOP.</p>
+
+<p>I’m referring to <em>some</em> features inspired by functional languages. If you’ve ever had an interest, but never the chance or motivation to go forth and look into this paradigm, now it&rsquo;s the perfect time to do it.</p>
+
+<!-- more -->
+
+
+<h1>Functional programming is&hellip;</h1>
+
+<p>I don’t want to start reviewing what functional programming is, there are <a href="http://harlankellaway.com/blog/2015/08/10/swift-functional-programming-intro/">excellent</a> resources out there, <a href="https://www.objc.io/books/">check them out</a>.</p>
+
+<p>I want to point out how a beginner, somebody who starts learning Functional Programming (FP), might feel:</p>
+
+<ul>
+<li>Too abstract</li>
+<li>Not applicable to my problems</li>
+<li>For academics</li>
+<li>What does even ‘pure’ mean?</li>
+<li>I <strong>need</strong> to mutate stuff!</li>
+<li>Meh, I’ll go back to my familiar way of doing things</li>
+</ul>
+
+
+<p>There’s a higher barrier of entry to learn how to think and code programs which are more ‘functional’. The concepts are abstract,  and the benefits are often described as <em>it’s more functional</em> without emphasis of what you are actually gaining. Also there’s the problem that many times all is explained by simple examples. But every programmer knows there’s a huge difference between toy programs and real big projects.</p>
+
+<h1>Flame wars</h1>
+
+<p>You’ll find engineers and computer scientists that believe that the <em>only and true</em> way of doing things is of course thinking functionally, and we’ve all been doing it wrong during the last decades. The math is the only source of truth and validity, hence FP is the only way.</p>
+
+<p>They’ve got their very valid reasons to think this way, but my opinion is that many people familiar with FP start to use higher-level vocabulary, and describe conventions and problems in a way that might seem foreign and strange for somebody who is not used to those terms. Rob Napier has <a href="http://robnapier.net/haskell-overlords">an excellent article describing this</a>.</p>
+
+<p>Computer science, and programming in particular, is a curious field where people take sides around things that may seem totally absurd for an outsider: Vim vs Emacs, Windows vs Mac, Linux vs everything else, Ruby vs Python, OOP vs FP.</p>
+
+<p>Do we really need to fight over who is right, instead of using the tools that are most appropriate to do our job? I’m totally on the side of moving on and being pragmatic about learning, and eventually as growing as a software engineer. By looking at different ways of solving a problem you can only get better at what you do, not worse, because you will have the ability to make an informed choice.</p>
+
+<p>I’d love to see the people who are experts or versed in FP to reach out and share knowledge in a way that can be understood by beginners. If we really want people to be aware of the benefits of using a different paradigm, we should make it approachable to start with.</p>
+
+<h1>Poor man’s functional programming</h1>
+
+<p>I would like to think that for most engineers, the choice of paradigm on our day to day work is not a clear one. Thus we will have direct benefit from a language that lets you choose. Using such a language we will be able to write code in an OOP or FP way where it benefits the most. And it seems I’m <a href="https://realm.io/news/altconf-saul-mora-object-orientated-functional-programming/">not</a> the <a href="http://www.johndcook.com/blog/2009/03/23/functional-in-the-small-oo-in-the-large/">first</a> to think about this.</p>
+
+<p>Coming back to Swift, this is precisely what you can do with it. You can choose programming styles depending on what your problem is, the framework you work with, and even the team you work on.</p>
+
+<p>This flexibility does comes with a price though: The functional features of the language are not as rich as other, <em>purer</em> languages. This is the point of my essay: With Swift, and given the normal users of the language (myself included), we will be able to do <strong>Poor man’s functional programming</strong>. A style that tries to mix the best of both paradigms.</p>
+
+<p>We’ll make mistakes as we learn, but hey that’s part of our job. Do you like code you wrote 6 months ago? I know I don’t.</p>
+
+<h1>Moving on</h1>
+
+<p>I like to be <a href="https://pragprog.com/book/tpp/the-pragmatic-programmer">pragmatic</a> rather than zealous. And I think Swift brings an excellent opportunity to learn more about other ways of thinking about building software, different abstractions, and how to fit those into our day to day work as iOS developers.</p>
+
+<p>Swift, as <a href="http://www.scala-lang.org/">other modern languages</a>, offers a unique opportunity to learn and grow. It’s a very exciting field we work on.</p>
+
+<p><em>Aside: Sources to check the ‘tension’ between OOP and FP:</em></p>
+
+<ul>
+<li><a href="http://www.johndcook.com/blog/2009/03/23/functional-in-the-small-oo-in-the-large/">Functional on the small, OO in the large</a></li>
+<li><p><a href="https://realm.io/news/altconf-graham-lee-i-have-no-idea-what-i-m-doing/">I have no idea what I’m doing</a></p></li>
+<li><p><a href="http://www.smashcompany.com/technology/object-oriented-programming-is-an-expensive-disaster-which-must-end">OOP is an expensive disaster</a></p></li>
+<li><p><a href="http://stackoverflow.com/questions/2835801/why-hasnt-functional-programming-taken-over-yet">Why hasn’t functional programming taken over yet</a></p></li>
+</ul>
+
+
+<p><em>And the list goes on and on&hellip;</em></p>
+]]></content>
+  </entry>
+  
+</feed>

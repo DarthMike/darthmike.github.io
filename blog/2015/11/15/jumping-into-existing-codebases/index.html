@@ -1,0 +1,378 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Jumping into existing codebases - miqu.me</title>
+  <meta name="author" content="Miguel Angel Quiñones">
+
+   
+  <meta name="description" content="Software engineering thoughts">
+  
+  <meta name="keywords" content="">
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://miqu.me/blog/2015/11/15/jumping-into-existing-codebases">
+  <link href="/favicon.png" rel="icon">
+  <link href='https://fonts.googleapis.com/css?family=Quicksand:300,400' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="miqu.me" type="application/atom+xml">
+  <script src="/js/jquery.js"></script>
+  <script src="/js/bootstrap-collapse.js"></script>
+  <script src="/js/modernizr-2.0.js"></script>
+  <script src="/js/octopress.js" type="text/javascript"></script>
+  <script src="/js/application.js"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="https://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="https://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <div class="navbar navbar-inverse navbar-static-top">
+  	<div class="navbar-inner">
+  	  <div class="container">
+        <a class="btn btn-navbar" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+          <span class="fui-menu-24"></span>
+        </a>
+  	  	<div class="nav-collapse collapse navbar-responsive-collapse" style="height:0;">
+  	      <ul class="nav">
+    
+        <li ><a href="/">Blog</a></li>
+    
+        <li ><a href="/about/">Who?</a></li>
+    
+        <li ><a href="/games/">Games</a></li>
+    
+        <li ><a href="/speaking/">Speaking</a></li>
+    
+</ul>
+
+<ul class="nav pull-right">
+    
+    <li><a href="https://github.com/DarthMike" title="Github Profile"><i class="icon-github-sign social-navbar"></i></a></li>
+    
+    
+    
+    <li><a href="https://linkedin.com/in/miguelquinon" title="Linkedin Profile"><i class="icon-linkedin-sign social-navbar"></i></a></li>
+    
+    
+    <li><a href="https://twitter.com/@miguelquinon" title="Twitter Profile"><i class="icon-twitter-sign social-navbar"></i></a></li>
+    
+    
+    
+    
+
+    
+    <li><a href="mailto:miguel@miqu.me" title="Email"><i class="icon-envelope social-navbar"></i></a></li>
+    
+</ul>
+
+  	    </div>
+  	  </div>
+  	</div>
+  </div>
+  <div class="container" id="main">
+      <div class="row-fluid">
+        <div id="content">
+          <div>
+<article class="hentry" role="article">
+  
+
+  <header>
+  <div class="jumbotron">
+    Jumping Into Existing Codebases
+	<h5>
+
+
+
+
+
+
+
+
+  
+
+
+
+<i class="icon-calendar-empty"></i> <time datetime="2015-11-15T18:55:18+00:00" pubdate data-updated="true">15 Nov 2015</time></h5>
+  </div>
+</header>
+  <div class="row-fluid">
+    <div class="span12">
+      <p>I’ve recently changed workplace - <a href="http://peak.net">we’re hiring!</a> - and I’ve jumped into an existing codebase. This is a good time to review what I like to do when I start to work on a project in these circumstances.</p>
+
+<!-- more -->
+
+
+<p>When you don&rsquo;t start a greenfield project, which is most of the time for many developers, you need to rapidly and effectively get to grasp with all the code, so you can become productive and acknowledgeable with any changes that need to be done. There&rsquo;s some things I always do in these cases.</p>
+
+<h1>Examining the repository</h1>
+
+<h2>Git stats</h2>
+
+<p>I always like to start with the repository itself. Looking at the history, commits and overall activity. Many times you will find that developers are not used to providing consistent and meaningful commit messages (how many times you’ve seem <strong>WIP feature X</strong> commit message?). So looking at the history is not informative. So I prefer to look at global statistics instead.</p>
+
+<p>Assuming you will work with a git repository, the first tool I like to use is <a href="https://github.com/tomgi/git_stats">git stats</a>. As easy as:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>gem install git_stats
+</span><span class='line'><span class="nb">cd</span> &lt;repo&gt;
+</span><span class='line'>git_stats generate
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Running this tool will result in a nice html document giving insights about authors, commits, files and lines of code. It’s mostly informative but it’s good to get an overview of the key collaborators of a project, who created, and most importantly, who deleted the most lines of code!</p>
+
+<h3>Gource</h3>
+
+<p>A very interesting way to see the commit history in a graphical way is <a href="http://gource.io">gource</a>. I always like to run it for 5 minutes just to get a feel of the rush of the project, and basically to see
+in a glance what are the core parts of the codebase. It also is very funny to look at, and you can get a feel what is the core part of the repository, what parts changed the most, and the number of developers working at the same time. It&rsquo;s available via <a href="http://brew.sh">homebrew</a> as well so very easy to install and run:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>brew install gource
+</span><span class='line'><span class="nb">cd</span> &lt;repo&gt;
+</span><span class='line'>gource
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Check the available options, like <code>seconds-per-day</code>, to customize how you see the animation. I like to run it with 2 seconds per day, to make the visualization move faster (and be funnier to watch!).</p>
+
+<h2>Commit messages</h2>
+
+<p>I like to just do a <code>git log</code> in terminal and understand if the team has any kind of agreement on what and how commit messages are structured. Having good commit messages beats any amount of commented code kept around and is a very integral part of the project.</p>
+
+<p>There has been plenty of discussion on the subject, I’m just going to link here 2 of my favorite articles: <a href="http://chris.beams.io/posts/git-commit/">this</a> and <a href="https://robots.thoughtbot.com/5-useful-tips-for-a-better-commit-message">this one</a>. I don’t adhere to all the points presented but agree to many of them. You’ll get an overview of how a project has evolved by looking at some logs, specially from the beginning. Just do:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>git log --reverse
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Having good commit messages helps a lot when dealing with bug fixes, using <a href="https://git-scm.com/docs/git-bisect">git bisect</a>. When you&rsquo;re the new one in a project you don&rsquo;t have the domain and code knowledge to understand what changed or debug, you can save hours of pain for  bug fixes by using it, and when you nail down the commit that broke something, you can understand the motivation behind it much better.</p>
+
+<h2>Structure</h2>
+
+<p>Just a quick glance of the repository structure can give you a feel of the (lack of) organization and practices of the team. Step number 2 after checking commit logs is browsing the project structure. I&rsquo;m not going to judge or give opinion on what project structure should be the best, as it very much depends on the project, but I generally will try to identify these kind of groups:</p>
+
+<ul>
+<li>Code</li>
+<li>Assets</li>
+<li>Submodules or dependencies</li>
+<li>Utility scripts</li>
+</ul>
+
+
+<p>If the repository does not even contain separate folders for this then you know what is your first task!</p>
+
+<h2>Dependency management</h2>
+
+<p>Once I&rsquo;ve checked the commit logs, and project structure, before I move on to the code, my last step is to understand the strategy for dependency management. As I work on iOS projects, let&rsquo;s see the options for these:</p>
+
+<ul>
+<li>Pre-built libraries</li>
+<li>Copied code (ideally in a sub folder)</li>
+<li>Submodule</li>
+<li>Cocoapods</li>
+<li>Carthage</li>
+</ul>
+
+
+<p>Every project will have a combination of strategies, as many times libraries come from various sources. But if there&rsquo;s a chance, I like to suggest and improve this if possible, and unify how libraries are managed in the project. My opinion is that it&rsquo;s easier to manage dependencies if they are contained and imported the same way.</p>
+
+<p>Many projects will use Cocoapods as the dependency management, even for internal libraries. If that is the case, my last stop is the Podfile. If the team hasn&rsquo;t yet, I just suggest to fix the version for all but internal libraries. This is a practice I consider a must if working with 3rd party libraries, as many unexpected bugs can occur if you import libraries with relaxed version requirements, or just the latest one.</p>
+
+<h1>Code</h1>
+
+<p>It is said that a programmer spends most of time reading code rather than writing it, and it will be specially true when you jump into an existing codebase.</p>
+
+<p>Reading (and understanding) the code of an existing project is very daunting at first. How much will take you to understand the fundamental bits depends on many factors, including domain knowledge, code style, code organization and background of the key project developers.</p>
+
+<p>Before diving into specifics of the code, I like to get an overview:</p>
+
+<ul>
+<li>Lines of code tool</li>
+<li>Dependency visualiser</li>
+</ul>
+
+
+<h2>Sloccount</h2>
+
+<p><a href="http://www.dwheeler.com/sloccount/">This tool</a> will give you a summary of lines of code in the repository. You will get a feel of overall complexity of code, and if you have source code for dependencies, you can also check which are the bigger dependencies in terms of code size.</p>
+
+<p>Once you take part in more than one project you&rsquo;ll be able to get a feel when a project is <em>big</em> or <em>small</em>, which is very subjective, but useful to know, when you approach new code.</p>
+
+<p>This tool is again available via <a href="http://brew.sh">homebrew</a>, so it&rsquo;s very easy to run in any project:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>brew install sloccount
+</span><span class='line'>sloccount &lt;source_directory&gt;
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Dependency visualiser</h2>
+
+<p>The biggest problem of reading new code is that everything is kind of new: Domain, code style, requirements, patterns. A very good way to get a grasp of the code structure is visualise the relationships. I know of two tools that do that for Objective-C: <a href="https://github.com/PaulTaykalo/objc-dependency-visualizer">objc-dependency-visualizer</a> and <a href="https://github.com/nst/objc_dep">objc_dep</a>.</p>
+
+<p>I quite like <a href="https://github.com/PaulTaykalo/objc-dependency-visualizer">objc-dependency-visualizer</a> because it&rsquo;s easier to use to get a broad picture of relative code size between classes and relationships. Just be warned that for medium to big projects the visualisations are just messy. That&rsquo;s when you can use <a href="https://github.com/nst/objc_dep">obj_dep</a> to get graphs for specific files or modules.</p>
+
+<h2>iOS projects</h2>
+
+<p>Before I go into reading specific code, I do these checks first:</p>
+
+<ul>
+<li>Run static analyser</li>
+<li>Compile project and see warnings</li>
+<li>Basic objc good practices (swift is very new for practices yet)</li>
+</ul>
+
+
+<h3>Static analyser</h3>
+
+<p>I will run the static analyser, which is the part of the toolchain that will generally be overlooked by most teams. Developers don&rsquo;t trust analyser because it can give false positives, but in my opinion clean code should have 0 analyser warnings.</p>
+
+<h3>Compile warnings</h3>
+
+<p>With Objective-C and Swift, we get a program to check our code before it&rsquo;s even run. Many see the compiler as a nuisance, specially those used to interpreted languages. I will run a compilation first to see if the project has warnings, treats warnings as errors, and how many outstanding warnings the team is used to have. I consider Jon Reid&rsquo;s <a href="https://github.com/jonreid/XcodeWarnings">xcconfig</a> a very good base line for any project.</p>
+
+<p>Ideally I would like to work on code with most warnings turned on, and warnings treated as error, but this is not the case for many projects out there. The general problem with Xcode is that it creates projects with very lax default warning settings. So many developers don&rsquo;t bother changing them, thus having an unsafe environment for the project from the beginning.</p>
+
+<p>If you start a new project, I&rsquo;d recommend using a tool to configure properly the project, like <a href="https://github.com/thoughtbot/liftoff">liftoff</a> or <a href="https://github.com/krzysztofzablocki/crafter">crafter</a>. For project warnings, I personally prefer to have a .xcconfig file because it&rsquo;s more readable, maintainable, and allows for comments of disabled warnings. See <a href="https://github.com/jonreid/XcodeWarnings">xcconfig</a> or <a href="https://github.com/jspahrsummers/xcconfigs">xcconfigs</a> for examples.</p>
+
+<h3>Basic good practices</h3>
+
+<p>My last step when surveying new code, is checking the safety of the code. I&rsquo;ll check for basic safe usage of Objective-C which is a very punishing language with lots of sharp edges that can cut the unaware developer ;)</p>
+
+<ul>
+<li>Safe use of BOOL: See <a href="http://nshipster.com/bool/">http://nshipster.com/bool/</a></li>
+<li>Correct use of copy: For classes having mutable subclasses - NSArray, NSDictionary, NSString, NSData&hellip;</li>
+<li>Safe use of blocks: Checking for nil block parameters</li>
+<li>Memory leaks and blocks: Has the code a simple definition of <a href="https://github.com/jspahrsummers/libextobjc/blob/master/extobjc/EXTScope.h">@weakify and @strongify</a>, or dealing with retain cycles with blocks in a similar way?</li>
+<li>Modern code: Uses <a href="http://miqu.me/blog/2015/04/17/adopting-nullability-annotations/">nullability</a> and <a href="http://miqu.me/blog/2015/06/09/adopting-objectivec-generics/">generics</a>?</li>
+</ul>
+
+
+<h1>Start coding!</h1>
+
+<p>I hope you get some useful tips from my review of tools and checks I do when jumping into new projects. I you&rsquo;ve got any more, <a href="https://twitter.com/miguelquinon">tell me!</a>.</p>
+
+    </div>
+  </div>
+
+
+
+  <footer>
+    <hr>
+    
+    <div class="row-fluid">
+      
+      <div class="span6">
+        <p class="meta">
+        
+        
+
+
+
+  <a href="/blog/categories/git/"><span class="badge">git</span></a>
+
+  <a href="/blog/categories/ios/"><span class="badge">ios</span></a>
+
+  <a href="/blog/categories/productivity/"><span class="badge">productivity</span></a>
+
+  <a href="/blog/categories/tools/"><span class="badge">tools</span></a>
+
+
+
+
+        </p>
+      </div>
+      
+      <div class="span6 social-sharing">
+        <div class="sharing">
+  <div class="addthis_toolbox addthis_default_style ">
+  
+  
+  <a class="addthis_button_tweet"></a>
+  
+  
+  <a class="addthis_counter addthis_pill_style"></a>
+  </div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
+</div>
+
+      </div>
+      
+      
+    </div>
+    
+    <div class="row-fluid">
+      <div class="span12">
+        <p class="meta">
+          
+            <a class="basic-alignment left" href="/blog/2015/09/09/functional-programming-in-the-small-with-swift/" title="Previous Post: Functional programming in the small, with Swift">&laquo; Functional programming in the small, with Swift</a>
+          
+          
+            <a class="basic-alignment right" href="/blog/2015/11/19/three-months-with-xvim/" title="Next Post: Three months with XVim">Three months with XVim &raquo;</a>
+          
+        </p>
+      </div>
+    </div>
+  </footer>
+</article>
+
+</div>
+
+
+
+        </div>
+      </div>
+      <div class="row-fluid">
+        <footer class="footer-page" role="contentinfo">
+          <p>
+  Copyright &copy; 2018 - Miguel Angel Quiñones -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span> - Theme by <a href="http://alexgaribay.com">Alex Garibay</a>
+</p>
+
+
+        </footer>
+      </div>
+  </div>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'https://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

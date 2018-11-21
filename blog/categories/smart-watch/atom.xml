@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: smart watch | miqu.me]]></title>
+  <link href="http://miqu.me/blog/categories/smart-watch/atom.xml" rel="self"/>
+  <link href="http://miqu.me/"/>
+  <updated>2018-11-21T10:05:53+00:00</updated>
+  <id>http://miqu.me/</id>
+  <author>
+    <name><![CDATA[Miguel Angel Quiñones]]></name>
+    <email><![CDATA[miguel@miqu.me]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Apple watch: love it and hate it]]></title>
+    <link href="http://miqu.me/blog/2014/09/11/apple-watch-love-it-and-hate-it/"/>
+    <updated>2014-09-11T21:35:04+00:00</updated>
+    <id>http://miqu.me/blog/2014/09/11/apple-watch-love-it-and-hate-it</id>
+    <content type="html"><![CDATA[<p>Let me confess: I always loved smart watches. I am a geek and I like gadgets, I love to see new features ‘just because they are cool’. I own a Pebble watch and I love it, and I most probably will buy Apple Watch. But I think Apple did not solve the main issue with today’s mobile technology, and Smart watches in particular.</p>
+
+<!-- more -->
+
+
+<h2>It’s all about energy</h2>
+
+<p>My experience with <a href="https://getpebble.com/">Pebble</a> is that it’s really reliable and I can forget I have to charge it, for really some time. It’s true battery can last up to 5 or 6 days. But it’s also true battery can drain in 2 days. And when you need to load your watch at night, or in the middle of the day, then you realise how much of a problem it can be.</p>
+
+<p>Then Apple announced the <a href="http://www.apple.com/watch/">Apple Watch</a>. I must say I love the design. From hardware to software, I think it is very well thought and it has really nice ideas.</p>
+
+<p>But Apple is very good at marketing, and very good at not saying what problems their products may have. Battery? Water proof? Those a very important issues for a smart watch. And it is the <a href="https://www.linkedin.com/pulse/article/20140909222153-10400206-apple-hasn-t-solved-the-smart-watch-dilemma">Smartwatch dilemma</a>. Battery is crucial.</p>
+
+<p>You can ‘tweak’ how much battery your Pebble consumes by removing automatic backlight on motion, or disabling vibrations. You can even save battery by using watch faces which don’t update every second! I’ve seen too much waste on Apple’s demo of this new watch. Too much lovely stuff, 3d smileys in a watch, high-res and colourful display…</p>
+
+<p>When Apple does not mention battery life, it means they still didn’t figure it out. It seems Apple didn’t crack the problem with current smart watches, which is battery life. There was no mention of kinetic battery loading, or solar charging. v1.0 seems to be, battery-wise, as bad as <a href="http://www.android.com/wear/">competitors</a>. I expect battery to last for 10-15 hours, being very optimistic.</p>
+
+<p>On the other hand, I can’t wait till I get my hands on WatchKit…</p>
+]]></content>
+  </entry>
+  
+</feed>

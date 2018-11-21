@@ -1,0 +1,402 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: code style | miqu.me]]></title>
+  <link href="http://miqu.me/blog/categories/code-style/atom.xml" rel="self"/>
+  <link href="http://miqu.me/"/>
+  <updated>2018-11-21T10:05:53+00:00</updated>
+  <id>http://miqu.me/</id>
+  <author>
+    <name><![CDATA[Miguel Angel Quiñones]]></name>
+    <email><![CDATA[miguel@miqu.me]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Adopting nullability annotations]]></title>
+    <link href="http://miqu.me/blog/2015/04/17/adopting-nullability-annotations/"/>
+    <updated>2015-04-17T22:39:03+00:00</updated>
+    <id>http://miqu.me/blog/2015/04/17/adopting-nullability-annotations</id>
+    <content type="html"><![CDATA[<p>Apple introduced nullability annotations to Objective-C compiler from <a href="https://developer.apple.com/swift/blog/?id=25">XCode 6.3</a>. I was really surprised by this change, and welcomed it with open arms when I saw the release notes. My first thought was: Objective-C is learning from Swift! I want to share my 2 cents on this new annotation and what it means for more modern Objective-C code.</p>
+
+<!-- more -->
+
+
+<h1>The new annotations</h1>
+
+<p>There&rsquo;s not much to these new annotations. You can check all the details from Apple&rsquo;s <a href="https://developer.apple.com/swift/blog/?id=25">blog post</a>, but I will summarise here:</p>
+
+<ul>
+<li>There&rsquo;s two new annotations for (obviously) pointer types which can be nil or NULL: <code>__nullable</code> and <code>__nonnull</code></li>
+<li>These annotations can be used anywhere you can use the C <code>const</code> keyword</li>
+<li>Within method and property declarations, a non-underscore annotation can be used (<code>nullable</code> and <code>nonnull</code>)</li>
+<li>You can annotate whole parts of a file to assume non null, with <code>NS_ASSUME_NONNULL_BEGIN</code> <code>NS_ASSUME_NONNULL_END</code></li>
+</ul>
+
+
+<p>That&rsquo;s it.</p>
+
+<h1>What&rsquo;s the catch?</h1>
+
+<p>These annotations allow you to express your intent when defining an interface. It makes APIs clearer and reduce the need for documentation specifying nil behaviour. When used from Swift code, it allows the interface to &lsquo;transform&rsquo; as needed to express nullability in Swift terms; That is no more implicitly unwrapped optionals and declared non-nil references, and simple optionals.</p>
+
+<p>But you need to understand that the language (Objective-C) hasn&rsquo;t changed, and that these annotations don&rsquo;t change the runtime behaviour of the code at all. In other words: The generated code with and without annotations is the same.</p>
+
+<p>So the compiler will generate warnings when the API is misused. <em>Compiler. Is. Always. Clever.</em> Is it in this case?</p>
+
+<h2>Indirect nil values</h2>
+
+<pre><code class="objc">// Your object
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface ViewController : UIViewController
+@property (nonatomic, copy) NSString *nonNullString;
+@end
+
+NS_ASSUME_NONNULL_END
+
+// Then you use it as:
+NSString *aString = [NSString stringWithFormat:@"helloworld %.1f",1.0];
+aString = nil;
+controller.nonNullString = aString; // No warning. Generated code does not change.
+controller.nonNullString = nil; // Warning
+</code></pre>
+
+<p>Compiling the previous code, generates a warning for a nonnull property only when you set a <strong>direct</strong> nil value. If you set an <strong>indirect</strong> nil value, the compiler happily accepts this without any warning. This may surprise you at first, so you need to be aware of this.</p>
+
+<p>I think it could improve though: <a href="http://openradar.appspot.com/20596086">rdar://problem/20596086</a>.</p>
+
+<h2>Weak properties</h2>
+
+<p>The typical delegate pattern in Objective-C, annotated:</p>
+
+<pre><code class="objc">NS_ASSUME_NONNULL_BEGIN
+
+@interface ViewController : UIViewController
+
+// Note it's a weak property and compiler does not complain.
+// Anyway the property will be nullified by the runtime as it has always been. Annotations don't affect generated code.
+@property (nonatomic, weak) id delegate;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+// Using it:
+id delegate = [[NSObject alloc] init];
+ViewController *controller = [[ViewController alloc] initWithNibName:nil bundle:nil];
+controller.delegate = delegate;
+delegate = nil;  // controller.delegate is nil as expected. Generated code does not change.
+controller.delegate = nil; // Generates warning at compile time
+</code></pre>
+
+<p>So as you can see, you can annotate a weak pointer as <code>nonnull</code> but obviously it is a nullable value. The generated code is not changed and runtime behaviour remains the same. But the compiler (incorrectly) warns you only when you set a direct value to nil.</p>
+
+<p>I think this could also improve: <a href="http://openradar.appspot.com/20596408">rdar://problem/20596408</a>.</p>
+
+<h1>Adopting nullability for existing projects</h1>
+
+<p>As with any language or compiler changes, adopting these new annotations can be tedious, specially for large codebases. I think the strategy to follow is to incrementally annotate APIs for different sections of your code.</p>
+
+<p>If you build and application, the lower layers and the models are the place to start annotating right away. All UI code can wait and can be annotated at a later time. Be also aware that even Apple&rsquo;s headers are not annotated yet. With the notable exception of ResearchKit. Expect this to change this summer ;)</p>
+
+<p>If you are building a framework, my guess is that the best place to start annotating is the API. Then working out the annotations to the internal code is a work that can progressively be done in smaller chunks.</p>
+
+<h1>Conclusion</h1>
+
+<p>Nullability annotations are a very important addition to Objective-C as a language. There are some minor &lsquo;Gotchas&rsquo; and an adoption work which is very manual. But I think that every iOS Developer should start using these, and modernizing the code as soon as possible.</p>
+
+<p>Be aware that annotations don&rsquo;t turn Objective-C nil semantics into a Swift-like optional. It&rsquo;s just a tool to clarify intentions and compiler does not do too much checking for you.</p>
+
+<p>Well, you still have time till <a href="https://developer.apple.com/wwdc/">next set of breaking changes</a>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[A tale of categories and extensions]]></title>
+    <link href="http://miqu.me/blog/2014/12/20/a-tale-of-categories-and-extensions/"/>
+    <updated>2014-12-20T21:37:17+00:00</updated>
+    <id>http://miqu.me/blog/2014/12/20/a-tale-of-categories-and-extensions</id>
+    <content type="html"><![CDATA[<p>I’ve gradually been changing my code style favouring (<em>Obj-C</em>) categories and (<em>Swift</em>) extensions a lot more. I’ve been inspired by my other lover (<em>Ruby</em>). Why? Readability and code organisation.</p>
+
+<!-- more -->
+
+
+<h1>Rubyisms</h1>
+
+<p>Let me explain my source of inspiration. I’ve been coding with Ruby from time to time this whole year, and one of the features I really like is <strong>opening classes</strong>.</p>
+
+<p>As a matter of fact, classes in Ruby are never closed. Any file can add to a class declaration whatever it sees fit. You can add methods, nested classes, and properties. This is often used to either add functionality, or to add more expressivity to the code.</p>
+
+<p>A classic example:
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Float</span>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">dollars</span>
+</span><span class='line'>        <span class="nb">self</span>  <span class="o">&lt;</span><span class="n">br</span><span class="o">/&gt;</span>
+</span><span class='line'>    <span class="k">end</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;pre&gt;&lt;code&gt;def euro</span>
+</span><span class='line'><span class="sr">    0.817 * self</span>
+</span><span class='line'><span class="sr">end</span>
+</span><span class='line'><span class="sr">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;</span><span class="sr">/pre&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;end</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p>So you can express:
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">price</span> <span class="o">=</span> <span class="mi">18</span><span class="o">.</span><span class="mi">9</span>
+</span><span class='line'><span class="n">euro_price</span> <span class="o">=</span> <span class="n">price</span><span class="o">.</span><span class="n">euro</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;h1&gt;instead of, for example&lt;/</span><span class="n">h1</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span><span class="n">price</span> <span class="o">=</span> <span class="mi">18</span><span class="o">.</span><span class="mi">9</span>
+</span><span class='line'><span class="n">euro_price</span> <span class="o">=</span> <span class="nb">self</span><span class="o">.</span><span class="n">euro_to_dollars</span> <span class="o">*</span> <span class="n">price</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p>The rules for this in Ruby are simple, you can add to existing classes and modify methods and properties. Opening a class and modifying it <a href="http://www.infoq.com/articles/ruby-open-classes-monkeypatching">can create serious problems</a>, but this is the nature of the language. In Ruby you can change even essential parts of the language and the standard libraries.</p>
+
+<h1>The patterns</h1>
+
+<p>From now on I will be giving examples using <em>Swift extensions</em>. You can apply the examples to Objective-C categories, but bear in mind that <strong>they are not exactly same</strong>, and <strong>they don’t offer the same functionality</strong> - More on that just a bit later.</p>
+
+<p>Please don’t confuse <em>Swift extensions</em> with <em>Objective-C class extensions</em>. There is no swift counterpart to <em>Objective-C class extensions</em>.</p>
+
+<p>So how do I like to (<em>ab-</em>)use extensions?</p>
+
+<h2>Factory methods for 3rd party code</h2>
+
+<p>Let’s say you are using a 3rd party library. The library offers an awesome control and it is very customisable:
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='swift'><span class='line'><span class="c1">//File MQAwesomeControl.swift in 3rd party framework</span>
+</span><span class='line'><span class="k">import</span> <span class="n">UIKit</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="n">public</span> <span class="k">class</span> <span class="nl">MQAwesomeControl</span> <span class="p">:</span> <span class="bp">UIControl</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">public</span> <span class="k">var</span> <span class="nl">zoomEnabled</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="nb">false</span>
+</span><span class='line'>    <span class="n">public</span> <span class="k">var</span> <span class="nl">colouringEnabled</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="nb">false</span>
+</span><span class='line'>    <span class="c1">// More specific customisation options</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p>But in your application you configure that control in a very specific way, from many different parts of your UI code. Instead of creating a <em>configurator</em> object with static methods, or specific <em>configuration</em> methods on your types,  you can create an extension on the 3rd party type to offer more API and specific configuration for your application. This keeps your code DRY and separates the configuration of 3rd party types from your code.</p>
+
+<pre><code class="swift">//File MQAwesomeControl_MyApp.swift in your app
+extension MQAwesomeControl {
+    class func myapplicationControl() -&gt; MQAwesomeControl {
+        var control = MQAwesomeControl()
+        control.zoomEnabled = true
+        control.colouringEnabled = true
+        return control
+    }
+}
+</code></pre>
+
+<h2>Semantic separation of APIs</h2>
+
+<p>This is possibly the best known use of this feature. The only drawback is that you can’t add stored properties, so API extensions only containing methods are the best candidates.</p>
+
+<pre><code class="swift">class Car {
+    init(brand: String) {
+        self.brand = brand
+    }
+
+    var brand: String
+}
+//MARK: Steering
+extension Car {
+    func accelerate() {
+        //..
+    }
+
+    func decelerate() {
+        //..
+    }
+}
+
+//MARK: Reparing
+extension Car {
+    internal var needsRepairing: Bool {
+        return self.motorNeedsRepairing || self.wheelsAreBroken
+    }
+
+    internal func repair() {
+        if !self.needsRepairing {
+            return
+        }
+
+        // Actually repair
+    }
+
+    private var motorNeedsRepairing: Bool {
+        return false // Here do your calculations for motor
+    }
+
+    private var wheelsAreBroken: Bool {
+        return false // Here do your calculations for wheels
+    }
+}
+</code></pre>
+
+<h2>Protocol adoption</h2>
+
+<p>You can interface two disparate types, in different files, by adopting a protocol in an extension, rather than in the type declaration.</p>
+
+<pre><code class="swift">//File Person.swift
+class Person {
+    var name: String?
+    var surname: String?
+    var friends: [Person]?
+}
+
+//RelatedEntities.swift
+protocol RelatedEntities {
+    var similarEntities: [RelatedEntities] {get}
+}
+
+//Adoption of protocol in Person_Extensions.swift
+extension Person: RelatedEntities {
+    var similarEntities: [RelatedEntities] {
+        if let friends = self.friends? {
+            return friends
+        }
+
+        return []
+    }
+}
+</code></pre>
+
+<h2>UI styling</h2>
+
+<p>Instead of relying on a gigantic stylesheet-type file, where all appearance setup is made, you can use extensions specific to your application to style UI components. Here I use the previous pattern of adopting a protocol in an extension:</p>
+
+<pre><code class="swift">//Protocol in MyApplicationStyles.swift
+protocol MyAppliationStyling {
+    func setupAppearance()
+}
+
+//Extension, possibly in the same file as protocol
+extension UITableView: MyAppliationStyling {
+    func setupAppearance() {
+        UITableView.appearance().separatorColor = UIColor.darkGrayColor()
+    }
+}
+
+//Usage, on Stylesheet.swift
+class Stylesheet {
+        //…
+    func customiseAppearance() {
+        UITableView.setupAppearance()
+                //etc
+    }
+        //…
+}
+</code></pre>
+
+<p>Additionally, you can create extensions to reflect your designer’s stylesheet.</p>
+
+<pre><code class="swift">extension UIColor {
+    class func brandColor() -&gt; UIColor {
+        return UIColor.yellowColor()
+    }
+
+    class func backgroundColor() -&gt; UIColor {
+        return UIColor.whiteColor()
+    }
+
+    class func highlightColor() -&gt; UIColor {
+        return UIColor.redColor()
+    }
+}
+</code></pre>
+
+<h2>Extracting specific logic for readability</h2>
+
+<p>Sometimes you may want to split a slightly complex method into different private methods.</p>
+
+<p>If your logic requires manipulating a 3rd party or framework type, then you can extract that part of logic into an extension of the 3rd party type instead of extracting it into another method in your type.</p>
+
+<h1>The language details</h1>
+
+<h2>Objective-C categories</h2>
+
+<p>Objective-C categories offer similar functionality as Ruby’s open classes. You can override existing methods and, using the runtime, you can ‘inject’ your code between the previous implementation and yours. They are very flexible, but unfortunately very dangerous.</p>
+
+<h2>Swift Extensions</h2>
+
+<p>In Swift, the programmer can extend not only classes, but enums and structs. Extensions in Swift are safer because they are namespaced to the module they belong to, and you can’t override existing behaviour.</p>
+
+<p>They are less flexible because you can’t override existing behaviour, and you don’t have access to the runtime to ‘plug into’ existing code.</p>
+
+<h2>Shooting everybody on the foot</h2>
+
+<p>Why did I write about alternatives to do the same thing on 3 different languages?</p>
+
+<p>There is very good reasons to take categories and opening classes as a bad practice. It’s very easy to misuse and abuse, creating problems for any users of your code, and breaking functionality with newer releases of OS and libraries. I’ve already mentioned before safety problems of categories.</p>
+
+<p>Please don’t do this in Objective-C:
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="c1">//PLEASE DON’T DO THIS!</span>
+</span><span class='line'><span class="k">@implementation</span> <span class="bp">UIView</span> <span class="nl">(MyCategory)</span>
+</span><span class='line'><span class="p">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">dealloc</span> <span class="p">{</span>
+</span><span class='line'>    <span class="c1">//Here I do my stuff, and I break existing dealloc for UIView AND subclasses</span>
+</span><span class='line'>    <span class="c1">//Compiler and runtime don’t complain, until you get other crashes, or your code misbehaves…</span>
+</span><span class='line'><span class="p">}</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="c1">// Other methods</span>
+</span><span class='line'><span class="k">@end</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p>If you are using Objective-C you should prefix the category names <strong>and</strong> the method names with your project prefix. This will ensure that no other code clashes with yours at run-time. This is <a href="https://developer.apple.com/library/ios/documentation/Cocoa/Conceptual/ProgrammingWithObjectiveC/CustomizingExistingClasses/CustomizingExistingClasses.html#//apple_ref/doc/uid/TP40011210-CH6-SW1">standard practice</a> for any competent Obj-C developer.</p>
+
+<p>What is not so well understood is that you can start changing method implementations from categories in any class, meaning you can do exactly what Ruby does with open classes. If you start swizzling implementations and many libraries do the same, there’s high risk that there will be undefined behaviour. Tshe code starts to be hard to understand because of too much runtime magic.</p>
+
+<p>Even though you are on the safe side by adhering to best practices and not abusing the runtime. The same best practices sometimes pollute the beauty of categories. If you need to prefix every method name, the code does not look so clean and elegant.</p>
+
+<p>Swift offers the best balance with extensions. Thus I think it is perfect for a very <em>aggressive</em> use of extensions, as the code will fail to compile when methods and properties have the same name across classes and extensions. The extensions are implicitly namespaced in different modules, so no clash will happen between libraries and between libraries and application code.</p>
+
+<h1>Conclusion</h1>
+
+<p>I think extensions is one of the best features of Swift, and a vast improvement over Objective-C categories. I have shown you examples of how you can use extensions for your advantage.</p>
+
+<p>The best feature of Swift extensions, in my opinion, is safety. All types and extensions are implicitly namespaced under a module, per-target in Xcode. This means all complex clashes of similar additions between different modules (libraries, application) are gone.</p>
+
+<p>Many developers would say that Swift extensions are not so flexible as Objective-C categories. Not having access to the runtime, you can’t exchange method implementations to add behaviour or to capture method executions for your own (evil) needs. While this is true, many times this flexibility is limited to small hacks, debugging or proof of concept prototypes. You can still Objective-C for that if you wish.</p>
+
+<p>If you have more ideas on how to use extensions for fun and profit, please <a href="https://twitter.com/miguelquinon">tell me</a>!</p>
+]]></content>
+  </entry>
+  
+</feed>

@@ -1,0 +1,430 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: tips | miqu.me]]></title>
+  <link href="http://miqu.me/blog/categories/tips/atom.xml" rel="self"/>
+  <link href="http://miqu.me/"/>
+  <updated>2018-11-21T10:05:53+00:00</updated>
+  <id>http://miqu.me/</id>
+  <author>
+    <name><![CDATA[Miguel Angel Quiñones]]></name>
+    <email><![CDATA[miguel@miqu.me]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Fixing autocompletion on mixed Objective-C and Swift projects]]></title>
+    <link href="http://miqu.me/blog/2017/06/16/fixing-autocompletion-on-mixed-objective-c-and-swift-projects/"/>
+    <updated>2017-06-16T22:55:27+00:00</updated>
+    <id>http://miqu.me/blog/2017/06/16/fixing-autocompletion-on-mixed-objective-c-and-swift-projects</id>
+    <content type="html"><![CDATA[<p>This year I had the privilege of attending WWDC for the first time. I knew the labs were very important, and I want to share a resolution to fix a problem for our big project at <a href="http://peak.net">Peak</a>: Autocompletion on Swift code was not working most of the time in the IDE, and with the help of an Apple engineer in the labs we got it sorted.</p>
+
+<p><strong>Update on 30/10/2017:</strong></p>
+
+<p><em>The issues described here seem to be fixed with latest release version of Xcode 9.0.1 (9A1004). Also the &lsquo;internal&rsquo; menu doesn&rsquo;t seem to be accessible anymore. If you know how to access it I&rsquo;d love to hear from you!</em></p>
+
+<!-- more -->
+
+
+<h1>The issue</h1>
+
+<p>If you are using Xcode 8 or Xcode 9 (beta 1 as of this writing), when you have a project with mixed Objective-C and Swift, you might encounters problems with autocompletion inside the Swift code.</p>
+
+<p>We&rsquo;ve had this intermitently and most recent IDE versions made work very difficult as we would not have any autocompletion for our Swift code, or it would work intermitently.</p>
+
+<p>Our gut feeling was that the bridging header had some classes that were causing SourceKit to fail, but we didn&rsquo;t know how to debug the issue nor provide good feedback for Apple to fix it. Our chance came while visiting the labs at the conference, and a very helpful and patient Apple engineer worked with our project to understand what was wrong.</p>
+
+<h1>Bridging header imports</h1>
+
+<p>It turns out that if you import classes from libraries (in our case using CocoaPods) omitting the path may result in Sourcekit unable to index properly.</p>
+
+<p>For example, a class in some library:</p>
+
+<p><code>#import "MyClass.h"</code></p>
+
+<p>Code will compile fine but your code completion in Swift side might break because the indexer fails when encountering this file. I&rsquo;m still unsure if it&rsquo;s because of importing the file somewhere else differently or if it&rsquo;s just a bug in the indexer. Anyway, the way to work around it (Apple is supposedly aware of this) is to import with the framework or library style, including the path:</p>
+
+<p><code>#import "path-to-library/MyClass.h"</code></p>
+
+<h1>How to debug</h1>
+
+<p>The engineer kindly made a wrote up for us the steps to be able to debug this in the future. He also shared how to start Xcode in debug mode. I knew that would be possible, but didn&rsquo;t know how to do it before.</p>
+
+<p>To open Xcode with debug menu, open it from command line with the argument:</p>
+
+<pre><code class="bash">/Applications/Xcode.app/Contents/MacOS/Xcode -ShowDVTDebugMenu YES
+</code></pre>
+
+<p>There&rsquo;s many debugging entries enabled! For our exact problem we&rsquo;re interested in Sourcekit, and the menu entry is i &ldquo;Xcode -> Internal -> SourceKit -> Service Log&rdquo;.</p>
+
+<p>To investigate the code completion problem:</p>
+
+<ul>
+<li>Invoke code-completion, then close the log window</li>
+<li>Open /tmp/sourcekit-service-log.txt</li>
+<li>Search for &ldquo;key.request: source.request.codecomplete&rdquo;</li>
+<li>Get the compiler arguments from &ldquo;key.compilerargs:&rdquo; and create a swift invocation with them:
+
+<ul>
+<li>Add &ldquo;DEVELOPER_DIR=/Applications/Xcode.app xcrun swift -frontend &rdquo; in front of the arguments</li>
+<li>Add &ldquo;-primary-file&rdquo; for the file mentioned in &ldquo;key.sourcefile:&rdquo;</li>
+<li>Remove &ldquo;-Xfrontend&rdquo; flags</li>
+<li>Remove &ldquo;-j<N>&rdquo; flags</li>
+</ul>
+</li>
+</ul>
+
+
+<p>Juggling the arguments is easier to handle if you copy all the argument list to a file and make it executable by bash, as you would run the script in the file instead of pasting arguments into command line.</p>
+
+<p>Here&rsquo;s example of how the command would look like, for a file &ldquo;/project/path/myfile.swift&rdquo;. I&rsquo;m omitting whole argument list, just ilustrating how it would look like.</p>
+
+<pre><code class="bash">DEVELOPER_DIR=/Applications/Xcode.app xcrun swift -frontend -primary-file "/project/path/myfile.swift" "-module-name" "Peak" "-Onone" "-DDEBUG" "-sdk" "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.3.sdk" "-target" "arm64-apple-ios8.0" &lt;many more&gt;
+</code></pre>
+
+<p>After running the command, you&rsquo;ll see errors like this one:
+<em>/project/path/My-Bridging-Header.h:10:9: note: in file included from /project/path/My-Bridging-Header.h:10:9: #import &ldquo;MyClass.h&rdquo;</em></p>
+
+<p>You now know the headers that need fixing and now can change in the briding header.</p>
+
+<h1>Conclusion</h1>
+
+<p>We got a functional IDE once more! Apple is very helpful at the WWDC and it is very good for these and many other questions to be answered or investigated. If you attend the conference anytime, be sure to bring your questions, code, and issues to talk directly with Apple engineers.</p>
+
+<p>I hope this helps anybody that is asking &lsquo;why my autocompletion in Swift broke in Xcode&rsquo;. This might be cause of the issue. The debug menu can be helpful to poke into the internals of the IDE, or just to help Apple fix bugs by providing more detailed logs.</p>
+
+<p>Happy bug hunting!</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Build settings depending on Xcode version]]></title>
+    <link href="http://miqu.me/blog/2017/01/29/temporary-build-settings/"/>
+    <updated>2017-01-29T23:26:54+00:00</updated>
+    <id>http://miqu.me/blog/2017/01/29/temporary-build-settings</id>
+    <content type="html"><![CDATA[<p>This weekend I wanted to setup <a href="https://swift.org/blog/bridging-pch/">Precompiled Bridging Headers</a> for my project. This setting is available in the new Xcode 8.3 beta.  Then building for latest official XCode (8.2.1) the code will not compile because the Swift compiler doesn&rsquo;t recognize it. How do we use different build settings for different Xcode versions? <strong>Only possible with xcconfig files</strong>.</p>
+
+<p>There&rsquo;s an undocumented build setting called <code>XCODE_VERSION_MINOR</code> that we can use here. And after some variable substitution we&rsquo;ll make it work. Here&rsquo;s the gist:</p>
+
+<pre><code class="bash">// Setting for last Xcode
+OTHER_SWIFT_FLAGS_XCODE_0820 = //&lt;previous flags, if any&gt;
+// Setting for Xcode Beta
+OTHER_SWIFT_FLAGS_XCODE_0830 = -enable-bridging-pch
+// Switch configuration based on Xcode version
+OTHER_SWIFT_FLAGS = $(OTHER_SWIFT_FLAGS_XCODE_$(XCODE_VERSION_MINOR))
+</code></pre>
+
+<p>Full credit to Samantha Marshall&rsquo;s <a href="https://pewpewthespells.com/blog/migrating_code_signing.html#working-in-both-worlds">excellent writeups of xcconfig files</a>. Take a read, very useful to refer to.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Reducing the pain of git bisect with Xcode]]></title>
+    <link href="http://miqu.me/blog/2017/01/22/reducing-the-pain-of-git-bisect-with-xcode/"/>
+    <updated>2017-01-22T11:49:01+00:00</updated>
+    <id>http://miqu.me/blog/2017/01/22/reducing-the-pain-of-git-bisect-with-xcode</id>
+    <content type="html"><![CDATA[<p>There&rsquo;s times when you need to investigate regressions in your project, and you don&rsquo;t know have any clue as why something is happening. <a href="https://git-scm.com/docs/git-bisect">Git bisect</a> is the best tool for this cases, but it can be painful to use in non small projects using CocoaPods and Xcode. I want to share what I&rsquo;ve been doing to ease the pain.</p>
+
+<!-- more -->
+
+
+<p>If you never used Git bisect, check this <a href="https://git-scm.com/book/en/v2/Git-Tools-Debugging-with-Git">introduction</a>. The git command performs a <a href="https://en.wikipedia.org/wiki/Binary_search_algorithm">binary search</a> across your repository history, starting from two known commits you provide to the algorithm: &lsquo;Good&rsquo; and &lsquo;Bad&rsquo;. &lsquo;Bad&rsquo; will usually be your last commit, and &lsquo;Good&rsquo; will be a commit back in the history of your repository, when you know the code was working as expected. For every step of the search you need to tell git if a commit is good or bad, either manually or automatically by running a script.</p>
+
+<h1>Pain points</h1>
+
+<p>When we enter the realm of iOS development, there&rsquo;s a some factors that make bisect tedious to use.</p>
+
+<p>If you use CocoaPods, and if you don&rsquo;t check in the &lsquo;Pods&rsquo; directory in source control, every time you change branch or bisect selects a new commit, you might need to run <code>pod install</code> in order to have all dependencies available and compile correctly.</p>
+
+<p>If you are searching for a regression, chances are you don&rsquo;t have an automated test suite, so you&rsquo;ll need to run your app manually and reproduce the issue you are searching for. There will be cases when you&rsquo;re dealing with a bug that needs an app reinstall or needs to run on device to reproduce. To top all this, Xcode will start the long indexing process every time there&rsquo;s changes to the sources due to change of commit, so your computer will start doing lot of work.</p>
+
+<p>All of these nuances makes the process of searching for issues using bisect very tedious and not so &lsquo;magical&rsquo; as it is supposed to be. I&rsquo;ve nevertheless used bisect many times to save time otherwise wasted reading code and navigating breakpoints during long debugging sessions. You just need some patience and the will to automate some stuff.</p>
+
+<h1>Reducing the pain</h1>
+
+<h2>Automate pod install</h2>
+
+<p>If you don&rsquo;t check in the &lsquo;Pods&rsquo; directory in source control, you might want to run <code>pod install</code> after every bisect step, to refresh all dependencies. Make use of git&rsquo;s <code>post-checkout</code> <a href="https://git-scm.com/docs/githooks">hook</a> and just perform the operation automatically. I like to close Xcode while updating pods so it doesn&rsquo;t turn crazy and slows down computer even more than usual:</p>
+
+<pre><code class="bash">#!/bin/sh
+# Script for .git/hooks/post-checkout
+set -e
+osascript -e 'quit app "Xcode"'
+pod install
+open -a Xcode
+</code></pre>
+
+<p>After you say &lsquo;good&rsquo; or &lsquo;bad&rsquo;, bisect chooses another commit, and automatically close Xcode, update dependencies and open Xcode again. You can be more sophisticated and open the current project directly. See this <a href="https://github.com/robbyrussell/oh-my-zsh/blob/57fcee0f1c520a7c5e3aa5e2bde974154cdaf0c3/plugins/xcode/xcode.plugin.zsh">example</a>.</p>
+
+<h2>Automate build and run</h2>
+
+<p>As I&rsquo;ve mentioned before, if you end up doing a bisect in the codebase you don&rsquo;t have unit tests covering the issue, or any other kind of regression suite covering the issue. You&rsquo;ll need to manually run the project and reproduce the bug. You can still automate the building and running, so you just need to wait to reproduce, and tell git if the commit was good or bad.</p>
+
+<p>Combine <code>xcodebuild</code> with <a href="https://github.com/phonegap/ios-sim">ios-sim</a> in a <code>post-checkout</code> script:</p>
+
+<pre><code class="bash">#!/bin/sh
+set -e
+xcodebuild -arch x86_64 -sdk iphonesimulator10.2 -derivedDataPath ".build" -scheme myScheme
+
+ios-sim launch --devicetypeid com.apple.CoreSimulator.SimDeviceType.iPhone-6-Plus .build/Build/Products/Debug-iphonesimulator/myapp.app
+</code></pre>
+
+<p>Here we force a simulator-only build and run it straight away so you can do your painful manual testing. You can combine the update of dependencies to just leave reproducing the issue and feedback as manual steps in the process.</p>
+
+<h2>Repository discipline</h2>
+
+<p>In order to be able to bisect faster and achieve meaningful results there&rsquo;s some practices to follow in your commits:</p>
+
+<ul>
+<li><strong>Granular commits are better</strong>: Smaller commits will make results of bisect more useful as the commit will have small changes, and will be easier to determine the source of the problem.</li>
+<li><strong>Ensure every commit compiles</strong>: It will make a potential bisect easier by not struggling with commits that need to be fixed before tested</li>
+<li><strong>Check in CocoaPods</strong>: There&rsquo;s many <a href="https://www.dzombak.com/blog/2014/03/including-pods-in-source-control.html">advantages some disadvantages</a> of keeping Pods in the repository. And one advantage will be the code compiles as-is without need of fetching dependencies.</li>
+<li><strong>Write meaningful commits</strong>: This should be general practice in the team, but a meaningful commit might tell you what went wrong without even looking at the code, and will help teammates understand your changes.</li>
+</ul>
+
+
+<h1>Use bisect</h1>
+
+<p>Everybody makes mistakes, and there will be the time when you&rsquo;ll be the one tasked to find out why something is not working, with no clue whatsoever of why. This is the time to think about using <code>git bisect</code>. It can be tedious under iOS projects, but you can ease the pain by automating some bits of the process and some patience.</p>
+
+<p>And if you find finally find a commit of your 1-month younger self, you&rsquo;ll thank yourself if you wrote a meaningful commit message.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[App extensions, Xcode and Cocoapods, OMG!]]></title>
+    <link href="http://miqu.me/blog/2016/11/28/app-extensions-xcode-and-cocoapods-omg/"/>
+    <updated>2016-11-28T09:44:54+00:00</updated>
+    <id>http://miqu.me/blog/2016/11/28/app-extensions-xcode-and-cocoapods-omg</id>
+    <content type="html"><![CDATA[<p>Have you encountered this error when upgrading to the latest CocoaPods (1.1.0), or sharing a library between your iOS App and your extension?</p>
+
+<pre><code class="bash">'sharedApplication' is unavailable: not available on iOS (App Extension) - Use view controller based solutions where appropriate instead.
+</code></pre>
+
+<p>If yes, continue reading, as you might have encountered same issue as myself. I&rsquo;ve recently had to upgrade a project to using Cocoapods 1.1.0. Things stopped compiling, and I had to investigate the root cause of the problem. It has to do with iOS App extensions, unavailable APIs and how fragile our tooling is ;).</p>
+
+<!-- more -->
+
+
+<h1>TL;DR</h1>
+
+<ul>
+<li>The first cause of error can be fixed by conditionally compiling with a macro. See example <a href="https://github.com/snowplow/snowplow-objc-tracker/blob/86c1049e960f72966ed61faa8824dbf1a73840f4/Snowplow/OpenIDFA.m#L48-L52">here</a></li>
+<li>It&rsquo;s better if you define whole classes or API unavailable using <code>NS_EXTENSION_UNAVAILABLE_IOS</code></li>
+<li>If you had this error in a 3rd party library you&rsquo;ll need it to be fixed by the author (see below)</li>
+<li>If you are a library author and need to have different code paths via preprocessor macros, read <a href="cocoapods-issue">this thread</a>, and follow the recommendation to create a separated subspec for an extension target</li>
+</ul>
+
+
+<h1>Unavailable API for App extensions</h1>
+
+<p>Since the introduction of <a href="https://developer.apple.com/library/content/documentation/General/Conceptual/ExtensibilityPG/index.html">Application extensions</a> several years ago, Apple has marked some API as unavailable for these targets. For example, <code>sharedApplication</code> from <code>UIApplication</code>:</p>
+
+<pre><code class="objc">@property(class, nonatomic, readonly) UIApplication *sharedApplication NS_EXTENSION_UNAVAILABLE_IOS("Use view controller based solutions where appropriate instead.");
+</code></pre>
+
+<p>or in Swift:</p>
+
+<pre><code class="swift">@available(iOSApplicationExtension, unavailable)
+open class var shared: UIApplication { get }
+</code></pre>
+
+<p>Apple is using a new macro, <code>NS_EXTENSION_UNAVAILABLE_IOS</code> to mark API as unavailable. There&rsquo;s a new setting on Xcode, <code>APPLICATION_EXTENSION_API_ONLY</code>, and if set, the code will not compile if it contains a call to <code>sharedApplication</code>. This setting is automatically enabled for extension targets so you get the error in your code when you are writing it.</p>
+
+<p>Writing separate code for an App target and and extension target is not an issue. You just don&rsquo;t use the unavailable API in the extension. But what about reusable libraries?</p>
+
+<h1>Libraries using unavailable API for extensions</h1>
+
+<p>You might be using several libraries, and some of these might be using unavailable API for extensions. Notably AFNetworking is one of these, check the <a href="https://github.com/AFNetworking/AFNetworking/blob/master/UIKit%2BAFNetworking/AFNetworkActivityIndicatorManager.h#L44">sources</a>. The developer of the library must take care of this in their code, and mark API that is unavailable for extensions because of the usage of restricted system API.</p>
+
+<p>But then, there might be code that is executing a different code path when compiled against an extension, for example <a href="https://github.com/pinterest/PINCache/pull/72">PinCache</a>. If this is the case, the library is forcing you to decide between using unsafe API or not using it. You&rsquo;ll need to define the designated macro in your project to achieve this. See an example <a href="https://github.com/snowplow/snowplow-objc-tracker/blob/86c1049e960f72966ed61faa8824dbf1a73840f4/Snowplow/OpenIDFA.m#L48-L52">here</a>.</p>
+
+<h1>Enter CocoaPods</h1>
+
+<p>The problem comes with the integration with CocoaPods, as they (correctly) deduplicate targets. This means that you&rsquo;ll compile the library once (say without unavailable API) and link it to your targets. But sometimes you want to compile with usage of unavailable APIs against your main app, and removing unavailable usage on the extension. If you want this, you&rsquo;re out of luck as it&rsquo;s not directly supported by Cocoapods.</p>
+
+<h2>What changed?</h2>
+
+<p>Since <a href="http://blog.cocoapods.org/CocoaPods-1.1.0/">Cocoapods 1.1.0</a>, they improved integration with App extensions, and the generated project will enable the flag <code>APPLICATION_EXTENSION_API_ONLY</code> for libraries linking against an extension target. This is correct, but then you&rsquo;ll start seeing compilation errors that can be a bit puzzling. Bear in mind that the code will not compile even if you don&rsquo;t use the offending API. The compiler just complains that there is code that uses unavailable API.</p>
+
+<h1>Solutions</h1>
+
+<p>So you can&rsquo;t compile, you can&rsquo;t just disable all unavailable API for your main App target. What do you do? There is hope! See <a href="cocoapods-issue">this discussion</a>, and you&rsquo;ll see <a href="https://twitter.com/neonacho">neonacho</a> suggests to use a subspec to duplicate the targets. This is a very practical solution, but it requires the library author to modify their podspec.</p>
+
+<h2>Example</h2>
+
+<p>Let&rsquo;s see an example for a specific library. I had to fork Snowplow (the library we&rsquo;re using) and add the subspec. If you want to check the real changes, a PR is <a href="https://github.com/snowplow/snowplow-objc-tracker/pull/303">here</a>. Now let&rsquo;s work it out with a fictional example replicating what&rsquo;s required. Say you&rsquo;re owner of <code>MyLibrary</code>:</p>
+
+<pre><code class="ruby">Pod::Spec.new do |s|
+  s.name             = "MyLibrary"
+  # Omitting metadata stuff and deployment targets
+
+  s.source_files = 'MyLibrary/*.{m,h}'
+end
+</code></pre>
+
+<p>You use unavailable API, so the code conditionally compiles some parts based on a preprocessor macro called <code>MYLIBRARY_APP_EXTENSIONS</code>. We declare a subspec, called <strong>Core</strong> with all the code, but the flag off. We make that subspec the default one if user doesn&rsquo;t specify one. Then we&rsquo;ll declare an additional subspec, called <strong>AppExtension</strong> including all the code, but setting the preprocessor macro:</p>
+
+<pre><code class="ruby">Pod::Spec.new do |s|
+  s.name             = "MyLibrary"
+  # Omitting metadata stuff and deployment targets
+  s.default_subspec = 'Core'
+
+  s.subspec 'Core' do |core|
+    core.source_files = 'MyLibrary/*.{m,h}'
+  end
+
+  s.subspec 'AppExtension' do |ext|
+    ext.source_files = 'MyLibrary/*.{m,h}'
+    # For app extensions, disabling code paths using unavailable API
+    ext.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' =&gt; 'MYLIBRARY_APP_EXTENSIONS=1' }
+  end
+end
+</code></pre>
+
+<p>Then in your application Podfile you&rsquo;ll link against <strong>Core</strong> in your main app target, and against <strong>AppExtension</strong> in your extension, like so:</p>
+
+<pre><code class="ruby">abstract_target 'App' do
+  # Shared pods between App and extension, compiled with same preprocessor macros
+  pod 'AFNetworking'
+
+  target 'MyApp' do
+    pod 'MyLibrary/Core'
+  end
+
+  target 'MyExtension' do
+    pod 'MyLibrary/AppExtension'
+  end
+end
+</code></pre>
+
+<p>That&rsquo;s it! <a href="https://twitter.com/neonacho">neonacho&rsquo;s</a> suggestion works very well and it&rsquo;s kind of simple. Hopefully this writeup will help you find the solution to your problem (and understand it) if you ever face it. Kudos for the CocoaPods team to offer support on these issues. We&rsquo;re always catching up with Apple after they break (again) Xcode.</p>
+
+<h1>A note about Swift</h1>
+
+<p>I&rsquo;ve found an issue created for Swift, <a href="https://bugs.swift.org/browse/SR-1226">SR-1226</a>, that is still unresolved and might cause you problems. It seems that as of now, marking API as unavailable for extensions in Swift still doesn&rsquo;t let you compile for App extensions. So be aware of this limitation.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Easy localization management with Google spreadsheets]]></title>
+    <link href="http://miqu.me/blog/2016/11/19/easy-localizations-management-with-spreadsheets/"/>
+    <updated>2016-11-19T16:50:18+00:00</updated>
+    <id>http://miqu.me/blog/2016/11/19/easy-localizations-management-with-spreadsheets</id>
+    <content type="html"><![CDATA[<p>Last thursday I gave a talk at <a href="http://www.meetup.com/NSLondon/">NSLondon meetup</a> called &lsquo;Minimum Viable Tooling&rsquo;. The topic was examples of approaching tooling and automation for small teams. I showed real examples of what we do at <a href="http://www.peak.net">Peak</a>, where I currently work. One of the things people showed interest in after the talk was how we deal with localizations.</p>
+
+<p>In this post I will replicate the simple solution from scratch, so you can follow along and get started with your own projects. And we will be using Swift for the scripting, just because we can!</p>
+
+<!-- more -->
+
+
+<h1>The minimal CMS</h1>
+
+<p>In the talk I showed what we currently use to automate generation of strings at <a href="http://www.peak.net">Peak</a>. The goal of the solution is twofold: The first is to remove manual manipulation of local strings files by developers. The second is to raise visibility of any translation across the company and enable easier collaboration with translators. This is generally achieved by using a CMS, either a built solution or your own. We&rsquo;ll build our own by leveraging Google spreadsheets as a database and web interface.</p>
+
+<p>So we&rsquo;ll need two simple parts: One one side, the strings are hosted in a Google spreasheet. Then on the other side, we&rsquo;ll run a script locally or on our CI every time we want to update strings in the application. The script will load the spreasheet contents, and generate the appropiate <code>.strings</code> file contents.</p>
+
+<h1>The spreadsheet</h1>
+
+<p>I&rsquo;ve created an example spreadsheet <a href="https://docs.google.com/spreadsheets/d/1pduU_ZiMNjPmQVl5_dDjK2XcgacfJkARsA567ddOrGg/edit?usp=sharing">here</a>. It contains rows with keys, and columns with the supported language keys in your app:</p>
+
+<p><img src="/images/posts/spreadsheet-1.png" alt="spreadsheet1" /></p>
+
+<p>Here you can take two approaches for your script; you can either use any Google spreadsheet library for a popular scripting language like Ruby or Python, or you can leverage yet another service on top of spreasheets: <a href="https://sheetsu.com">Sheetsu</a>. Using the service means you don&rsquo;t need any library because it converts the content to a JSON API that can be easily parsed with traditional code. We&rsquo;ll use this as it&rsquo;s the simplest solution. Note that we would need to pay to have more flexibility as the free plan only allows one spreadsheet without any additional sheets, but this is fine for our example.</p>
+
+<h2>Sheetsu</h2>
+
+<p>Sign up to <a href="https://sheetsu.com">Sheetsu</a>, and give them the spreadsheet you want to use. Once you do this, they&rsquo;ll automatically create an API endpoint:</p>
+
+<p><img src="/images/posts/sheetsu-1.png" alt="sheetsu1" /></p>
+
+<h1>The script</h1>
+
+<p>We&rsquo;ll need to setup Swift for scripting. Given that we don&rsquo;t use any libraries, we can develop the code in a playground, and when we&rsquo;re done we can move the file to our repository. Here&rsquo;s an example playground code:</p>
+
+<pre><code class="swift">import Foundation
+import PlaygroundSupport
+
+PlaygroundPage.current.needsIndefiniteExecution = true
+
+typealias RawLocalizationData = [[String:String]]
+
+struct Entry {
+    var key: String
+    var value: String
+}
+
+struct Localization {
+    var languageKey: String
+    var entries: [Entry]
+}
+
+extension Localization {
+    func export() -&gt; [String] {
+        return entries.map { entry in
+            let value = entry.value.characters.count &gt; 0 ? entry.value : "NOT_TRANSLATED"
+            return "\"\(entry.key)\" = \"\(value)\";"
+        }
+    }
+}
+
+func findLanguages(in data: RawLocalizationData) -&gt; [String] {
+    guard let firstEntry = data.first else { return [] }
+    assert(firstEntry["key"] != nil)
+    let languages = firstEntry.keys.filter { $0 != "key" }
+    return languages.map { $0 }
+}
+
+func parse(_ data: RawLocalizationData) -&gt; [Localization] {
+    let languages = findLanguages(in: data)
+    var localizations = [String:Localization]()
+
+    for entry in data {
+        let key = entry["key"] ?? "__ERROR__NO_KEY__"
+        let values = languages.map { (language: $0, entry: Entry(key: key, value: entry[$0]!)) }
+        for value in values {
+            var localization = localizations[value.language] ?? Localization(languageKey: value.language, entries: [])
+            localization.entries.append(value.entry)
+            localizations[value.language] = localization
+        }
+    }
+
+    return localizations.values.map { $0 }
+}
+
+func write(_ localizations: [Localization]) {
+    for localization in localizations {
+        print(localization.export().joined(separator: "\n"))
+    }
+}
+
+let spreadsheetURL = URL(string: "https://sheetsu.com/apis/v1.0/a96943d37c32", relativeTo: nil)!
+
+let session = URLSession.shared
+let task = session.dataTask(with: spreadsheetURL) { data, response, error in
+    guard let data = data else { print("Error"); return }
+
+    let json = try? JSONSerialization.jsonObject(with: data, options: []) as! RawLocalizationData
+    let localizations = parse(json ?? [])
+    write(localizations)
+
+    PlaygroundPage.current.finishExecution()
+}
+
+task.resume()
+</code></pre>
+
+<p>The only thing worthy of note is using <code>PlaygroundSupport</code> to enable asynchrous execution. All the other code is straightforward use of <code>URLSesssion</code> to parse JSON. All that is left is converting the playground to a script. The script doesn&rsquo;t save contents to any file, because when running in playground we&rsquo;re constrained to the sandbox. When moving to a script we can generate the folders and files as appropiate for our application. We&rsquo;re not going to do all these finishing touches now, but it&rsquo;s very simple to continue from here.</p>
+
+<p>It only took me 1 hours to setup, and considering I had to look up how to use <code>PlaygroundSupport</code>, I would say it&rsquo;s very quick to implement!</p>
+
+<h1>Caveats</h1>
+
+<p>With this approach we can quickly build automation around localizations, and we can share the spreadsheet with our translators. This example spreadsheet does not contain strings with placeholders (for example: <code>"WELCOME_MESSAGE" = "Hello %@!"</code>). This will require handling validation, because the translators can - and will - make mistakes when writing their new strings. In a later post I will elaborate the required validation of strings with placeholders, and how we can reduce errors with human-readable tokens.</p>
+
+<p>I hope this is useful to you.</p>
+]]></content>
+  </entry>
+  
+</feed>

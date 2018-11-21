@@ -1,0 +1,759 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: swift | miqu.me]]></title>
+  <link href="http://miqu.me/blog/categories/swift/atom.xml" rel="self"/>
+  <link href="http://miqu.me/"/>
+  <updated>2018-11-21T10:05:53+00:00</updated>
+  <id>http://miqu.me/</id>
+  <author>
+    <name><![CDATA[Miguel Angel Quiñones]]></name>
+    <email><![CDATA[miguel@miqu.me]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Fixing autocompletion on mixed Objective-C and Swift projects]]></title>
+    <link href="http://miqu.me/blog/2017/06/16/fixing-autocompletion-on-mixed-objective-c-and-swift-projects/"/>
+    <updated>2017-06-16T22:55:27+00:00</updated>
+    <id>http://miqu.me/blog/2017/06/16/fixing-autocompletion-on-mixed-objective-c-and-swift-projects</id>
+    <content type="html"><![CDATA[<p>This year I had the privilege of attending WWDC for the first time. I knew the labs were very important, and I want to share a resolution to fix a problem for our big project at <a href="http://peak.net">Peak</a>: Autocompletion on Swift code was not working most of the time in the IDE, and with the help of an Apple engineer in the labs we got it sorted.</p>
+
+<p><strong>Update on 30/10/2017:</strong></p>
+
+<p><em>The issues described here seem to be fixed with latest release version of Xcode 9.0.1 (9A1004). Also the &lsquo;internal&rsquo; menu doesn&rsquo;t seem to be accessible anymore. If you know how to access it I&rsquo;d love to hear from you!</em></p>
+
+<!-- more -->
+
+
+<h1>The issue</h1>
+
+<p>If you are using Xcode 8 or Xcode 9 (beta 1 as of this writing), when you have a project with mixed Objective-C and Swift, you might encounters problems with autocompletion inside the Swift code.</p>
+
+<p>We&rsquo;ve had this intermitently and most recent IDE versions made work very difficult as we would not have any autocompletion for our Swift code, or it would work intermitently.</p>
+
+<p>Our gut feeling was that the bridging header had some classes that were causing SourceKit to fail, but we didn&rsquo;t know how to debug the issue nor provide good feedback for Apple to fix it. Our chance came while visiting the labs at the conference, and a very helpful and patient Apple engineer worked with our project to understand what was wrong.</p>
+
+<h1>Bridging header imports</h1>
+
+<p>It turns out that if you import classes from libraries (in our case using CocoaPods) omitting the path may result in Sourcekit unable to index properly.</p>
+
+<p>For example, a class in some library:</p>
+
+<p><code>#import "MyClass.h"</code></p>
+
+<p>Code will compile fine but your code completion in Swift side might break because the indexer fails when encountering this file. I&rsquo;m still unsure if it&rsquo;s because of importing the file somewhere else differently or if it&rsquo;s just a bug in the indexer. Anyway, the way to work around it (Apple is supposedly aware of this) is to import with the framework or library style, including the path:</p>
+
+<p><code>#import "path-to-library/MyClass.h"</code></p>
+
+<h1>How to debug</h1>
+
+<p>The engineer kindly made a wrote up for us the steps to be able to debug this in the future. He also shared how to start Xcode in debug mode. I knew that would be possible, but didn&rsquo;t know how to do it before.</p>
+
+<p>To open Xcode with debug menu, open it from command line with the argument:</p>
+
+<pre><code class="bash">/Applications/Xcode.app/Contents/MacOS/Xcode -ShowDVTDebugMenu YES
+</code></pre>
+
+<p>There&rsquo;s many debugging entries enabled! For our exact problem we&rsquo;re interested in Sourcekit, and the menu entry is i &ldquo;Xcode -> Internal -> SourceKit -> Service Log&rdquo;.</p>
+
+<p>To investigate the code completion problem:</p>
+
+<ul>
+<li>Invoke code-completion, then close the log window</li>
+<li>Open /tmp/sourcekit-service-log.txt</li>
+<li>Search for &ldquo;key.request: source.request.codecomplete&rdquo;</li>
+<li>Get the compiler arguments from &ldquo;key.compilerargs:&rdquo; and create a swift invocation with them:
+
+<ul>
+<li>Add &ldquo;DEVELOPER_DIR=/Applications/Xcode.app xcrun swift -frontend &rdquo; in front of the arguments</li>
+<li>Add &ldquo;-primary-file&rdquo; for the file mentioned in &ldquo;key.sourcefile:&rdquo;</li>
+<li>Remove &ldquo;-Xfrontend&rdquo; flags</li>
+<li>Remove &ldquo;-j<N>&rdquo; flags</li>
+</ul>
+</li>
+</ul>
+
+
+<p>Juggling the arguments is easier to handle if you copy all the argument list to a file and make it executable by bash, as you would run the script in the file instead of pasting arguments into command line.</p>
+
+<p>Here&rsquo;s example of how the command would look like, for a file &ldquo;/project/path/myfile.swift&rdquo;. I&rsquo;m omitting whole argument list, just ilustrating how it would look like.</p>
+
+<pre><code class="bash">DEVELOPER_DIR=/Applications/Xcode.app xcrun swift -frontend -primary-file "/project/path/myfile.swift" "-module-name" "Peak" "-Onone" "-DDEBUG" "-sdk" "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.3.sdk" "-target" "arm64-apple-ios8.0" &lt;many more&gt;
+</code></pre>
+
+<p>After running the command, you&rsquo;ll see errors like this one:
+<em>/project/path/My-Bridging-Header.h:10:9: note: in file included from /project/path/My-Bridging-Header.h:10:9: #import &ldquo;MyClass.h&rdquo;</em></p>
+
+<p>You now know the headers that need fixing and now can change in the briding header.</p>
+
+<h1>Conclusion</h1>
+
+<p>We got a functional IDE once more! Apple is very helpful at the WWDC and it is very good for these and many other questions to be answered or investigated. If you attend the conference anytime, be sure to bring your questions, code, and issues to talk directly with Apple engineers.</p>
+
+<p>I hope this helps anybody that is asking &lsquo;why my autocompletion in Swift broke in Xcode&rsquo;. This might be cause of the issue. The debug menu can be helpful to poke into the internals of the IDE, or just to help Apple fix bugs by providing more detailed logs.</p>
+
+<p>Happy bug hunting!</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Automatic bridging from Swift to Objective-C using Sourcery]]></title>
+    <link href="http://miqu.me/blog/2017/05/21/automatic-bridging-from-swift-to-objective-c-using-sourcery/"/>
+    <updated>2017-05-21T21:30:00+00:00</updated>
+    <id>http://miqu.me/blog/2017/05/21/automatic-bridging-from-swift-to-objective-c-using-sourcery</id>
+    <content type="html"><![CDATA[<p>I recently read a <a href="http://blog.benjamin-encz.de/post/bridging-swift-types-to-objective-c/">great post</a> by <a href="https://twitter.com/benjaminencz">Benjamin Encz</a> about bridging Swift to Objective-C by creating bridging types that can be exposed to the older language. I wondered if his idea can be improved and automated using meta-programming with <a href="https://github.com/krzysztofzablocki/Sourcery">Sourcery</a> by <a href="https://twitter.com/merowing_">Krzystof Zablocki</a>. The answer is a very impressive ObjC-like uppercase <strong>YES</strong>.</p>
+
+<!-- more -->
+
+
+<p>First of all, you should read <a href="http://blog.benjamin-encz.de/post/bridging-swift-types-to-objective-c/">Benjamin&rsquo;s post</a>. He proposes to use a bridging class that can be instantiated from Objective-C and Swift because it inherits from <code>NSObject</code>. The bridging class has properties to get and set the properties of the bridged type.</p>
+
+<p>In this post I&rsquo;m just going to give an overview of the template and highlight the simpler parts. If you want to jump directly in the code, here&rsquo;s the <a href="https://github.com/DarthMike/AutoObjCBridgeable">project</a>, and the <a href="https://github.com/DarthMike/AutoObjCBridgeable/blob/master/Templates/AutoObjCBridgeable.stencil">template</a>. The example template bridges struct and enum, but doesn&rsquo;t handle custom protocols to keep it as simple as possible.</p>
+
+<h2>About Sourcery</h2>
+
+<p><a href="https://github.com/krzysztofzablocki/Sourcery">Sourcery</a> is a tool to generate code, using your written templates, using metadata from your production code. In other words, it&rsquo;s a tool to do <a href="https://en.wikipedia.org/wiki/Metaprogramming">metaprogramming</a> in Swift. If you are not familiar with Sourcery I encourage you to go read the documentation and at least understand the simple examples like generating <code>Equatable</code> implementations for your types. Getting familiar with <a href="https://github.com/kylef/Stencil">Stencil</a>, one of the supported template languages is also fundamental.</p>
+
+<h2>Building the template</h2>
+
+<p>We&rsquo;ll need to generate a new class for every struct and enum that we bridge. In order to opt-in to the feature, we use <a href="https://www.objc.io/blog/2014/12/29/functional-snippet-13-phantom-types/">phantom types</a> in order to mark swift types (our custom structs or enums) that can be bridged to Objective-C. Our template will use this protocol to which types to introspect:
+<code>swift
+protocol AutoObjCBridgeable {}
+</code></p>
+
+<p>For example, take Benjamin&rsquo;s example code:
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='swift'><span class='line'><span class="k">enum</span> <span class="n">CheckoutOption</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">case</span> <span class="n">creditCard</span><span class="p">(</span><span class="nl">given</span><span class="p">:</span> <span class="n">Int</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">case</span> <span class="n">paypal</span><span class="p">(</span><span class="n">String</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="k">struct</span> <span class="n">ShoppingCart</span>  <span class="p">{</span>
+</span><span class='line'>    <span class="k">var</span> <span class="nl">items</span><span class="p">:</span> <span class="p">[</span><span class="n">String</span><span class="p">]</span>
+</span><span class='line'>    <span class="k">var</span> <span class="nl">checkoutOption</span><span class="p">:</span> <span class="n">CheckoutOption</span><span class="o">?&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="k">init</span><span class="p">(</span><span class="nl">items</span><span class="p">:</span> <span class="p">[</span><span class="n">String</span><span class="p">],</span> <span class="nl">checkoutOption</span><span class="p">:</span> <span class="n">CheckoutOption</span><span class="o">?</span> <span class="o">=</span> <span class="nb">nil</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nb">self</span><span class="p">.</span><span class="n">items</span> <span class="o">=</span> <span class="n">items</span>
+</span><span class='line'>    <span class="nb">self</span><span class="p">.</span><span class="n">checkoutOption</span> <span class="o">=</span> <span class="n">checkoutOption</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p>We just need to adopt the protocol in an extension for the types, in order to opt-in to code generation with Sourcery:
+<code>swift
+extension ShoppingCart : AutoObjCBridgeable {}
+extension CheckoutOption : AutoObjCBridgeable {}
+</code></p>
+
+<h3>Structs vs enums</h3>
+
+<p>Structs are straightforward to bridge, as we only need to handle properties. On the other hand, enums are much more involved because we need to take care of handling an arbitrary number of associated values. Fear not, as Sourcery provides all the necessary metadata for our nefarious needs!</p>
+
+<p>We will divide the template in two parts: one loop for structs, one for enums.</p>
+
+<pre><code class="javascript">// Bridging for structs
+
+
+// Bridging of enums
+
+</code></pre>
+
+<p>For structs, we only generate one class that contains the Swift native type. We wrap the type with API to set and get properties, following Benjamin&rsquo;s design. Enumerations will require more classes (see below).</p>
+
+<p>Also bear in mind that when bridging properties in either an enum or a struct, we need to handle differently types that are bridged by ourselves (our custom struct and enums).</p>
+
+<h3>Bridging an empty struct</h3>
+
+<p>This is how we start generating classes for every bridgeable struct:</p>
+
+<p>
+<code>javascript
+{% for type in types.implementing.AutoObjCBridgeable|struct %}
+@objc(XYZ{{type.name}})
+class _ObjC{{type.name}} : NSObject {
+    // TODO
+}
+{% endfor %}
+</code>
+</p>
+
+<p>Given a simple, empty struct:
+<code>swift
+struct EmptyStruct : AutoObjCBridgeable {
+}
+</code></p>
+
+<p>Let&rsquo;s look at what a the resulting bridging code for the simplest struct would look like; An empty struct should only wrap the type in an Objective-C class, like so:
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='swift'><span class='line'><span class="p">@</span><span class="n">objc</span><span class="p">(</span><span class="n">XYZEmptyStruct</span><span class="p">)</span>
+</span><span class='line'><span class="k">class</span> <span class="nl">_ObjCEmptyStruct</span> <span class="p">:</span> <span class="bp">NSObject</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">private</span> <span class="p">(</span><span class="kr">set</span><span class="p">)</span> <span class="k">var</span> <span class="nl">emptyStruct</span><span class="p">:</span> <span class="n">EmptyStruct</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="c1">// Initializer to be used from Swift code</span>
+</span><span class='line'><span class="k">init</span><span class="p">(</span><span class="nl">emptyStruct</span><span class="p">:</span> <span class="n">EmptyStruct</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nb">self</span><span class="p">.</span><span class="n">emptyStruct</span> <span class="o">=</span> <span class="n">emptyStruct</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Initializer to be used from ObjC code</span>
+</span><span class='line'><span class="kr">override</span> <span class="k">init</span><span class="p">(){</span>
+</span><span class='line'>    <span class="nb">self</span><span class="p">.</span><span class="n">emptyStruct</span> <span class="o">=</span> <span class="n">EmptyStruct</span><span class="p">()</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p>Now for a more useful type, say a struct with some values, like this one:
+<code>swift
+struct StructWithSwiftProperties : AutoObjCBridgeable {
+    let name: String
+    let count: Int
+}
+</code></p>
+
+<p>The bridging code looks like this:
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+</pre></td><td class='code'><pre><code class='swift'><span class='line'><span class="p">@</span><span class="n">objc</span><span class="p">(</span><span class="n">XYZStructWithSwiftProperties</span><span class="p">)</span>
+</span><span class='line'><span class="k">class</span> <span class="nl">_ObjCStructWithSwiftProperties</span> <span class="p">:</span> <span class="bp">NSObject</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">private</span> <span class="p">(</span><span class="kr">set</span><span class="p">)</span> <span class="k">var</span> <span class="nl">structWithSwiftProperties</span><span class="p">:</span> <span class="n">StructWithSwiftProperties</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="c1">// Initializer to be used from Swift code</span>
+</span><span class='line'><span class="k">init</span><span class="p">(</span><span class="nl">structWithSwiftProperties</span><span class="p">:</span> <span class="n">StructWithSwiftProperties</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nb">self</span><span class="p">.</span><span class="n">structWithSwiftProperties</span> <span class="o">=</span> <span class="n">structWithSwiftProperties</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Initializer to be used from ObjC code</span>
+</span><span class='line'><span class="k">init</span><span class="p">(</span>
+</span><span class='line'>    <span class="nl">name</span><span class="p">:</span> <span class="n">String</span><span class="p">,</span>
+</span><span class='line'>    <span class="nl">count</span><span class="p">:</span> <span class="n">Int</span><span class="p">,</span>
+</span><span class='line'>    <span class="nl">valid</span><span class="p">:</span> <span class="n">Bool</span><span class="p">,</span>
+</span><span class='line'>    <span class="nl">mutableValid</span><span class="p">:</span> <span class="n">Bool</span><span class="p">,</span>
+</span><span class='line'>    <span class="nl">someStuff</span><span class="p">:</span> <span class="p">[</span><span class="n">String</span><span class="p">]</span>
+</span><span class='line'><span class="p">){</span>
+</span><span class='line'>    <span class="nb">self</span><span class="p">.</span><span class="n">structWithSwiftProperties</span> <span class="o">=</span> <span class="n">StructWithSwiftProperties</span><span class="p">(</span>
+</span><span class='line'>            <span class="nl">name</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+</span><span class='line'>            <span class="nl">count</span><span class="p">:</span> <span class="n">count</span><span class="p">,</span>
+</span><span class='line'>            <span class="nl">valid</span><span class="p">:</span> <span class="n">valid</span><span class="p">,</span>
+</span><span class='line'>            <span class="nl">mutableValid</span><span class="p">:</span> <span class="n">mutableValid</span><span class="p">,</span>
+</span><span class='line'>            <span class="nl">someStuff</span><span class="p">:</span> <span class="n">someStuff</span>
+</span><span class='line'>        <span class="p">)</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">var</span> <span class="nl">name</span> <span class="p">:</span> <span class="n">String</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nb">self</span><span class="p">.</span><span class="n">structWithSwiftProperties</span><span class="p">.</span><span class="n">name</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">var</span> <span class="nl">count</span> <span class="p">:</span> <span class="n">Int</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nb">self</span><span class="p">.</span><span class="n">structWithSwiftProperties</span><span class="p">.</span><span class="n">count</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p>The generated code will need to provide read-only properties for the inmutable properties, and read-write properties for the mutable ones. This example only contains simple types, but not other structs or enumerations. Generating those will require to nest bridged classes. You can check the <a href="https://github.com/DarthMike/AutoObjCBridgeable/blob/master/Templates/AutoObjCBridgeable.stencil">template code</a> by yourself for the rest of it.</p>
+
+<p>Generating properties for standard Swift types is simple:
+
+<code>javascript
+{% if variable.type.kind != "struct" and variable.type.kind != "enum" %}
+    // Forwarding property for native types
+    var {{variable.name}} : {{variable.typeName}}
+    {
+        get {
+            return self.{{type.name|lowerFirstWord}}.{{variable.name}}
+        }
+        {% if variable.isMutable %}
+        set {
+            self.{{type.name|lowerFirstWord}}.{{variable.name}} = newValue
+        }
+        {% endif %}
+    }
+{% endif %}
+</code>
+</p>
+
+<p>Generating the swift initializer and the wrapped property is also simple:
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kr">private</span> <span class="p">(</span><span class="nx">set</span><span class="p">)</span> <span class="kd">var</span> <span class="p">{{</span><span class="nx">type</span><span class="p">.</span><span class="nx">name</span><span class="o">|</span><span class="nx">lowerFirstWord</span><span class="p">}}</span><span class="o">:</span> <span class="p">{{</span><span class="nx">type</span><span class="p">.</span><span class="nx">name</span><span class="p">}}</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span><span class="c1">// Initializer to be used from Swift code</span>
+</span><span class='line'><span class="nx">init</span><span class="p">({{</span><span class="nx">type</span><span class="p">.</span><span class="nx">name</span><span class="o">|</span><span class="nx">lowerFirstWord</span><span class="p">}}</span><span class="o">:</span> <span class="p">{{</span><span class="nx">type</span><span class="p">.</span><span class="nx">name</span><span class="p">}})</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">self</span><span class="p">.{{</span><span class="nx">type</span><span class="p">.</span><span class="nx">name</span><span class="o">|</span><span class="nx">lowerFirstWord</span><span class="p">}}</span> <span class="o">=</span> <span class="p">{{</span><span class="nx">type</span><span class="p">.</span><span class="nx">name</span><span class="o">|</span><span class="nx">lowerFirstWord</span><span class="p">}}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+</p>
+
+<p>Generating the initializer from Objective-C will require to handle structs and enumerations specially, so you can check it yourself in the <a href="https://github.com/DarthMike/AutoObjCBridgeable/blob/master/Templates/AutoObjCBridgeable.stencil">template</a>.</p>
+
+<h3>Bridging simple enumerations</h3>
+
+<p>The template code to bridge enumerations is a bit more complex. We&rsquo;re just going to review what the generated code would look like in this case. Take a simple example:</p>
+
+<pre><code class="swift">enum OtherEnum : AutoObjCBridgeable {
+    case a
+    case b(EmptyStruct)
+}
+</code></pre>
+
+<p>The generated bridging code should contain a class for the enum, and separate classes for every case. We initialize from Objective-C casting from <code>Any</code> to the concrete class corresponding to every case. Take note we&rsquo;ll need to handle associated values and because of this the template code is a bit messy.
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+</pre></td><td class='code'><pre><code class='swift'><span class='line'><span class="p">@</span><span class="n">objc</span><span class="p">(</span><span class="n">XYZOtherEnum</span><span class="p">)</span>
+</span><span class='line'><span class="k">class</span> <span class="nl">_ObjCOtherEnum</span> <span class="p">:</span> <span class="bp">NSObject</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">private</span> <span class="p">(</span><span class="kr">set</span><span class="p">)</span> <span class="k">var</span> <span class="nl">otherEnum</span><span class="p">:</span> <span class="n">OtherEnum</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="c1">// Initializer for Swift code</span>
+</span><span class='line'><span class="k">init</span><span class="p">(</span><span class="nl">value</span><span class="p">:</span> <span class="n">OtherEnum</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nb">self</span><span class="p">.</span><span class="n">otherEnum</span> <span class="o">=</span> <span class="n">value</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Initializer for Objective-C code</span>
+</span><span class='line'><span class="k">init</span><span class="p">(</span><span class="nl">caseValue</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="k">let</span> <span class="n">_</span> <span class="o">=</span> <span class="n">caseValue</span> <span class="kt">as</span><span class="o">?</span> <span class="n">_ObjCOtherEnumA</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nb">self</span><span class="p">.</span><span class="n">otherEnum</span> <span class="o">=</span> <span class="p">.</span><span class="n">a</span>
+</span><span class='line'>    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="k">let</span> <span class="n">caseValue</span> <span class="o">=</span> <span class="n">caseValue</span> <span class="kt">as</span><span class="o">?</span> <span class="n">_ObjCOtherEnumB</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nb">self</span><span class="p">.</span><span class="n">otherEnum</span> <span class="o">=</span> <span class="p">.</span><span class="n">b</span><span class="p">(</span><span class="n">caseValue</span><span class="p">.</span><span class="n">value1</span><span class="p">.</span><span class="n">emptyStruct</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">preconditionFailure</span><span class="p">(</span><span class="s">&quot;Value \(caseValue) is not compatible with cases of OtherEnum&quot;</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="p">}</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="c1">// A case of OtherEnum</span>
+</span><span class='line'><span class="p">@</span><span class="n">objc</span><span class="p">(</span><span class="n">XYZOtherEnumA</span><span class="p">)</span>
+</span><span class='line'><span class="k">class</span> <span class="nl">_ObjCOtherEnumA</span> <span class="p">:</span> <span class="bp">NSObject</span> <span class="p">{</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="p">}</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="c1">// A case of OtherEnum</span>
+</span><span class='line'><span class="p">@</span><span class="n">objc</span><span class="p">(</span><span class="n">XYZOtherEnumB</span><span class="p">)</span>
+</span><span class='line'><span class="k">class</span> <span class="o">&lt;</span><span class="n">em</span><span class="o">&gt;</span><span class="nl">ObjCOtherEnumB</span> <span class="p">:</span> <span class="bp">NSObject</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">let</span> <span class="nl">value1</span> <span class="p">:</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;</span><span class="n">ObjCEmptyStruct</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="k">init</span><span class="p">(</span><span class="nl">value1</span> <span class="p">:</span> <span class="n">_ObjCEmptyStruct</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="nb">self</span><span class="p">.</span><span class="n">value1</span> <span class="o">=</span> <span class="n">value1</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<h2>Conclusion</h2>
+
+<p>Automating the generation of complex things like bridging is possible with Sourcery. The template I&rsquo;ve written doesn&rsquo;t handle all cases of possible code; For example, the template doesn&rsquo;t handle private properties, doesn&rsquo;t take default values for initializers, we don&rsquo;t forward methods, and it doesn&rsquo;t handle properly structs as associated values of enums. The template also doesn&rsquo;t bridge protocols.</p>
+
+<p>I stopped here on purpose, as this generated code should be temporary until a migration eventually happens. In general, interaction from Objective-C to Swift should be kept to a minimum.</p>
+
+<p>I&rsquo;m very surprised that such complexity can be automated using Sourcery, and I really love the concept of the tool. If you never used it, it&rsquo;s a very useful addition for your Swift toolbelt.</p>
+
+<p>If you have any feedback, please open an issue in the <a href="https://github.com/DarthMike/AutoObjCBridgeable">example repository</a>, or reach me on <a href="https://twitter.com/miguelquinon">twitter</a>. I&rsquo;d love to hear your thoughts!</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Build settings depending on Xcode version]]></title>
+    <link href="http://miqu.me/blog/2017/01/29/temporary-build-settings/"/>
+    <updated>2017-01-29T23:26:54+00:00</updated>
+    <id>http://miqu.me/blog/2017/01/29/temporary-build-settings</id>
+    <content type="html"><![CDATA[<p>This weekend I wanted to setup <a href="https://swift.org/blog/bridging-pch/">Precompiled Bridging Headers</a> for my project. This setting is available in the new Xcode 8.3 beta.  Then building for latest official XCode (8.2.1) the code will not compile because the Swift compiler doesn&rsquo;t recognize it. How do we use different build settings for different Xcode versions? <strong>Only possible with xcconfig files</strong>.</p>
+
+<p>There&rsquo;s an undocumented build setting called <code>XCODE_VERSION_MINOR</code> that we can use here. And after some variable substitution we&rsquo;ll make it work. Here&rsquo;s the gist:</p>
+
+<pre><code class="bash">// Setting for last Xcode
+OTHER_SWIFT_FLAGS_XCODE_0820 = //&lt;previous flags, if any&gt;
+// Setting for Xcode Beta
+OTHER_SWIFT_FLAGS_XCODE_0830 = -enable-bridging-pch
+// Switch configuration based on Xcode version
+OTHER_SWIFT_FLAGS = $(OTHER_SWIFT_FLAGS_XCODE_$(XCODE_VERSION_MINOR))
+</code></pre>
+
+<p>Full credit to Samantha Marshall&rsquo;s <a href="https://pewpewthespells.com/blog/migrating_code_signing.html#working-in-both-worlds">excellent writeups of xcconfig files</a>. Take a read, very useful to refer to.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Easy localization management with Google spreadsheets]]></title>
+    <link href="http://miqu.me/blog/2016/11/19/easy-localizations-management-with-spreadsheets/"/>
+    <updated>2016-11-19T16:50:18+00:00</updated>
+    <id>http://miqu.me/blog/2016/11/19/easy-localizations-management-with-spreadsheets</id>
+    <content type="html"><![CDATA[<p>Last thursday I gave a talk at <a href="http://www.meetup.com/NSLondon/">NSLondon meetup</a> called &lsquo;Minimum Viable Tooling&rsquo;. The topic was examples of approaching tooling and automation for small teams. I showed real examples of what we do at <a href="http://www.peak.net">Peak</a>, where I currently work. One of the things people showed interest in after the talk was how we deal with localizations.</p>
+
+<p>In this post I will replicate the simple solution from scratch, so you can follow along and get started with your own projects. And we will be using Swift for the scripting, just because we can!</p>
+
+<!-- more -->
+
+
+<h1>The minimal CMS</h1>
+
+<p>In the talk I showed what we currently use to automate generation of strings at <a href="http://www.peak.net">Peak</a>. The goal of the solution is twofold: The first is to remove manual manipulation of local strings files by developers. The second is to raise visibility of any translation across the company and enable easier collaboration with translators. This is generally achieved by using a CMS, either a built solution or your own. We&rsquo;ll build our own by leveraging Google spreadsheets as a database and web interface.</p>
+
+<p>So we&rsquo;ll need two simple parts: One one side, the strings are hosted in a Google spreasheet. Then on the other side, we&rsquo;ll run a script locally or on our CI every time we want to update strings in the application. The script will load the spreasheet contents, and generate the appropiate <code>.strings</code> file contents.</p>
+
+<h1>The spreadsheet</h1>
+
+<p>I&rsquo;ve created an example spreadsheet <a href="https://docs.google.com/spreadsheets/d/1pduU_ZiMNjPmQVl5_dDjK2XcgacfJkARsA567ddOrGg/edit?usp=sharing">here</a>. It contains rows with keys, and columns with the supported language keys in your app:</p>
+
+<p><img src="/images/posts/spreadsheet-1.png" alt="spreadsheet1" /></p>
+
+<p>Here you can take two approaches for your script; you can either use any Google spreadsheet library for a popular scripting language like Ruby or Python, or you can leverage yet another service on top of spreasheets: <a href="https://sheetsu.com">Sheetsu</a>. Using the service means you don&rsquo;t need any library because it converts the content to a JSON API that can be easily parsed with traditional code. We&rsquo;ll use this as it&rsquo;s the simplest solution. Note that we would need to pay to have more flexibility as the free plan only allows one spreadsheet without any additional sheets, but this is fine for our example.</p>
+
+<h2>Sheetsu</h2>
+
+<p>Sign up to <a href="https://sheetsu.com">Sheetsu</a>, and give them the spreadsheet you want to use. Once you do this, they&rsquo;ll automatically create an API endpoint:</p>
+
+<p><img src="/images/posts/sheetsu-1.png" alt="sheetsu1" /></p>
+
+<h1>The script</h1>
+
+<p>We&rsquo;ll need to setup Swift for scripting. Given that we don&rsquo;t use any libraries, we can develop the code in a playground, and when we&rsquo;re done we can move the file to our repository. Here&rsquo;s an example playground code:</p>
+
+<pre><code class="swift">import Foundation
+import PlaygroundSupport
+
+PlaygroundPage.current.needsIndefiniteExecution = true
+
+typealias RawLocalizationData = [[String:String]]
+
+struct Entry {
+    var key: String
+    var value: String
+}
+
+struct Localization {
+    var languageKey: String
+    var entries: [Entry]
+}
+
+extension Localization {
+    func export() -&gt; [String] {
+        return entries.map { entry in
+            let value = entry.value.characters.count &gt; 0 ? entry.value : "NOT_TRANSLATED"
+            return "\"\(entry.key)\" = \"\(value)\";"
+        }
+    }
+}
+
+func findLanguages(in data: RawLocalizationData) -&gt; [String] {
+    guard let firstEntry = data.first else { return [] }
+    assert(firstEntry["key"] != nil)
+    let languages = firstEntry.keys.filter { $0 != "key" }
+    return languages.map { $0 }
+}
+
+func parse(_ data: RawLocalizationData) -&gt; [Localization] {
+    let languages = findLanguages(in: data)
+    var localizations = [String:Localization]()
+
+    for entry in data {
+        let key = entry["key"] ?? "__ERROR__NO_KEY__"
+        let values = languages.map { (language: $0, entry: Entry(key: key, value: entry[$0]!)) }
+        for value in values {
+            var localization = localizations[value.language] ?? Localization(languageKey: value.language, entries: [])
+            localization.entries.append(value.entry)
+            localizations[value.language] = localization
+        }
+    }
+
+    return localizations.values.map { $0 }
+}
+
+func write(_ localizations: [Localization]) {
+    for localization in localizations {
+        print(localization.export().joined(separator: "\n"))
+    }
+}
+
+let spreadsheetURL = URL(string: "https://sheetsu.com/apis/v1.0/a96943d37c32", relativeTo: nil)!
+
+let session = URLSession.shared
+let task = session.dataTask(with: spreadsheetURL) { data, response, error in
+    guard let data = data else { print("Error"); return }
+
+    let json = try? JSONSerialization.jsonObject(with: data, options: []) as! RawLocalizationData
+    let localizations = parse(json ?? [])
+    write(localizations)
+
+    PlaygroundPage.current.finishExecution()
+}
+
+task.resume()
+</code></pre>
+
+<p>The only thing worthy of note is using <code>PlaygroundSupport</code> to enable asynchrous execution. All the other code is straightforward use of <code>URLSesssion</code> to parse JSON. All that is left is converting the playground to a script. The script doesn&rsquo;t save contents to any file, because when running in playground we&rsquo;re constrained to the sandbox. When moving to a script we can generate the folders and files as appropiate for our application. We&rsquo;re not going to do all these finishing touches now, but it&rsquo;s very simple to continue from here.</p>
+
+<p>It only took me 1 hours to setup, and considering I had to look up how to use <code>PlaygroundSupport</code>, I would say it&rsquo;s very quick to implement!</p>
+
+<h1>Caveats</h1>
+
+<p>With this approach we can quickly build automation around localizations, and we can share the spreadsheet with our translators. This example spreadsheet does not contain strings with placeholders (for example: <code>"WELCOME_MESSAGE" = "Hello %@!"</code>). This will require handling validation, because the translators can - and will - make mistakes when writing their new strings. In a later post I will elaborate the required validation of strings with placeholders, and how we can reduce errors with human-readable tokens.</p>
+
+<p>I hope this is useful to you.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Transitioning iOS versions]]></title>
+    <link href="http://miqu.me/blog/2015/12/14/transitioning-ios-versions/"/>
+    <updated>2015-12-14T20:00:25+00:00</updated>
+    <id>http://miqu.me/blog/2015/12/14/transitioning-ios-versions</id>
+    <content type="html"><![CDATA[<p>Having worked in companies developing their own products, I&rsquo;ve faced many times the problem developers encounter when building iOS applications: Your biggest 3rd party dependency - the OS SDK - is changing under you every year. How does your team deal with this in a maintainable way?</p>
+
+<!-- more -->
+
+
+<h1>Long-term projects</h1>
+
+<p>Unless you do consulting or freelancing, chances are that you will have to deal repeatedly with evolving code in the same project over the years. Even if you jump from project to project, chances are you land into existing projects where there&rsquo;s some code written some time ago.</p>
+
+<p>In longer projects <a href="https://en.wikipedia.org/wiki/Software_rot">software rot</a> stays and the team needs to deal with it. A successful application will face this earlier than expected, and in the fast-paced market of mobile applications, every year Apple is renovating and ruthlessly changing the  Operating System where our code lives. It requires non-trivial amount of work to keep up with changes, while still delivering improvements and features for our users.</p>
+
+<p>I&rsquo;ve worked in teams where these questions were often raised:</p>
+
+<ul>
+<li>How do we keep modernising our code, while maintaining backwards compatibility for our users?</li>
+<li>What techniques can be use to keep moving fast, while still supporting older OS versions?</li>
+<li>How do we approach throwing away old code using deprecated APIs in a big codebase?</li>
+<li>How do we write new code taking into account that we will remove support of an older OS version?</li>
+</ul>
+
+
+<h2>Fragmentation</h2>
+
+<p><a href="http://miqu.me/blog/2015/05/27/fragmentation/">As I wrote before</a>, developers in the Apple ecosystem face a different kind of fragmentation. We&rsquo;re forced to adopt breaking changes every year, or &lsquo;die&rsquo; in the process. Apple forces us to start using new features of the OS, and has a policy of deprecating APIs a lot faster than we like. Instead of supporting a lot of older devices and operating systems, we face many breaking changes every year.</p>
+
+<p>A mobile engineering team should embrace change, knowing they&rsquo;ll need to assign some engineering resources to keep up with code changes required to support new and old OS versions. Otherwise the code will rot faster than expected. (Anybody heard about complete rewrite of a feature just written a year ago?).</p>
+
+<p>Apple recommends maintaining support for the current iOS version and the previous one. At the time of this writing this would be iOS9 and iOS8. Even if your business allows for this rule, you&rsquo;re going to have a transitioning period while you update the application code, and still deliver new features and improvements.</p>
+
+<p>I&rsquo;m going to share with you what in my opinion are best practices to keep up with OS upgrades.</p>
+
+<h1>Transitioning iOS versions gracefully</h1>
+
+<p>I would divide best practices in 3 categories.</p>
+
+<ul>
+<li>SDK use</li>
+<li>Language: Swift / Objective-C</li>
+<li>Maintenance of previous releases</li>
+</ul>
+
+
+<p>Let&rsquo;s review each of them in order.</p>
+
+<h2>SDK use</h2>
+
+<h3>Treat deprecated APIs as errors to resolve</h3>
+
+<p>I think we should always treat warnings as errors, and deprecated API use is no exception. If this is not managed around the release of the new OS version, chances are it will take time for the team to keep up with new API. It&rsquo;s best to modernise code to use newer API in the face of deprecations, than leaving warnings as <em>TODO</em> markers for later.</p>
+
+<h3>At runtime, check for OS versions</h3>
+
+<p>For long time, Apple&rsquo;s <a href="https://developer.apple.com/library/ios/documentation/DeveloperTools/Conceptual/cross_development/Using/using.html#//apple_ref/doc/uid/20002000-1114537-BABHHJBC">recommended</a> way of checking for API existence has been using <code>respondsToSelector</code>, <code>[SomeClass class]</code>, or <code>NSClassFromString</code>. There&rsquo;s several pitfalls related to runtime checks and so many variations depending on what you are checking for. I don&rsquo;t see any benefit at all to check for methods, classes etc. Apple introduced availability checks for Swift this year, acknowledging and improving over the old practice around ObjC&rsquo;s flexibility. I think we should change our practices and check only for OS version in Objective-C.</p>
+
+<p>Starting with iOS 8 you can use <code>NSProcessInfo</code> to accurately fetch the OS version your app is running on. Use it in your macros, and never again check for API availability for <code>NSClassFromString</code>, <code>instancesRespondToSelector</code> etc. I like to use this to &lsquo;mark&rsquo; code, so we can keep removing legacy code paths. See next tip.</p>
+
+<h3>ObjC: Mark legacy code paths with macros</h3>
+
+<p>The problem with maintaining or having exceptions in the code for older versions of the OS, is that in the future that code will be dead, as your team will eventually drop support of that OS version. Say you still support iOS 7 today, and you need to implement use of newer API to convert points from one view coordinate system to another. In iOS8 a new API was introduced, and the previous one was not (yet) deprecated. You might want to migrate to use it when it is available. In swift, you can use <em>availability conditions</em> to check at compile-time:</p>
+
+<pre><code class="swift">if #available(iOS 8, *, *) {
+  self.view.convertPoint(.Zero, toCoordinateSpace:anotherView)
+} else {
+  self.view.convertPoint(CGPointZero, toView:anotherView)
+}
+</code></pre>
+
+<p>When the time comes to drop iOS8, possibly next year, you&rsquo;ll just search the whole project for <code>#available(iOS8</code> checks, and remove the old branch, and removing the check. This cleans the code and clears it of old checks.</p>
+
+<p>You can do the same with Objective-C, defining a function or macro that will determine the OS version at runtime. Furthermore, there may be times where you need to introduce a workaround in the code, related to an older OS version. It is useful to use the same macro to &lsquo;mark&rsquo; the code so when you stop supporting the older OS version, you just need to check for that marker. For example:</p>
+
+<pre><code class="objc">//Assume you have a macro that determines OS version, like MQG_OSVERSION_IOS7
+//Mark the code with the macro, doing nothing, just where you are doing a workaround that needs to
+//be reviewed when you drop iOS7 support
+{
+  (void)MQG_OSVERSION_IOS7;
+  // Do your stuff, which only is needed under iOS7, but you still do for all OS versions
+  // like implementing a delegate method that is not needed for iOS8 or greater, etc
+}
+</code></pre>
+
+<h3>Control the number of 3rd party libraries</h3>
+
+<p>Any 3rd party library that your project contains adds a cost to your project. If - most likely <em>when</em> - Apple breaks compatibility with an OS release, the maintainer may not be as fast as you to adapt to changes.</p>
+
+<p>Be mindful of this cost when considering a new library, and always be ready to step in and help the maintainer by pushing changes upstream. If you can&rsquo;t afford to do this, chances are your team will suffer every year when updating all dependencies.</p>
+
+<h2>Objective-C</h2>
+
+<p>Most possibly your project still has lots of Objective-C code. And it&rsquo;s this code that needs special care, as the team will need to continue living with it, even in the face of Swift.</p>
+
+<h3>Modernise all Objective-C code</h3>
+
+<p>If you have such old code still using pre-arc code, please refer to <a href="https://developer.apple.com/library/ios/releasenotes/ObjectiveC/RN-TransitioningToARC/Introduction/Introduction.html">this</a> guide. If you still have pre-2.0 Objective-C code, Xcode has a tool that will let you modernise it in minutes.</p>
+
+<p>There&rsquo;s two important changes to the language since Objective-C 2.0, introduced in 2015; That is the addition of <a href="http://miqu.me/blog/2015/05/27/fragmentation/">nullability annotations</a> and <a href="http://miqu.me/blog/2015/06/09/adopting-objectivec-generics/">lightweight generics</a>.</p>
+
+<p>Be sure to use these features in your new Objective-C code, and change APIs of existing code to annotate it for the use from Swift. It will also make you think about exiting code, and possibly encounter bugs! The most important aspect of doing this is that it will ease using older code from Swift, without the need for a rewrite.</p>
+
+<h3>Rewrites in Swift</h3>
+
+<p>The future of Cocoa development is Swift, and any application-level Objective-C code is destined to die sooner rather than later. If you can afford to slowly rewrite part of your application using Swift, just do it. How to organise rewrites is a subject of a whole new article, so I won&rsquo;t give an opinion on this just now.</p>
+
+<h3>Keep code templates up to date</h3>
+
+<p>It might seem unimportant, but your team should have up to date code templates. With the recent changes to the language, unfortunately Apple has not spent the time to change templates for Objective-C.  I find very annoying that the default templates for Objective-C don&rsquo;t annotate the code with <code>NS_ASSUME_NONNULL_BEGIN</code> and <code>NS_ASSUME_NONNULL_END</code> macros. So if you are still writing with that language it&rsquo;s better your team takes control of all templates and use modern ones.</p>
+
+<h2>Swift</h2>
+
+<p>Swift is changing a lot, but it is <a href="http://swift.org">open source</a>. You can check the roadmap and be ready for adoption from day one, when the new version is released as part of Apple tools.</p>
+
+<p>Not modernising to newer Swift code is not an option. Mainly because there are breaking changes, so it will incur a cost on your development time, which is hopefully returned in developer happiness for using the language - The current state of tooling in Swift makes the experience sometimes slower, so no win there ;).</p>
+
+<p>To keep up to date to Swift developments, be sure that somebody in the development team is following at least to the <a href="https://lists.swift.org/mailman/listinfo/swift-evolution-announce">evolution announce</a> mailing list, and review the <a href="https://github.com/apple/swift-evolution">evolution repository</a>.</p>
+
+<h2>Maintenance of previous releases</h2>
+
+<h3>Continous integration</h3>
+
+<p>In my experience, I&rsquo;ve found that to keep the development speed, the team generally needs to have access to 3 development environments in CI, available for any build:</p>
+
+<ul>
+<li>Current stable version of Xcode</li>
+<li>Beta version of Xcode</li>
+<li>Previous version of Xcode (temporarily)</li>
+</ul>
+
+
+<p>Generally all builds should be scheduled to run against the stable version of Xcode. Apple is moving fast, and there generally is one new beta version of Xcode available. That version may or may not have breaking changes to your project.</p>
+
+<p>Sometimes, the team will find it necessary to build with a previous version of Xcode, for example to be able to deploy a hot fix for an application submitted with it.</p>
+
+<h3>Cocoapods in repository</h3>
+
+<p>Different teams have different approaches to dependencies. If you use cocoapods, most likely you&rsquo;ll want dependencies checked in your repository project. Even though there&rsquo;s disadvantages, the biggest advantage is that you&rsquo;ll be able to build previous releases out of a tag. This helps obviously for maintenance reasons, but also to be able to do git bisect reliably. Take this into consideration when deciding if your dependencies should be checked in the repository.</p>
+
+<h1>Conclusion</h1>
+
+<p>Maintaining software projects is hard, and if you are working with a team with a successful product (you should!), then most likely you&rsquo;ll maintain it over time. I&rsquo;ve shared what I think are good practices to maintain code across different iOS versions, with the minimal effort involved. I hope you find it useful.</p>
+]]></content>
+  </entry>
+  
+</feed>

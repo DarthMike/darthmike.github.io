@@ -1,0 +1,304 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Building Swift on OSX - miqu.me</title>
+  <meta name="author" content="Miguel Angel Quiñones">
+
+   
+  <meta name="description" content="Software engineering thoughts">
+  
+  <meta name="keywords" content="">
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://miqu.me/blog/2015/12/05/building-swift-on-osx">
+  <link href="/favicon.png" rel="icon">
+  <link href='https://fonts.googleapis.com/css?family=Quicksand:300,400' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="miqu.me" type="application/atom+xml">
+  <script src="/js/jquery.js"></script>
+  <script src="/js/bootstrap-collapse.js"></script>
+  <script src="/js/modernizr-2.0.js"></script>
+  <script src="/js/octopress.js" type="text/javascript"></script>
+  <script src="/js/application.js"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="https://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="https://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <div class="navbar navbar-inverse navbar-static-top">
+  	<div class="navbar-inner">
+  	  <div class="container">
+        <a class="btn btn-navbar" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+          <span class="fui-menu-24"></span>
+        </a>
+  	  	<div class="nav-collapse collapse navbar-responsive-collapse" style="height:0;">
+  	      <ul class="nav">
+    
+        <li ><a href="/">Blog</a></li>
+    
+        <li ><a href="/about/">Who?</a></li>
+    
+        <li ><a href="/games/">Games</a></li>
+    
+        <li ><a href="/speaking/">Speaking</a></li>
+    
+</ul>
+
+<ul class="nav pull-right">
+    
+    <li><a href="https://github.com/DarthMike" title="Github Profile"><i class="icon-github-sign social-navbar"></i></a></li>
+    
+    
+    
+    <li><a href="https://linkedin.com/in/miguelquinon" title="Linkedin Profile"><i class="icon-linkedin-sign social-navbar"></i></a></li>
+    
+    
+    <li><a href="https://twitter.com/@miguelquinon" title="Twitter Profile"><i class="icon-twitter-sign social-navbar"></i></a></li>
+    
+    
+    
+    
+
+    
+    <li><a href="mailto:miguel@miqu.me" title="Email"><i class="icon-envelope social-navbar"></i></a></li>
+    
+</ul>
+
+  	    </div>
+  	  </div>
+  	</div>
+  </div>
+  <div class="container" id="main">
+      <div class="row-fluid">
+        <div id="content">
+          <div>
+<article class="hentry" role="article">
+  
+
+  <header>
+  <div class="jumbotron">
+    Building Swift on OSX
+	<h5>
+
+
+
+
+
+
+
+
+  
+
+
+
+<i class="icon-calendar-empty"></i> <time datetime="2015-12-05T00:38:35+00:00" pubdate data-updated="true">05 Dec 2015</time></h5>
+  </div>
+</header>
+  <div class="row-fluid">
+    <div class="span12">
+      <p>Swift is finally <a href="http://swift.org">open source</a>! This is great because of many reasons, namely the transparency and chances to learn from the people responsible of building the foundational language you work on. I&rsquo;ve been checking how easy was to build the runtime, REPL and compiler, and it turns out the team made an excellent job to make the process very easy. Let&rsquo;s see how to do it.</p>
+
+<!-- more -->
+
+
+<p>If you ever want to use a bleeding edge version of swift to build your application, now you can! Bear in mind that you should only use development versions of the compiler and runtime only when you are sure you need to do this. Generally as an application developer you rarely need to do so. But hey, let&rsquo;s dive in!</p>
+
+<p>The documentation is very good. Again the team has done an excellent job in my opinion, setting up a full open source setup for the years to come. So I encourage you to read at least the <a href="https://swift.org/getting-started/">getting started</a> and <a href="https://github.com/apple/swift/blob/master/README.md">readme</a> first.</p>
+
+<h1>Downloading a binary development snapshot</h1>
+
+<p>If you don&rsquo;t want to build from sources, you can grab the latest snapshot as described on the <a href="https://swift.org/download/">swift download page</a>. It&rsquo;s certainly an option if for example you have an application written in Swift, and you want to assess how much things will change ahead of next Xcode release. You can check <a href="http://ericasadun.com/2015/12/03/how-to-compile-with-xcode-and-swift-2-2/">Erica Sadun&rsquo;s post</a> if you want more details. Thanks <a href="https://twitter.com/ericasadun">Erica</a> for sharing!</p>
+
+<h1>Building from sources</h1>
+
+<p>I just needed to install two dependencies on my machine, as stated in the repository: cmake and ninja. Be sure to set this up before starting a build. I&rsquo;m using homebrew:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>brew install cmake
+</span><span class='line'>brew install ninja
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I chose to use ninja for the first time I would build Swift, as it is the default build system, and I wouldn&rsquo;t need to change configuration parameters for the build script.</p>
+
+<p>Once you&rsquo;ve installed the dependencies, clone the required repositories. Bear in mind that the default build script will try to look for more than just the swift repository. As described in the swift <a href="https://github.com/apple/swift/blob/master/README.md">README</a>. So you&rsquo;ll need to clone several repos:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'> mkdir apple
+</span><span class='line'> git clone git@github.com:apple/swift.git swift
+</span><span class='line'> git clone git@github.com:apple/swift-llvm.git llvm
+</span><span class='line'> git clone git@github.com:apple/swift-clang.git clang
+</span><span class='line'> git clone git@github.com:apple/swift-lldb.git lldb
+</span><span class='line'> git clone git@github.com:apple/swift-cmark.git cmark
+</span><span class='line'> git clone git@github.com:apple/swift-llbuild.git llbuild
+</span><span class='line'> git clone git@github.com:apple/swift-package-manager.git swiftpm
+</span><span class='line'> git clone git@github.com:apple/swift-corelibs-xctest.git
+</span><span class='line'> git clone git@github.com:apple/swift-corelibs-foundation.git
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Once all repositories are cloned, you can build from the main swift repository, with the default configuration. The Swift team included a wrapper script to make compilation really easy. That script will be using CMake and ninja to build the actual binaries and libraries. Just use the default configuration (using ninja), to see if you can successfully build with your machine:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>./swift/utils/build-script
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>With the default arguments, you&rsquo;ll find the build artifacts in a &lsquo;build&rsquo; folder so go and explore. To see the version of the newly built swift compiler. So, go one directory upwards, and find the built binaries ready to use:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">cd </span>build/Ninja-DebugAssert/swift-macosx-x86_64/bin
+</span><span class='line'>./swift --version
+</span><span class='line'><span class="c">#Swift version 2.2-dev (LLVM 46be9ff861, Clang 4deb154edc, Swift c959ce2c83)</span>
+</span><span class='line'><span class="c">#Target: x86_64-apple-macosx10.9</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><strong>Success!</strong></p>
+
+<h1>Happy learning!</h1>
+
+<p>I quite liked the quote on the <a href="https://github.com/apple/swift/blob/master/utils/build-script#L261">build-script</a>, where a rationale is presented behind the decision to have a unique simple wrapper script to build the toolchain.</p>
+
+<blockquote><p>While you can invoke CMake directly to build Swift, this tool will save you
+time by taking away the mechanical parts of the process, providing you controls
+for the important options.</p>
+
+<p>For all automated build environments, this tool is regarded as <em>the</em> <em>only</em> way
+to build Swift.  This is not a technical limitation of the Swift build system.
+It is a policy decision aimed at making the builds uniform across all
+environments and easily reproducible by engineers who are not familiar with the
+details of the setups of other systems or automated environments</p></blockquote>
+
+<p>Even somebody with basic knowledge and unexperienced with <em>compilers</em> like myself, could get up and running with a new swift build in very little time.</p>
+
+<p>The release of open source code so close to our day to day jobs is a very special thing for us developers. Compiling swift and the tools is very easy, which just shows the high technical leadership and high quality of the open source release by the team at Apple. Congrats! This will be an amazing journey, for all of us.</p>
+
+    </div>
+  </div>
+
+
+
+  <footer>
+    <hr>
+    
+    <div class="row-fluid">
+      
+      <div class="span6">
+        <p class="meta">
+        
+        
+
+
+
+  <a href="/blog/categories/swift/"><span class="badge">swift</span></a>
+
+  <a href="/blog/categories/tools/"><span class="badge">tools</span></a>
+
+
+
+
+        </p>
+      </div>
+      
+      <div class="span6 social-sharing">
+        <div class="sharing">
+  <div class="addthis_toolbox addthis_default_style ">
+  
+  
+  <a class="addthis_button_tweet"></a>
+  
+  
+  <a class="addthis_counter addthis_pill_style"></a>
+  </div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
+</div>
+
+      </div>
+      
+      
+    </div>
+    
+    <div class="row-fluid">
+      <div class="span12">
+        <p class="meta">
+          
+            <a class="basic-alignment left" href="/blog/2015/11/19/three-months-with-xvim/" title="Previous Post: Three months with XVim">&laquo; Three months with XVim</a>
+          
+          
+            <a class="basic-alignment right" href="/blog/2015/12/14/transitioning-ios-versions/" title="Next Post: Transitioning iOS versions">Transitioning iOS versions &raquo;</a>
+          
+        </p>
+      </div>
+    </div>
+  </footer>
+</article>
+
+</div>
+
+
+
+        </div>
+      </div>
+      <div class="row-fluid">
+        <footer class="footer-page" role="contentinfo">
+          <p>
+  Copyright &copy; 2018 - Miguel Angel Quiñones -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span> - Theme by <a href="http://alexgaribay.com">Alex Garibay</a>
+</p>
+
+
+        </footer>
+      </div>
+  </div>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'https://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

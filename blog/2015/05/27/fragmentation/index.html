@@ -1,0 +1,283 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Fragmentation - miqu.me</title>
+  <meta name="author" content="Miguel Angel Quiñones">
+
+   
+  <meta name="description" content="Software engineering thoughts">
+  
+  <meta name="keywords" content="">
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://miqu.me/blog/2015/05/27/fragmentation">
+  <link href="/favicon.png" rel="icon">
+  <link href='https://fonts.googleapis.com/css?family=Quicksand:300,400' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="miqu.me" type="application/atom+xml">
+  <script src="/js/jquery.js"></script>
+  <script src="/js/bootstrap-collapse.js"></script>
+  <script src="/js/modernizr-2.0.js"></script>
+  <script src="/js/octopress.js" type="text/javascript"></script>
+  <script src="/js/application.js"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="https://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="https://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <div class="navbar navbar-inverse navbar-static-top">
+  	<div class="navbar-inner">
+  	  <div class="container">
+        <a class="btn btn-navbar" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+          <span class="fui-menu-24"></span>
+        </a>
+  	  	<div class="nav-collapse collapse navbar-responsive-collapse" style="height:0;">
+  	      <ul class="nav">
+    
+        <li ><a href="/">Blog</a></li>
+    
+        <li ><a href="/about/">Who?</a></li>
+    
+        <li ><a href="/games/">Games</a></li>
+    
+        <li ><a href="/speaking/">Speaking</a></li>
+    
+</ul>
+
+<ul class="nav pull-right">
+    
+    <li><a href="https://github.com/DarthMike" title="Github Profile"><i class="icon-github-sign social-navbar"></i></a></li>
+    
+    
+    
+    <li><a href="https://linkedin.com/in/miguelquinon" title="Linkedin Profile"><i class="icon-linkedin-sign social-navbar"></i></a></li>
+    
+    
+    <li><a href="https://twitter.com/@miguelquinon" title="Twitter Profile"><i class="icon-twitter-sign social-navbar"></i></a></li>
+    
+    
+    
+    
+
+    
+    <li><a href="mailto:miguel@miqu.me" title="Email"><i class="icon-envelope social-navbar"></i></a></li>
+    
+</ul>
+
+  	    </div>
+  	  </div>
+  	</div>
+  </div>
+  <div class="container" id="main">
+      <div class="row-fluid">
+        <div id="content">
+          <div>
+<article class="hentry" role="article">
+  
+
+  <header>
+  <div class="jumbotron">
+    Fragmentation
+	<h5>
+
+
+
+
+
+
+
+
+  
+
+
+
+<i class="icon-calendar-empty"></i> <time datetime="2015-05-27T14:16:50+00:00" pubdate data-updated="true">27 May 2015</time></h5>
+  </div>
+</header>
+  <div class="row-fluid">
+    <div class="span12">
+      <p>As an iOS developer or Apple-centric developer, <a href="https://developer.apple.com/wwdc/">WWDC</a> is a time of excitement and news. The yearly event at Apple offers many networking opportunities, but most importantly sets the stage for the next year of development in the company&rsquo;s platform. As this year event is closing in, I wanted to write my thoughts on a related, and often overlooked topic; <a href="https://en.wikipedia.org/wiki/Fragmentation_(programming)">fragmentation</a></p>
+
+<!-- more -->
+
+
+<h1>Fragmentation in iOS, really?</h1>
+
+<p>Apple is a unique company   in the tech sector because it controls mostly everything that needs to be done to build a consumer electronics product. One of the company&rsquo;s strengths has always been the tight integration between design, hardware and software.</p>
+
+<p>So one could safely say that, unlike <a href="http://www.android.com/">Android</a>, it&rsquo;s main competitor in the mobile space, iOS does not have such level of fragmentation in hardware and software. This has historically been <a href="http://bgr.com/2013/12/13/android-fragmentation-vs-ios-fragmentation/">one quality</a> when comparing the Operating Systems as a platform to build end user applications. Nevertheless I think that iOS developers need to cope with a different - but still critical - kind of fragmentation.</p>
+
+<h1>Moving fast</h1>
+
+<p>The mobile sector of IT moves very fast. New technologies, APIs, and fast releases are standard. Apple in particular, releases new versions of the iPhone and iPad devices and iOS version every year. A yearly cycle may not seem a short term, but it is short for long-lasting products; the kind of products that are valuable for users and for the people building them.</p>
+
+<p>There are some inconveniences related to moving fast in mobile, in particular in iOS. Let’s see what developers need to cope with every year or in the immediate future.</p>
+
+<h2>Breaking API changes</h2>
+
+<p>You may expect APIs to be deprecated with every iOS version, you can expect replacements to be announced for APIs your application uses. Or new additions and different behaviour for existing APIs. What it means for your code:</p>
+
+<ul>
+<li><p><strong>Increase of software rot</strong>: This entropy and yearly variation of the platform only increases the rate at which your code, specially UI code, becomes <em>legacy</em>.</p></li>
+<li><p><strong>Adopting new APIs takes developer time</strong>: Time that may not be aligned by your product priorities, but time you need to spend to learn and adopt them.</p></li>
+<li><p><strong>Breaking changes</strong>: App developers need to keep support of older iOS versions for some time. Breaking changes, be it API SDK behaviour, mean you potentially need to either rewrite parts of your existing code or maintain different code paths for different OS versions.</p></li>
+</ul>
+
+
+<h2>Bugs</h2>
+
+<p>All software has bugs, this is a fact that every software engineer is acquainted with very early in his career. But moving fast means you can’t just wait for platform releases to be polished; to keep your application compatible, to keep <em>the 5 star ratings coming</em>, you need to support a potentially rough OS release from day (or week) 1. You may even need to provide workarounds in your code to specific bugs in the latest iOS version.</p>
+
+<p>Again this will lead to more entropy to the code, thus increasing the software rot.</p>
+
+<h2>New OS features</h2>
+
+<p>Apple users upgrade their devices fast. This is very good for application developers because you can target the <em>latest and greatest</em>, simplify code, and still be quite confident that your product will be available for the majority of the users in the platform.</p>
+
+<p>The flip-side of this is that users expect the latest features, furthermore they expect them in 3rd party applications. Many times the changes in the OS are not noticeable by users, like <a href="https://developer.apple.com/library/ios/documentation/UserExperience/Conceptual/AutolayoutPG/index.html">autolayout</a>, <a href="https://developer.apple.com/library/ios/documentation/Foundation/Reference/NSURLSession_class/index.html">NSURLSesssion</a> or 64 bit support. But sometimes those additions are noticeable, like support for TouchID, App Extensions, UIKit Dynamics or many changes that UIKit faces every year. Even if some features are not noticeable by users, they will notice the effect they have in an application behaviour. For example adding support for <a href="https://developer.apple.com/library/ios/documentation/iPhone/Conceptual/iPhoneOSProgrammingGuide/BackgroundExecution/BackgroundExecution.html#//apple_ref/doc/uid/TP40007072-CH4-SW5">background fetch</a> requires using NSURLSession and users will notice that content is ready when application is launched.</p>
+
+<p>As the application marketplace is very crowded, any kind of promotion is an opportunity to stand out from the crowd; new OS features are a very prominent way to get featured by Apple by the time the new OS version is released, and it is often used to promote applications. Apple does this on purpose, it’s on the users benefits that all applications converge to using new OS features, and presents the App Store with as positive and unified.</p>
+
+<p>The problem with all this is that many times adding support for these new features is not aligned with your project needs. But you may feel pressure to do it because of the aforementioned reasons. Again we are adding development time, potentially every year.</p>
+
+<h2>More devices</h2>
+
+<p>iOS devices have traditionally been very uniform in terms of screen size, that is, until the trend was broken almost 2 years ago with iPhone 5. Even though the relationship and differences in screen sizes is <em>sane</em> (retina vs non-retina, or just height increase), still, there are differences.</p>
+
+<p>Last year apple introduced a <a href="https://developer.apple.com/library/prerelease/ios/releasenotes/General/WhatsNewIniOS/Articles/iOS8.html#//apple_ref/doc/uid/TP40014205-SW44">new API called ‘Size classes’</a>. This API can be used to provide a more robust and easier way to reuse code, and also to change user interface for different screen sizes or orientations. I would say Apple acknowledged that developers can’t ignore different screen sizes anymore.</p>
+
+<p>I am not considering Apple Watch here, firstly because your application might not need an extension for it, and secondly because you can see it as a different application altogether.</p>
+
+<h1>Swift</h1>
+
+<p>If you are mildly interested in mobile, you have heard of Swift, the new programming language introduced by Apple last year. It has been a wild and bumpy road for early adopters, and the language is still in it’s infancy, even though it’s currently <a href="https://developer.apple.com/library/ios/releasenotes/DeveloperTools/RN-Xcode/Chapters/xc6_release_notes.html#//apple_ref/doc/uid/TP40001051-CH4-SW3">1.2 version</a>.</p>
+
+<p>Developers not adopting the new language now, are slowly facing a kind of technical debt (and knowledge gap) that they will possibly need to pay years from now. Existing projects, if they go down the road of mixed Objective-C and Swift codebases, face adding even more entropy to the code. The impact this has on existing projects can’t be ignored.</p>
+
+<h1>Apples to Apples</h1>
+
+<p>Let me be clear about the take of this post; I&rsquo;m not, in any way, trying to compare Android and iOS. This is not even a fair comparison to begin with.</p>
+
+<p>In my opinion, fragmentation <strong>is</strong> a problem developers in Apple platforms need to cope with, if they want to work on software projects lasting more than a year. It is just faced in a different way. Every year the development team needs to spend resources to keep up with the changes in the platform, and still keeping support for existing OS versions and devices.</p>
+
+<p>These changes are not bad at all, but increase the workload for your project, and sometimes distract from the real business needs of your product. That said, keeping with the changes is generally satisfying for engineers as this is the bread and butter of our work. And for me personally, the pace of change is one of the reasons why I love mobile (and Apple in particular).</p>
+
+<p>I can&rsquo;t wait for what Apple has to say on this year&rsquo;s <a href="https://developer.apple.com/wwdc/">WWDC</a>!</p>
+
+    </div>
+  </div>
+
+
+
+  <footer>
+    <hr>
+    
+    <div class="row-fluid">
+      
+      <div class="span6">
+        <p class="meta">
+        
+        
+
+
+
+  <a href="/blog/categories/apple/"><span class="badge">apple</span></a>
+
+  <a href="/blog/categories/ios/"><span class="badge">ios</span></a>
+
+  <a href="/blog/categories/tools/"><span class="badge">tools</span></a>
+
+
+
+
+        </p>
+      </div>
+      
+      <div class="span6 social-sharing">
+        <div class="sharing">
+  <div class="addthis_toolbox addthis_default_style ">
+  
+  
+  <a class="addthis_button_tweet"></a>
+  
+  
+  <a class="addthis_counter addthis_pill_style"></a>
+  </div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
+</div>
+
+      </div>
+      
+      
+    </div>
+    
+    <div class="row-fluid">
+      <div class="span12">
+        <p class="meta">
+          
+            <a class="basic-alignment left" href="/blog/2015/04/17/adopting-nullability-annotations/" title="Previous Post: Adopting nullability annotations">&laquo; Adopting nullability annotations</a>
+          
+          
+            <a class="basic-alignment right" href="/blog/2015/06/09/adopting-objectivec-generics/" title="Next Post: Adopting Objective-C generics">Adopting Objective-C generics &raquo;</a>
+          
+        </p>
+      </div>
+    </div>
+  </footer>
+</article>
+
+</div>
+
+
+
+        </div>
+      </div>
+      <div class="row-fluid">
+        <footer class="footer-page" role="contentinfo">
+          <p>
+  Copyright &copy; 2018 - Miguel Angel Quiñones -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span> - Theme by <a href="http://alexgaribay.com">Alex Garibay</a>
+</p>
+
+
+        </footer>
+      </div>
+  </div>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'https://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: storyboards | miqu.me]]></title>
+  <link href="http://miqu.me/blog/categories/storyboards/atom.xml" rel="self"/>
+  <link href="http://miqu.me/"/>
+  <updated>2018-11-21T10:05:53+00:00</updated>
+  <id>http://miqu.me/</id>
+  <author>
+    <name><![CDATA[Miguel Angel Quiñones]]></name>
+    <email><![CDATA[miguel@miqu.me]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Technical fanatism]]></title>
+    <link href="http://miqu.me/blog/2014/10/24/technical-fanatism/"/>
+    <updated>2014-10-24T14:21:07+00:00</updated>
+    <id>http://miqu.me/blog/2014/10/24/technical-fanatism</id>
+    <content type="html"><![CDATA[<p>Whenever I meet some developer, I can always get a really interesting conversation. Be it tools, opinions on platforms, favorite blogs, books, or
+some new technique I didn&rsquo;t know about.
+<br/>
+That&rsquo;s why it&rsquo;s important to discuss with other people in the field their opinions, they challenge your assumptions and you can gain useful
+insights which otherwise would be hidden to you for longer. But sometimes, you hit a wall. Somebody does not listen.</p>
+
+<!-- more -->
+
+
+<h1>Fanatism</h1>
+
+<p>Definition of <a href="http://dictionary.cambridge.org/dictionary/british/discussion">discussion</a>:</p>
+
+<blockquote><p><strong>The activity in which people talk about something and tell each other their ideas or opinions:</strong></p>
+
+<ul>
+<li>Management are holding/having discussions with employee representatives about possible redundancies</li>
+<li>The matter is still under discussion (= being considered)</li>
+<li>A discussion group/document
+<br/></li>
+</ul>
+</blockquote>
+
+<p>By definition, if you were to discuss something with another person, it&rsquo;s always with the goal of sharing opinions, and learn from each other.
+Then you discuss a controversial topic with a fellow developer:</p>
+
+<ul>
+<li>I do like storyboards, they have good use cases</li>
+</ul>
+
+
+<p>Then you may receive such answers:</p>
+
+<ul>
+<li><p>My friend at Apple tells me they are a marketing move, you shouldn&rsquo;t use them</p></li>
+<li><p>Some very known group of devs (unimportant who), says they don&rsquo;t like storyboards. Why do you still use them?</p></li>
+</ul>
+
+
+<p>My response is to shrug and try to explain that there is a use case for that tool. I give concrete examples, as well as my understanding where the drawbacks of using it lay. In other words, I choose a tool for the job at hand, knowing its advantages and disadvantages.</p>
+
+<h1>The tool for the job</h1>
+
+<p>The previous It&rsquo;s surprising that young people, in &lsquo;modern&rsquo; countries and 21st century, can still be religious about software platforms, programming languages
+and tools. As for myself, discussing a technical topic with somebody makes more sense if the other person has different views. That way you learn and change your
+assumptions a bit. That way you become better developer.</p>
+
+<p>Strong opinions are good, they maintain you firm in your position. But you must know <strong>why</strong> you have such opinion, and <strong>why</strong> you chose that stand. Blind
+execution and recital is best left for ants. When somebody will challenge your opinion, it may be good to reassure and check your assumptions, verify you think the same
+<strong>after</strong> hearing somebody&rsquo;s use case. Maybe, after all, that other person has some knowledge to share with you.</p>
+
+<p>That leads me to thinking why we get paid when we work as engineers. We are not paid to execute, but to think how to execute, and choose the best tool for
+the job. The reason is simple, as an engineer you have the knowledge to decide how, and to be really effective at building something. Choose
+the tool that fits your use case.</p>
+
+<h1>Better answers</h1>
+
+<p>I would ask more questions, or would give such answers:</p>
+
+<ul>
+<li>Storyboards don&rsquo;t scale if you have many devs in the team, so keep them small</li>
+<li>Storyboards couple View Controllers with Navigation, it&rsquo;s easy to couple controllers to their environment. But I see your use case makes sense because
+those three Controllers are not reusable by themselves, but the whole group is</li>
+<li>Storyboards are hard understand visually if you have many custom subviews. All you will see is white boxes. But yes, for your simple case
+it may make sense. I just prefer using XIBs</li>
+<li>If you use multiple small storyboards, then you don&rsquo;t see the whole navigation across an application. But then as you said, the app is complex enough
+that it doesn&rsquo;t fit in a single storyboard anyway. Dividing makes sense then. You can&rsquo;t have a perfect solution for everything</li>
+</ul>
+
+]]></content>
+  </entry>
+  
+</feed>

@@ -1,0 +1,4 @@
+This is a Brave Payments publisher verification file.
+
+Domain: miqu.me
+Token: 1cd0dce644a0ea1e6edcd25131e41fabd6c786c6a9c7c2cd9a749ba416679c70

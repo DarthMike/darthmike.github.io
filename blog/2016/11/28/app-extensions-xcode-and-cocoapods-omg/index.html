@@ -1,0 +1,366 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>App extensions, Xcode and Cocoapods, OMG! - miqu.me</title>
+  <meta name="author" content="Miguel Angel Quiñones">
+
+   
+  <meta name="description" content="Software engineering thoughts">
+  
+  <meta name="keywords" content="">
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://miqu.me/blog/2016/11/28/app-extensions-xcode-and-cocoapods-omg">
+  <link href="/favicon.png" rel="icon">
+  <link href='https://fonts.googleapis.com/css?family=Quicksand:300,400' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="miqu.me" type="application/atom+xml">
+  <script src="/js/jquery.js"></script>
+  <script src="/js/bootstrap-collapse.js"></script>
+  <script src="/js/modernizr-2.0.js"></script>
+  <script src="/js/octopress.js" type="text/javascript"></script>
+  <script src="/js/application.js"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="https://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="https://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <div class="navbar navbar-inverse navbar-static-top">
+  	<div class="navbar-inner">
+  	  <div class="container">
+        <a class="btn btn-navbar" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+          <span class="fui-menu-24"></span>
+        </a>
+  	  	<div class="nav-collapse collapse navbar-responsive-collapse" style="height:0;">
+  	      <ul class="nav">
+    
+        <li ><a href="/">Blog</a></li>
+    
+        <li ><a href="/about/">Who?</a></li>
+    
+        <li ><a href="/games/">Games</a></li>
+    
+        <li ><a href="/speaking/">Speaking</a></li>
+    
+</ul>
+
+<ul class="nav pull-right">
+    
+    <li><a href="https://github.com/DarthMike" title="Github Profile"><i class="icon-github-sign social-navbar"></i></a></li>
+    
+    
+    
+    <li><a href="https://linkedin.com/in/miguelquinon" title="Linkedin Profile"><i class="icon-linkedin-sign social-navbar"></i></a></li>
+    
+    
+    <li><a href="https://twitter.com/@miguelquinon" title="Twitter Profile"><i class="icon-twitter-sign social-navbar"></i></a></li>
+    
+    
+    
+    
+
+    
+    <li><a href="mailto:miguel@miqu.me" title="Email"><i class="icon-envelope social-navbar"></i></a></li>
+    
+</ul>
+
+  	    </div>
+  	  </div>
+  	</div>
+  </div>
+  <div class="container" id="main">
+      <div class="row-fluid">
+        <div id="content">
+          <div>
+<article class="hentry" role="article">
+  
+
+  <header>
+  <div class="jumbotron">
+    App Extensions, Xcode and Cocoapods, OMG!
+	<h5>
+
+
+
+
+
+
+
+
+  
+
+
+
+<i class="icon-calendar-empty"></i> <time datetime="2016-11-28T09:44:54+00:00" pubdate data-updated="true">28 Nov 2016</time></h5>
+  </div>
+</header>
+  <div class="row-fluid">
+    <div class="span12">
+      <p>Have you encountered this error when upgrading to the latest CocoaPods (1.1.0), or sharing a library between your iOS App and your extension?</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="s1">&#39;sharedApplication&#39;</span> is unavailable: not available on iOS <span class="o">(</span>App Extension<span class="o">)</span> - Use view controller based solutions where appropriate instead.
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If yes, continue reading, as you might have encountered same issue as myself. I&rsquo;ve recently had to upgrade a project to using Cocoapods 1.1.0. Things stopped compiling, and I had to investigate the root cause of the problem. It has to do with iOS App extensions, unavailable APIs and how fragile our tooling is ;).</p>
+
+<!-- more -->
+
+
+<h1>TL;DR</h1>
+
+<ul>
+<li>The first cause of error can be fixed by conditionally compiling with a macro. See example <a href="https://github.com/snowplow/snowplow-objc-tracker/blob/86c1049e960f72966ed61faa8824dbf1a73840f4/Snowplow/OpenIDFA.m#L48-L52">here</a></li>
+<li>It&rsquo;s better if you define whole classes or API unavailable using <code>NS_EXTENSION_UNAVAILABLE_IOS</code></li>
+<li>If you had this error in a 3rd party library you&rsquo;ll need it to be fixed by the author (see below)</li>
+<li>If you are a library author and need to have different code paths via preprocessor macros, read <a href="cocoapods-issue">this thread</a>, and follow the recommendation to create a separated subspec for an extension target</li>
+</ul>
+
+
+<h1>Unavailable API for App extensions</h1>
+
+<p>Since the introduction of <a href="https://developer.apple.com/library/content/documentation/General/Conceptual/ExtensibilityPG/index.html">Application extensions</a> several years ago, Apple has marked some API as unavailable for these targets. For example, <code>sharedApplication</code> from <code>UIApplication</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="k">@property</span><span class="p">(</span><span class="k">class</span><span class="p">,</span> <span class="k">nonatomic</span><span class="p">,</span> <span class="k">readonly</span><span class="p">)</span> <span class="bp">UIApplication</span> <span class="o">*</span><span class="n">sharedApplication</span> <span class="n">NS_EXTENSION_UNAVAILABLE_IOS</span><span class="p">(</span><span class="s">&quot;Use view controller based solutions where appropriate instead.&quot;</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>or in Swift:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='swift'><span class='line'><span class="p">@</span><span class="n">available</span><span class="p">(</span><span class="n">iOSApplicationExtension</span><span class="p">,</span> <span class="n">unavailable</span><span class="p">)</span>
+</span><span class='line'><span class="n">open</span> <span class="k">class</span> <span class="k">var</span> <span class="nl">shared</span><span class="p">:</span> <span class="bp">UIApplication</span> <span class="p">{</span> <span class="kr">get</span> <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Apple is using a new macro, <code>NS_EXTENSION_UNAVAILABLE_IOS</code> to mark API as unavailable. There&rsquo;s a new setting on Xcode, <code>APPLICATION_EXTENSION_API_ONLY</code>, and if set, the code will not compile if it contains a call to <code>sharedApplication</code>. This setting is automatically enabled for extension targets so you get the error in your code when you are writing it.</p>
+
+<p>Writing separate code for an App target and and extension target is not an issue. You just don&rsquo;t use the unavailable API in the extension. But what about reusable libraries?</p>
+
+<h1>Libraries using unavailable API for extensions</h1>
+
+<p>You might be using several libraries, and some of these might be using unavailable API for extensions. Notably AFNetworking is one of these, check the <a href="https://github.com/AFNetworking/AFNetworking/blob/master/UIKit%2BAFNetworking/AFNetworkActivityIndicatorManager.h#L44">sources</a>. The developer of the library must take care of this in their code, and mark API that is unavailable for extensions because of the usage of restricted system API.</p>
+
+<p>But then, there might be code that is executing a different code path when compiled against an extension, for example <a href="https://github.com/pinterest/PINCache/pull/72">PinCache</a>. If this is the case, the library is forcing you to decide between using unsafe API or not using it. You&rsquo;ll need to define the designated macro in your project to achieve this. See an example <a href="https://github.com/snowplow/snowplow-objc-tracker/blob/86c1049e960f72966ed61faa8824dbf1a73840f4/Snowplow/OpenIDFA.m#L48-L52">here</a>.</p>
+
+<h1>Enter CocoaPods</h1>
+
+<p>The problem comes with the integration with CocoaPods, as they (correctly) deduplicate targets. This means that you&rsquo;ll compile the library once (say without unavailable API) and link it to your targets. But sometimes you want to compile with usage of unavailable APIs against your main app, and removing unavailable usage on the extension. If you want this, you&rsquo;re out of luck as it&rsquo;s not directly supported by Cocoapods.</p>
+
+<h2>What changed?</h2>
+
+<p>Since <a href="http://blog.cocoapods.org/CocoaPods-1.1.0/">Cocoapods 1.1.0</a>, they improved integration with App extensions, and the generated project will enable the flag <code>APPLICATION_EXTENSION_API_ONLY</code> for libraries linking against an extension target. This is correct, but then you&rsquo;ll start seeing compilation errors that can be a bit puzzling. Bear in mind that the code will not compile even if you don&rsquo;t use the offending API. The compiler just complains that there is code that uses unavailable API.</p>
+
+<h1>Solutions</h1>
+
+<p>So you can&rsquo;t compile, you can&rsquo;t just disable all unavailable API for your main App target. What do you do? There is hope! See <a href="cocoapods-issue">this discussion</a>, and you&rsquo;ll see <a href="https://twitter.com/neonacho">neonacho</a> suggests to use a subspec to duplicate the targets. This is a very practical solution, but it requires the library author to modify their podspec.</p>
+
+<h2>Example</h2>
+
+<p>Let&rsquo;s see an example for a specific library. I had to fork Snowplow (the library we&rsquo;re using) and add the subspec. If you want to check the real changes, a PR is <a href="https://github.com/snowplow/snowplow-objc-tracker/pull/303">here</a>. Now let&rsquo;s work it out with a fictional example replicating what&rsquo;s required. Say you&rsquo;re owner of <code>MyLibrary</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">Pod</span><span class="o">::</span><span class="no">Spec</span><span class="o">.</span><span class="n">new</span> <span class="k">do</span> <span class="o">|</span><span class="n">s</span><span class="o">|</span>
+</span><span class='line'>  <span class="n">s</span><span class="o">.</span><span class="n">name</span>             <span class="o">=</span> <span class="s2">&quot;MyLibrary&quot;</span>
+</span><span class='line'>  <span class="c1"># Omitting metadata stuff and deployment targets</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">s</span><span class="o">.</span><span class="n">source_files</span> <span class="o">=</span> <span class="s1">&#39;MyLibrary/*.{m,h}&#39;</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You use unavailable API, so the code conditionally compiles some parts based on a preprocessor macro called <code>MYLIBRARY_APP_EXTENSIONS</code>. We declare a subspec, called <strong>Core</strong> with all the code, but the flag off. We make that subspec the default one if user doesn&rsquo;t specify one. Then we&rsquo;ll declare an additional subspec, called <strong>AppExtension</strong> including all the code, but setting the preprocessor macro:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">Pod</span><span class="o">::</span><span class="no">Spec</span><span class="o">.</span><span class="n">new</span> <span class="k">do</span> <span class="o">|</span><span class="n">s</span><span class="o">|</span>
+</span><span class='line'>  <span class="n">s</span><span class="o">.</span><span class="n">name</span>             <span class="o">=</span> <span class="s2">&quot;MyLibrary&quot;</span>
+</span><span class='line'>  <span class="c1"># Omitting metadata stuff and deployment targets</span>
+</span><span class='line'>  <span class="n">s</span><span class="o">.</span><span class="n">default_subspec</span> <span class="o">=</span> <span class="s1">&#39;Core&#39;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">s</span><span class="o">.</span><span class="n">subspec</span> <span class="s1">&#39;Core&#39;</span> <span class="k">do</span> <span class="o">|</span><span class="n">core</span><span class="o">|</span>
+</span><span class='line'>    <span class="n">core</span><span class="o">.</span><span class="n">source_files</span> <span class="o">=</span> <span class="s1">&#39;MyLibrary/*.{m,h}&#39;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">s</span><span class="o">.</span><span class="n">subspec</span> <span class="s1">&#39;AppExtension&#39;</span> <span class="k">do</span> <span class="o">|</span><span class="n">ext</span><span class="o">|</span>
+</span><span class='line'>    <span class="n">ext</span><span class="o">.</span><span class="n">source_files</span> <span class="o">=</span> <span class="s1">&#39;MyLibrary/*.{m,h}&#39;</span>
+</span><span class='line'>    <span class="c1"># For app extensions, disabling code paths using unavailable API</span>
+</span><span class='line'>    <span class="n">ext</span><span class="o">.</span><span class="n">pod_target_xcconfig</span> <span class="o">=</span> <span class="p">{</span> <span class="s1">&#39;GCC_PREPROCESSOR_DEFINITIONS&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;MYLIBRARY_APP_EXTENSIONS=1&#39;</span> <span class="p">}</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then in your application Podfile you&rsquo;ll link against <strong>Core</strong> in your main app target, and against <strong>AppExtension</strong> in your extension, like so:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">abstract_target</span> <span class="s1">&#39;App&#39;</span> <span class="k">do</span>
+</span><span class='line'>  <span class="c1"># Shared pods between App and extension, compiled with same preprocessor macros</span>
+</span><span class='line'>  <span class="n">pod</span> <span class="s1">&#39;AFNetworking&#39;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">target</span> <span class="s1">&#39;MyApp&#39;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">pod</span> <span class="s1">&#39;MyLibrary/Core&#39;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">target</span> <span class="s1">&#39;MyExtension&#39;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">pod</span> <span class="s1">&#39;MyLibrary/AppExtension&#39;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That&rsquo;s it! <a href="https://twitter.com/neonacho">neonacho&rsquo;s</a> suggestion works very well and it&rsquo;s kind of simple. Hopefully this writeup will help you find the solution to your problem (and understand it) if you ever face it. Kudos for the CocoaPods team to offer support on these issues. We&rsquo;re always catching up with Apple after they break (again) Xcode.</p>
+
+<h1>A note about Swift</h1>
+
+<p>I&rsquo;ve found an issue created for Swift, <a href="https://bugs.swift.org/browse/SR-1226">SR-1226</a>, that is still unresolved and might cause you problems. It seems that as of now, marking API as unavailable for extensions in Swift still doesn&rsquo;t let you compile for App extensions. So be aware of this limitation.</p>
+
+    </div>
+  </div>
+
+
+
+  <footer>
+    <hr>
+    
+    <div class="row-fluid">
+      
+      <div class="span6">
+        <p class="meta">
+        
+        
+
+
+
+  <a href="/blog/categories/cocoapods/"><span class="badge">cocoapods</span></a>
+
+  <a href="/blog/categories/tips/"><span class="badge">tips</span></a>
+
+  <a href="/blog/categories/tools/"><span class="badge">tools</span></a>
+
+
+
+
+        </p>
+      </div>
+      
+      <div class="span6 social-sharing">
+        <div class="sharing">
+  <div class="addthis_toolbox addthis_default_style ">
+  
+  
+  <a class="addthis_button_tweet"></a>
+  
+  
+  <a class="addthis_counter addthis_pill_style"></a>
+  </div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
+</div>
+
+      </div>
+      
+      
+    </div>
+    
+    <div class="row-fluid">
+      <div class="span12">
+        <p class="meta">
+          
+            <a class="basic-alignment left" href="/blog/2016/11/19/easy-localizations-management-with-spreadsheets/" title="Previous Post: Easy localization management with Google spreadsheets">&laquo; Easy localization management with Google spreadsheets</a>
+          
+          
+            <a class="basic-alignment right" href="/blog/2017/01/22/reducing-the-pain-of-git-bisect-with-xcode/" title="Next Post: Reducing the pain of git bisect with Xcode">Reducing the pain of git bisect with Xcode &raquo;</a>
+          
+        </p>
+      </div>
+    </div>
+  </footer>
+</article>
+
+</div>
+
+
+
+        </div>
+      </div>
+      <div class="row-fluid">
+        <footer class="footer-page" role="contentinfo">
+          <p>
+  Copyright &copy; 2018 - Miguel Angel Quiñones -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span> - Theme by <a href="http://alexgaribay.com">Alex Garibay</a>
+</p>
+
+
+        </footer>
+      </div>
+  </div>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'https://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

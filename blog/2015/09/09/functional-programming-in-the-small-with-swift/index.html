@@ -1,0 +1,608 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Functional programming in the small, with Swift - miqu.me</title>
+  <meta name="author" content="Miguel Angel Quiñones">
+
+   
+  <meta name="description" content="Software engineering thoughts">
+  
+  <meta name="keywords" content="">
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://miqu.me/blog/2015/09/09/functional-programming-in-the-small-with-swift">
+  <link href="/favicon.png" rel="icon">
+  <link href='https://fonts.googleapis.com/css?family=Quicksand:300,400' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="miqu.me" type="application/atom+xml">
+  <script src="/js/jquery.js"></script>
+  <script src="/js/bootstrap-collapse.js"></script>
+  <script src="/js/modernizr-2.0.js"></script>
+  <script src="/js/octopress.js" type="text/javascript"></script>
+  <script src="/js/application.js"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="https://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="https://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <div class="navbar navbar-inverse navbar-static-top">
+  	<div class="navbar-inner">
+  	  <div class="container">
+        <a class="btn btn-navbar" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+          <span class="fui-menu-24"></span>
+        </a>
+  	  	<div class="nav-collapse collapse navbar-responsive-collapse" style="height:0;">
+  	      <ul class="nav">
+    
+        <li ><a href="/">Blog</a></li>
+    
+        <li ><a href="/about/">Who?</a></li>
+    
+        <li ><a href="/games/">Games</a></li>
+    
+        <li ><a href="/speaking/">Speaking</a></li>
+    
+</ul>
+
+<ul class="nav pull-right">
+    
+    <li><a href="https://github.com/DarthMike" title="Github Profile"><i class="icon-github-sign social-navbar"></i></a></li>
+    
+    
+    
+    <li><a href="https://linkedin.com/in/miguelquinon" title="Linkedin Profile"><i class="icon-linkedin-sign social-navbar"></i></a></li>
+    
+    
+    <li><a href="https://twitter.com/@miguelquinon" title="Twitter Profile"><i class="icon-twitter-sign social-navbar"></i></a></li>
+    
+    
+    
+    
+
+    
+    <li><a href="mailto:miguel@miqu.me" title="Email"><i class="icon-envelope social-navbar"></i></a></li>
+    
+</ul>
+
+  	    </div>
+  	  </div>
+  	</div>
+  </div>
+  <div class="container" id="main">
+      <div class="row-fluid">
+        <div id="content">
+          <div>
+<article class="hentry" role="article">
+  
+
+  <header>
+  <div class="jumbotron">
+    Functional Programming in the Small, With Swift
+	<h5>
+
+
+
+
+
+
+
+
+  
+
+
+
+<i class="icon-calendar-empty"></i> <time datetime="2015-09-09T15:00:23+00:00" pubdate data-updated="true">09 Sep 2015</time></h5>
+  </div>
+</header>
+  <div class="row-fluid">
+    <div class="span12">
+      <p>In a <a href="http://miqu.me/blog/2015/08/31/poor-mans-functional-programming/">previous post</a>, I wrote about the choice of paradigms that Swift presents for it&rsquo;s target audience. I also gave my opinion on how people with different backgrounds might see and approach the Functional Programming paradigm.</p>
+
+<p>In this post I want to share how I started to take advantage of FP with Swift for the practical domain of iOS developers: Building apps.</p>
+
+<!-- more -->
+
+
+<h1>Silver bullets</h1>
+
+<p>In software development there are no silver bullets to kill your problems and move on. We always need to find tradeoffs and evaluate our options to decide what would be the best choice. We often need to consider not only the technical aspects but cultural or team aspects too.</p>
+
+<p>iOS applications involve a great deal of <strong>UI</strong> programming. The iOS frameworks are object-oriented, and Swift is not a pure FP language. Throwing away all the code from Apple&rsquo;s frameworks just to make our code more functional is not a realistic approach.</p>
+
+<p>Thus we need to balance where we want to use from different programming paradigms. For a beginner, or a team with not too much experience with FP, my choice would be doing <a href="http://www.johndcook.com/blog/2009/03/23/functional-in-the-small-oo-in-the-large/">Functional Programming in the small, Object Oriented in the large</a>.</p>
+
+<h1>FP in the small using Swift</h1>
+
+<p>Let&rsquo;s look at the features of Swift and the standard library that help write more &lsquo;functional&rsquo; without having to restructure or change how we build a project.</p>
+
+<h2>Better functions</h2>
+
+<p>One of the first terms you will hear when diving into FP is that functions are <strong>first-class</strong> citizens, or the language supports <strong>higher-order</strong> functions.</p>
+
+<p>What this means is that functions are treated like any other type. Think as functions being treated like objects; They can accept other functions as input, return other functions, and be stored and passed around.</p>
+
+<p>Under this definition Objective-C <em>kind of</em> supports this, but it&rsquo;s lacking in several areas. Firstly, there&rsquo;s a difference between blocks and selectors, the way to use them is different and the syntax is more complex. Secondly, in Swift a closure is a function without name, and they both have the same type, whereas in Objective-C closures can only be expressed with blocks.</p>
+
+<p>A simple example for iOS developers is:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='Swift'><span class='line'><span class="k">func</span> <span class="nf">animation</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">view</span><span class="p">.</span><span class="n">transform</span> <span class="o">=</span> <span class="n">CGAffineTransformMakeScale</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="bp">UIView</span><span class="p">.</span><span class="n">animateWithDuration</span><span class="p">(</span><span class="mf">0.4</span><span class="p">,</span> <span class="nl">animations</span><span class="p">:</span> <span class="n">animation</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Or with a closure:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='Swift'><span class='line'><span class="k">let</span> <span class="n">animation</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">view</span><span class="p">.</span><span class="n">transform</span> <span class="o">=</span> <span class="n">CGAffineTransformMakeScale</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="bp">UIView</span><span class="p">.</span><span class="n">animateWithDuration</span><span class="p">(</span><span class="mf">0.4</span><span class="p">,</span> <span class="nl">animations</span><span class="p">:</span> <span class="n">animation</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You couldn&rsquo;t do the first example with Objective-C selectors, specially considering that you can declare a function locally inside another function. The bigger difference for me is that the syntax is very concise and easy to understand. The language also has special handling for trailing closures which is very handy to keep the code readable. A side effect of this is that implementing DSLs using closures is very easy (check my library <a href="https://github.com/DarthMike/SwiftAnimations">SwiftAnimations</a> or Robert Böhnke&rsquo;s <a href="https://github.com/robb/Cartography">Cartography</a>). This might seem a minor point, but in my opinion readability of a programming language is very important.</p>
+
+<h2>Functions (and closures) everywhere</h2>
+
+<p>Functions are everywhere, even disguised sometimes:</p>
+
+<ul>
+<li>Reference and value type methods are functions that take an implicit &lsquo;self&rsquo; first argument</li>
+<li>Computed properties are closures</li>
+<li>Lazy variables are defined with a closure</li>
+</ul>
+
+
+<p>Given that functions are everywhere my first recommendation is that you should learn to read and understand the signature. This is specially important when generics are involved, which is a very fundamental part of the language.</p>
+
+<p>A function signature conveys two crucial bits of information:</p>
+
+<ul>
+<li>The <strong>shape</strong> it has, so it can be used somewhere else where another function expects same signature</li>
+<li><strong>What</strong> the function does. In some cases, specially in the standard library, reading the name and understanding the signature of a function, you can infer what it does. I don&rsquo;t think it replaces documentation but it&rsquo;s a big helper when reading code.</li>
+</ul>
+
+
+<p>For example take the definition of map for optionals in Swift 2.0 standard library (T is the generic type of the optional itself):</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='swift'><span class='line'><span class="c1">/// If `self == nil`, returns `nil`.  Otherwise, returns `f(self!)`.</span>
+</span><span class='line'>    <span class="k">func</span> <span class="n">map</span><span class="o">&lt;</span><span class="n">U</span><span class="o">&gt;</span><span class="p">(</span><span class="nl">f</span><span class="p">:</span> <span class="p">@</span><span class="n">noescape</span> <span class="p">(</span><span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">U</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">U</span><span class="o">?</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Just looking at the declaration, specifically focusing on it&rsquo;s signature, we could say that mapping the optional returns an optional of different type, based on the function we pass in, that transforms between the two types.</p>
+
+<p>Even though <strong>Swift compiler does not guarantee functions are pure</strong>, so we could be accessing the network, reading disk or returning nil for every input value, we can tell a lot from a function signature.</p>
+
+<h2>Elementary functions</h2>
+
+<p>Given that FP is about functions, many programming languages offer similar &lsquo;basic&rsquo; basic ones which are the building blocks of more complex logic. Understanding and knowing how to use these can make you start applying a more functional style across all your code easily.</p>
+
+<blockquote><p><strong>Swift 2.0</strong>: Many of the free functions in the standard library have been moved to methods in types or generic protocols. This is more in line with Apple&rsquo;s &lsquo;Protocol Oriented Programming&rsquo;, but the fundamentals of FP are still the same. You can see see those methods as if they were namespaced functions by the type, rather than global functions overloaded for specific types.</p></blockquote>
+
+<p>Learn how the basic functions work, and how you can apply them to your day to day code:</p>
+
+<ul>
+<li>Map</li>
+<li>Filter</li>
+<li>Reduce</li>
+<li>flatMap</li>
+</ul>
+
+
+<p><a href="https://twitter.com/HarlanKellaway">Harken Hallway</a> wrote an <a href="http://harlankellaway.com/blog/2015/08/10/swift-functional-programming-intro">excellent post</a> that gives practical introduction to some of them.</p>
+
+<p>Here are some ways I&rsquo;ve changed my programming style by using those more often. It generally boils down to avoiding &lsquo;if&rsquo; statements and loops:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='Swift'><span class='line'><span class="c1">// Map for... mapping. You might be surprised how many times you might need this simple concept</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">struct</span> <span class="n">MyDataModel</span> <span class="p">{</span>
+</span><span class='line'>  <span class="c1">// Your app model values</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="n">MyViewModel</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">init</span><span class="p">(</span><span class="nl">model</span><span class="p">:</span> <span class="n">Model</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nb">self</span><span class="p">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="c1">// ViewModel logic/presentation values</span>
+</span><span class='line'>  <span class="n">private</span> <span class="k">let</span> <span class="nl">model</span><span class="p">:</span> <span class="n">MyDataModel</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">let</span> <span class="nl">models</span><span class="p">:</span> <span class="p">[</span><span class="n">MyDataModel</span><span class="p">]</span> <span class="c1">//Read from somewhere, maybe DB or remote</span>
+</span><span class='line'><span class="k">let</span> <span class="n">viewModels</span> <span class="o">=</span> <span class="n">models</span><span class="p">.</span><span class="n">map</span><span class="p">(</span><span class="n">MyViewModel</span><span class="p">.</span><span class="k">init</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='Swift'><span class='line'><span class="c1">// Reduce instead of loops. Useful when finding aggregate information</span>
+</span><span class='line'><span class="k">let</span> <span class="nl">anySubViewEmpty</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="nb">self</span><span class="p">.</span><span class="n">subviews</span><span class="p">.</span><span class="n">reduce</span><span class="p">(</span><span class="nb">false</span><span class="p">)</span> <span class="p">{</span> <span class="n">empty</span><span class="p">,</span> <span class="n">view</span>
+</span><span class='line'>     <span class="k">return</span> <span class="n">empty</span> <span class="o">||</span> <span class="n">CGRectEqualToRect</span><span class="p">(</span><span class="n">view</span><span class="p">.</span><span class="n">frame</span><span class="p">,</span> <span class="n">CGRectZero</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='Swift'><span class='line'><span class="c1">// Flatmap with optionals. For example parsing some model array and every parse operation can fail, and it&#39;s described with a failable initialializer.</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">struct</span> <span class="n">MyDataModel</span> <span class="p">{</span>
+</span><span class='line'>  <span class="c1">// Model values</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">extension</span> <span class="n">MyDataModel</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">init</span><span class="o">?</span><span class="p">(</span><span class="nl">json</span><span class="p">:</span> <span class="n">JSON</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="c1">// Parsing</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">let</span> <span class="nl">jsonItems</span><span class="p">:</span> <span class="p">[</span><span class="n">JSON</span><span class="p">]</span> <span class="c1">// Fetched from a remote server</span>
+</span><span class='line'><span class="c1">// flatMap in Swift 2.0 has special knowledge of optionals, we take advantage of that</span>
+</span><span class='line'><span class="k">let</span> <span class="n">parsedModels</span> <span class="o">=</span> <span class="n">jsonItems</span><span class="p">.</span><span class="n">flatMap</span><span class="p">(</span><span class="n">MyDataModel</span><span class="p">.</span><span class="k">init</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class='swift'><span class='line'><span class="c1">// Map on optionals</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">struct</span> <span class="n">User</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">let</span> <span class="nl">name</span><span class="p">:</span> <span class="n">String</span>
+</span><span class='line'>    <span class="k">let</span> <span class="nl">nickname</span><span class="p">:</span> <span class="n">String</span><span class="o">?</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="n">UserViewModel</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">init</span><span class="p">(</span><span class="nl">user</span><span class="p">:</span> <span class="n">User</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nb">self</span><span class="p">.</span><span class="n">user</span> <span class="o">=</span> <span class="n">user</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">var</span> <span class="nl">displayName</span><span class="p">:</span> <span class="n">String</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">func</span> <span class="n">formatNickName</span><span class="p">(</span><span class="nl">nickName</span><span class="p">:</span> <span class="n">String</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">String</span> <span class="p">{</span>
+</span><span class='line'>            <span class="k">return</span> <span class="s">&quot;Known as \(nickName)&quot;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// Here we avoid if let by taking advantage of map and nil coalescing operator.</span>
+</span><span class='line'>        <span class="c1">// Specifies intent with less noise</span>
+</span><span class='line'>        <span class="k">return</span> <span class="nb">self</span><span class="p">.</span><span class="n">user</span><span class="p">.</span><span class="n">nickname</span><span class="p">.</span><span class="n">map</span><span class="p">(</span><span class="n">formatNickName</span><span class="p">)</span> <span class="o">??</span> <span class="s">&quot;&quot;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">private</span> <span class="k">let</span> <span class="nl">user</span><span class="p">:</span> <span class="n">User</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>There&rsquo;s many times you can benefit from only these basic functions, which are already implemented in the Swift standard library. Starting to apply these standard functions when coding can go a long way to make yourself and your team understand the use and benefit of a more functional or declarative code style. Getting accustomed to using those functions regularly is the first big step to writing more functional code.</p>
+
+<h3>EDIT 15/09/2015: Is &lsquo;for&rsquo; not necessary?</h3>
+
+<p>I previously wrote that I liked to use maps for simple loops, like so:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='Swift'><span class='line'><span class="c1">// Map instead of loops</span>
+</span><span class='line'><span class="k">let</span> <span class="nl">views</span><span class="p">:</span> <span class="p">[</span><span class="bp">UIView</span><span class="p">]</span> <span class="o">=</span> <span class="c1">// Fill array as needed</span>
+</span><span class='line'><span class="n">views</span><span class="p">.</span><span class="n">map</span> <span class="p">{</span> <span class="nb">self</span><span class="p">.</span><span class="n">addSubview</span><span class="p">(</span><span class="err">$</span><span class="mi">0</span><span class="p">)</span> <span class="p">}</span>
+</span><span class='line'><span class="c1">// To suppress compiler warning</span>
+</span><span class='line'><span class="n">_</span> <span class="o">=</span> <span class="n">views</span><span class="p">.</span><span class="n">map</span> <span class="p">{</span> <span class="nb">self</span><span class="p">.</span><span class="n">addSubview</span><span class="p">(</span><span class="err">$</span><span class="mi">0</span><span class="p">)</span> <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I&rsquo;ve recently changed opinion and I think it&rsquo;s better to use standard loops when not producing any result from mapping. We are not increasing readability of the code, but confusing future readers of what is going on. Therefore I don&rsquo;t recommend doing so, so use loops when they are needed.</p>
+
+<p>As you can see any technique can be abused so always keep in mind the benefit of writing code in a particular style.</p>
+
+<h2>Operators</h2>
+
+<p>Spend some time reading about FP and you will eventually bump into some crazy-looking operators. Even though I don&rsquo;t think they increase readability of code, it&rsquo;s useful to understand how they work.</p>
+
+<p>If you start working only with functions, you&rsquo;ll need to connect them in somehow. As far as FP is concerned, the connection should be done by, you guessed it, another function. This &lsquo;connecting&rsquo; function will act as an adapter between the output type of the first one, and the input type of the second one.</p>
+
+<p>A typical example is when you have an optional type. Then you have a function that transforms non-optional types and can fail, represented as an optional return. Here&rsquo;s a dummy example:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='swift'><span class='line'><span class="c1">// Converts number to string if it is valid</span>
+</span><span class='line'><span class="k">let</span> <span class="nl">toValidString</span><span class="p">:</span> <span class="n">Int</span> <span class="o">-&gt;</span> <span class="n">String</span><span class="o">?</span> <span class="o">=</span> <span class="p">{</span> <span class="n">number</span> <span class="k">in</span>
+</span><span class='line'>    <span class="n">guard</span> <span class="n">number</span> <span class="o">&lt;</span> <span class="mi">10</span> <span class="k">else</span> <span class="p">{</span> <span class="k">return</span> <span class="nb">nil</span> <span class="p">}</span>
+</span><span class='line'>    <span class="k">return</span> <span class="s">&quot;Number is small: \(number)&quot;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Converts number to number if it&#39;s even</span>
+</span><span class='line'><span class="k">let</span> <span class="nl">toEvenNumber</span><span class="p">:</span> <span class="n">Int</span> <span class="o">-&gt;</span> <span class="n">Int</span><span class="o">?</span> <span class="o">=</span> <span class="p">{</span> <span class="n">number</span> <span class="k">in</span>
+</span><span class='line'>    <span class="n">guard</span> <span class="n">number</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="p">{</span> <span class="k">return</span> <span class="nb">nil</span> <span class="p">}</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">number</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If we want to combine those two functions, the input type of one does not match the output type of the other. The functions do not accept optionals, as it does not make sense to do so.</p>
+
+<p>You can bind those two functions with another function, that will translate the output to the input of the next one:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='swift'><span class='line'><span class="k">func</span> <span class="n">bind</span><span class="o">&lt;</span><span class="n">A</span><span class="p">,</span><span class="n">B</span><span class="o">&gt;</span><span class="p">(</span><span class="nl">from</span><span class="p">:</span> <span class="n">A</span><span class="p">,</span> <span class="nl">transform</span><span class="p">:</span> <span class="n">A</span><span class="o">-&gt;</span><span class="n">B</span><span class="o">?</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">B</span><span class="o">?</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">if</span> <span class="k">let</span> <span class="n">from</span> <span class="o">=</span> <span class="n">from</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">transform</span><span class="p">(</span><span class="n">from</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">return</span> <span class="nb">nil</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then combining the operations using bind, the code would be:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='swift'><span class='line'><span class="c1">// Outputs &quot;Number is small: 2&quot;</span>
+</span><span class='line'><span class="n">bind</span><span class="p">(</span><span class="n">bind</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nl">transform</span><span class="p">:</span> <span class="n">toEvenNumber</span><span class="p">),</span> <span class="nl">transform</span><span class="p">:</span> <span class="n">toValidString</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Outputs nil</span>
+</span><span class='line'><span class="n">bind</span><span class="p">(</span><span class="n">bind</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="nl">transform</span><span class="p">:</span> <span class="n">toEvenNumber</span><span class="p">),</span> <span class="nl">transform</span><span class="p">:</span> <span class="n">toValidString</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>There&rsquo;s one big problem with the previous code: It&rsquo;s very hard to read and know what is going on. The connection function takes over the space and pollutes that we are actually just connecting two other functions together.</p>
+
+<p>Remember that an operator in Swift is just a function. It can take two forms, depending on the operands it works with; A single operand, or two operands. We can then define a cryptic symbol can be defined to express &lsquo;bind&rsquo;:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='swift'><span class='line'><span class="c1">// Bind operator, also called &#39;flatmap&#39;</span>
+</span><span class='line'><span class="k">func</span> <span class="o">&gt;&gt;-&lt;</span><span class="n">A</span><span class="p">,</span><span class="n">B</span><span class="o">&gt;</span><span class="p">(</span><span class="nl">from</span><span class="p">:</span> <span class="n">A</span><span class="o">?</span><span class="p">,</span> <span class="nl">transform</span><span class="p">:</span> <span class="n">A</span><span class="o">-&gt;</span><span class="n">B</span><span class="o">?</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">B</span><span class="o">?</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">bind</span><span class="p">(</span><span class="n">from</span><span class="p">,</span> <span class="nl">transform</span><span class="p">:</span> <span class="n">transform</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then the two previous examples read a lot better, assuming you know what &lsquo;bind&rsquo; is, and you know how to interpret the operator:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='swift'><span class='line'><span class="c1">// Outputs &quot;Number is small: 2&quot;</span>
+</span><span class='line'><span class="mi">2</span> <span class="o">&gt;&gt;-</span> <span class="n">toEvenNumber</span> <span class="o">&gt;&gt;-</span> <span class="n">toValidString</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Outputs nil</span>
+</span><span class='line'><span class="mi">20</span> <span class="o">&gt;&gt;-</span> <span class="n">toEvenNumber</span> <span class="o">&gt;&gt;-</span> <span class="n">toValidString</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I think the only reason why many custom operators exist in FP languages is because it improves readability of the code. If you know what an operator does - and it&rsquo;s likely you will because they are very common connectors - then you read code and immediately understand the intention of the code. Using them the code should more declarative, with the tradeoff that somebody not used to those operators will thing it is very foreign syntax.</p>
+
+<p>There&rsquo;s other custom operators you will see when reading about FP. There&rsquo;s the two I&rsquo;ve encountered most often:</p>
+
+<ul>
+<li>Bind, also called <strong>FlatMap</strong> in Swift: Expressed as >>>, >>= or <strong>>>-</strong></li>
+<li><strong>Apply</strong>, or &lsquo;Applicative functors&rsquo;: Expressed as <strong>&lt;*></strong></li>
+</ul>
+
+
+<p>ThoughtBot created two open source projects that are very helpful to understand practical operators used for function composition: <a href="https://github.com/thoughtbot/Runes">Runes</a> and <a href="https://github.com/thoughtbot/Argo">Argo</a>. Those projects are concise and helped me a lot to grasp some FP concepts, I encourage you to check them.</p>
+
+<blockquote><p><strong>Swift 2.0</strong>: As Swift moves towards removing usage of free functions in favour of methods in protocols and protocol extensions, you&rsquo;ll see less use of these custom operators in the language. But still, it&rsquo;s a nice concept to understand.</p></blockquote>
+
+<h1>Conclusion</h1>
+
+<p>Changing programming habits is hard, but adopting a new way of writing code can be very rewarding if you understand the benefits that it provides.</p>
+
+<p>I think smaller changes to ways we code are achievable by every team and it&rsquo;s just a matter of communicating and discussing the benefits through code reviews. Ultimately the goal is to make code simpler, clearer and easier to read and maintain.</p>
+
+<p>Given Swift is a multi-paradigm language it&rsquo;s up to the programmer to choose how to write code, so it&rsquo;s important to  explore various ways until we find what we could call &lsquo;idiomatic&rsquo; Swift.</p>
+
+<p>We are all learning so don&rsquo;t hesitate to tell me if I&rsquo;m wrong or disagree with me. If you have any comments I&rsquo;d love to <a href="https://twitter.com/miguelquinon">discuss them</a>.</p>
+
+    </div>
+  </div>
+
+
+
+  <footer>
+    <hr>
+    
+    <div class="row-fluid">
+      
+      <div class="span6">
+        <p class="meta">
+        
+        
+
+
+
+  <a href="/blog/categories/functional-programming/"><span class="badge">functional programming</span></a>
+
+  <a href="/blog/categories/swift/"><span class="badge">swift</span></a>
+
+
+
+
+        </p>
+      </div>
+      
+      <div class="span6 social-sharing">
+        <div class="sharing">
+  <div class="addthis_toolbox addthis_default_style ">
+  
+  
+  <a class="addthis_button_tweet"></a>
+  
+  
+  <a class="addthis_counter addthis_pill_style"></a>
+  </div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
+</div>
+
+      </div>
+      
+      
+    </div>
+    
+    <div class="row-fluid">
+      <div class="span12">
+        <p class="meta">
+          
+            <a class="basic-alignment left" href="/blog/2015/08/31/poor-mans-functional-programming/" title="Previous Post: Poor man's functional programming">&laquo; Poor man&#8217;s functional programming</a>
+          
+          
+            <a class="basic-alignment right" href="/blog/2015/11/15/jumping-into-existing-codebases/" title="Next Post: Jumping into existing codebases">Jumping into existing codebases &raquo;</a>
+          
+        </p>
+      </div>
+    </div>
+  </footer>
+</article>
+
+</div>
+
+
+
+        </div>
+      </div>
+      <div class="row-fluid">
+        <footer class="footer-page" role="contentinfo">
+          <p>
+  Copyright &copy; 2018 - Miguel Angel Quiñones -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span> - Theme by <a href="http://alexgaribay.com">Alex Garibay</a>
+</p>
+
+
+        </footer>
+      </div>
+  </div>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'https://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,260 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Xcode 7.3 analyzer improvements - miqu.me</title>
+  <meta name="author" content="Miguel Angel Quiñones">
+
+   
+  <meta name="description" content="Software engineering thoughts">
+  
+  <meta name="keywords" content="">
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://miqu.me/blog/2016/01/21/xcode-7-dot-3-analyzer-improvements">
+  <link href="/favicon.png" rel="icon">
+  <link href='https://fonts.googleapis.com/css?family=Quicksand:300,400' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="miqu.me" type="application/atom+xml">
+  <script src="/js/jquery.js"></script>
+  <script src="/js/bootstrap-collapse.js"></script>
+  <script src="/js/modernizr-2.0.js"></script>
+  <script src="/js/octopress.js" type="text/javascript"></script>
+  <script src="/js/application.js"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="https://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="https://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <div class="navbar navbar-inverse navbar-static-top">
+  	<div class="navbar-inner">
+  	  <div class="container">
+        <a class="btn btn-navbar" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+          <span class="fui-menu-24"></span>
+        </a>
+  	  	<div class="nav-collapse collapse navbar-responsive-collapse" style="height:0;">
+  	      <ul class="nav">
+    
+        <li ><a href="/">Blog</a></li>
+    
+        <li ><a href="/about/">Who?</a></li>
+    
+        <li ><a href="/games/">Games</a></li>
+    
+        <li ><a href="/speaking/">Speaking</a></li>
+    
+</ul>
+
+<ul class="nav pull-right">
+    
+    <li><a href="https://github.com/DarthMike" title="Github Profile"><i class="icon-github-sign social-navbar"></i></a></li>
+    
+    
+    
+    <li><a href="https://linkedin.com/in/miguelquinon" title="Linkedin Profile"><i class="icon-linkedin-sign social-navbar"></i></a></li>
+    
+    
+    <li><a href="https://twitter.com/@miguelquinon" title="Twitter Profile"><i class="icon-twitter-sign social-navbar"></i></a></li>
+    
+    
+    
+    
+
+    
+    <li><a href="mailto:miguel@miqu.me" title="Email"><i class="icon-envelope social-navbar"></i></a></li>
+    
+</ul>
+
+  	    </div>
+  	  </div>
+  	</div>
+  </div>
+  <div class="container" id="main">
+      <div class="row-fluid">
+        <div id="content">
+          <div>
+<article class="hentry" role="article">
+  
+
+  <header>
+  <div class="jumbotron">
+    Xcode 7.3 Analyzer Improvements
+	<h5>
+
+
+
+
+
+
+
+
+  
+
+
+
+<i class="icon-calendar-empty"></i> <time datetime="2016-01-21T20:39:53+00:00" pubdate data-updated="true">21 Jan 2016</time></h5>
+  </div>
+</header>
+  <div class="row-fluid">
+    <div class="span12">
+      <p>The <a href="https://developer.apple.com/xcode/download/">latest xcode beta</a> is available for downloading. There are many improvements, and the usual problems with stuff that stops working&hellip; Ah the love of Apple for it&rsquo;s developers :). But I want to tell you about a feature that caught my attention: <strong>New analyzer settings!</strong></p>
+
+<h1>New analyzer settings</h1>
+
+<p>From the <a href="http://adcdownload.apple.com/Developer_Tools/Xcode_7.3_beta/Xcode_7.3_beta_Release_Notes.pdf">release notes</a>:</p>
+
+<blockquote><p>The static analyzer warns when nil is returned from a method or function with a nonnull return
+type or is passed to a parameter marked nonnull.</p>
+
+<p>The static analyzer checks for common misuses of Objective-C generics.</p>
+
+<p>The static analyzer checks for missing localizability. This check is off by default and can be
+enabled by selecting ‘Yes’ for ‘Missing localizability’ in the &lsquo;Static Analyzer - Generic Issues’ build
+settings.</p></blockquote>
+
+<p>There are 3 new settings related to these new features: CLANG_ANALYZER_NONNULL, CLANG_ANALYZER_OBJC_GENERICS  and CLANG_ANALYZER_LOCALIZABILITY.</p>
+
+<h1>CLANG_ANALYZER_NONNULL and CLANG_ANALYZER_OBJC_GENERICS</h1>
+
+<p>Objective-C continues to get some love! Adding into the changes for <a href="http://miqu.me/blog/2015/04/17/adopting-nullability-annotations/">nullability</a> and <a href="http://miqu.me/blog/2015/06/09/adopting-objectivec-generics/">generics</a>, now the analyzer will start to warn you about usage not in line with your annotations. That&rsquo;s very good news, considering that the compiler checks were a bit lacking. Additional kudos because both settings are enabled by default.</p>
+
+<h1>CLANG_ANALYZER_LOCALIZABILITY</h1>
+
+<p>This is an intriguing one. Let&rsquo;s investigate further; Let&rsquo;s say you have some code where you set a string to a label:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='swift'><span class='line'><span class="n">label</span><span class="p">.</span><span class="n">text</span> <span class="o">=</span> <span class="s">@&quot;not-localized&quot;</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You&rsquo;ll now get a nice analyzer warning: &ldquo;User-facing text should use localized string macro&rdquo;</p>
+
+<p><img src="/images/posts/user-facing-warning.png" alt="warning1" /></p>
+
+<p>But you won&rsquo;t get a warning when the key is not localized. Like:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='swift'><span class='line'><span class="n">label</span><span class="p">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">NSLocalizedString</span><span class="p">(</span><span class="s">@&quot;not-localized&quot;</span><span class="p">,</span> <span class="nb">nil</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Hey, we can&rsquo;t have everything, but here&rsquo;s my <a href="http://openradar.appspot.com/radar?id=4993758374395904">request for improvement submitted</a>.</p>
+
+<p>Anyway, go ahead and enable these new settings! And use the analyzer!</p>
+
+    </div>
+  </div>
+
+
+
+  <footer>
+    <hr>
+    
+    <div class="row-fluid">
+      
+      <div class="span6">
+        <p class="meta">
+        
+        
+
+
+
+  <a href="/blog/categories/ios/"><span class="badge">ios</span></a>
+
+  <a href="/blog/categories/tools/"><span class="badge">tools</span></a>
+
+  <a href="/blog/categories/xcode/"><span class="badge">xcode</span></a>
+
+
+
+
+        </p>
+      </div>
+      
+      <div class="span6 social-sharing">
+        <div class="sharing">
+  <div class="addthis_toolbox addthis_default_style ">
+  
+  
+  <a class="addthis_button_tweet"></a>
+  
+  
+  <a class="addthis_counter addthis_pill_style"></a>
+  </div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
+</div>
+
+      </div>
+      
+      
+    </div>
+    
+    <div class="row-fluid">
+      <div class="span12">
+        <p class="meta">
+          
+            <a class="basic-alignment left" href="/blog/2015/12/14/transitioning-ios-versions/" title="Previous Post: Transitioning iOS versions">&laquo; Transitioning iOS versions</a>
+          
+          
+            <a class="basic-alignment right" href="/blog/2016/04/22/dear-sdk-developer/" title="Next Post: Dear SDK developer">Dear SDK developer &raquo;</a>
+          
+        </p>
+      </div>
+    </div>
+  </footer>
+</article>
+
+</div>
+
+
+
+        </div>
+      </div>
+      <div class="row-fluid">
+        <footer class="footer-page" role="contentinfo">
+          <p>
+  Copyright &copy; 2018 - Miguel Angel Quiñones -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span> - Theme by <a href="http://alexgaribay.com">Alex Garibay</a>
+</p>
+
+
+        </footer>
+      </div>
+  </div>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'https://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

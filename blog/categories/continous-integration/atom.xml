@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: continous integration | miqu.me]]></title>
+  <link href="http://miqu.me/blog/categories/continous-integration/atom.xml" rel="self"/>
+  <link href="http://miqu.me/"/>
+  <updated>2018-11-21T10:05:53+00:00</updated>
+  <id>http://miqu.me/</id>
+  <author>
+    <name><![CDATA[Miguel Angel Quiñones]]></name>
+    <email><![CDATA[miguel@miqu.me]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Code signing and distributing - Swift]]></title>
+    <link href="http://miqu.me/blog/2015/02/13/code-signing-and-distributing-swift/"/>
+    <updated>2015-02-13T11:45:12+00:00</updated>
+    <id>http://miqu.me/blog/2015/02/13/code-signing-and-distributing-swift</id>
+    <content type="html"><![CDATA[<p>Having problems code signing and distributing your application written in Swift? I&rsquo;ve encountered some, found solutions for them, and <a href="https://techblog.badoo.com/blog/2015/02/09/code-signing-and-distributing-swift/">I&rsquo;ve written a sum up for Badoo Tech blog</a>.</p>
+
+<p>Hopefully it will help anybody with similar issues and increase discoverability of the solutions.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Travis + octopress = Yay!]]></title>
+    <link href="http://miqu.me/blog/2014/11/27/travis-plus-octopress-equals-yay/"/>
+    <updated>2014-11-27T22:45:25+00:00</updated>
+    <id>http://miqu.me/blog/2014/11/27/travis-plus-octopress-equals-yay</id>
+    <content type="html"><![CDATA[<p>I just finished setting up <a href="http://www.travis-ci.com">Travis CI</a> integration with this blog. So now I don&rsquo;t even need to do rake generate_deploy.
+Just git push to source and deploy after 3 mins. Happiness.</p>
+
+<p>I based my config on <a href="http://www.harimenon.com/blog/2013/01/27/auto-deploying-to-my-octopress-blog/">Hari Menon&rsquo;s post</a>.</p>
+
+<p>My small contribution to whoever happens to read this post is:
+<strong>Don&rsquo;t forget to set up your user.name and user.email</strong> in Travis CI. Check my final <a href="https://github.com/DarthMike/darthmike.github.io/blob/source/.travis.yml">travis.yml</a> if you are curious.</p>
+
+<p>Happy coding!</p>
+]]></content>
+  </entry>
+  
+</feed>

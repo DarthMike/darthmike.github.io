@@ -1,0 +1,594 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: productivity | miqu.me]]></title>
+  <link href="http://miqu.me/blog/categories/productivity/atom.xml" rel="self"/>
+  <link href="http://miqu.me/"/>
+  <updated>2018-11-21T10:05:53+00:00</updated>
+  <id>http://miqu.me/</id>
+  <author>
+    <name><![CDATA[Miguel Angel Quiñones]]></name>
+    <email><![CDATA[miguel@miqu.me]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Three months with XVim]]></title>
+    <link href="http://miqu.me/blog/2015/11/19/three-months-with-xvim/"/>
+    <updated>2015-11-19T22:19:24+00:00</updated>
+    <id>http://miqu.me/blog/2015/11/19/three-months-with-xvim</id>
+    <content type="html"><![CDATA[<p>&lsquo;Know your key shortcuts&rsquo; is the mantra of the productive programmer. I&rsquo;ve chosen to try using the same keybindings everywhere, investing time and learning Vim. And using <a href="https://github.com/XVimProject/XVim">xvim</a> in Xcode. In this article I&rsquo;m going to try to explain why I did this, and I&rsquo;ll share my experience of the process.</p>
+
+<!-- more -->
+
+
+<p>Knowing your IDE and being productive in it, is one of the best investments you can do as a programmer. We need to write code, and sometimes we do repetitive tasks if we are involved in bigger projects: Navigation and search, refactoring, some formatting and changing existing code.</p>
+
+<h1>Vi(m)</h1>
+
+<p>vi is a command-line text editor. <a href="https://en.wikipedia.org/wiki/Vim_(text_editor)">Vim</a> is an extended version of the same editor.</p>
+
+<p>The main difference from &lsquo;more modern&rsquo; editors, is that it has two modes, and it&rsquo;s designed for proficiency in a kind of command language where the user specifies where he wants to navigate and what he wants to achieve. It was also designed to be completely controlled with the keyboard.</p>
+
+<p>Many people still use it nowadays, which is surprising given that it looks rather old-fashioned, and that the proliferation of different text editing modes has been massive.</p>
+
+<p>If you&rsquo;re interested but not familiar with the editor, you&rsquo;ll find that learning how to use it will be a significant time commitment. There&rsquo;s countless of sources of developers explaining why or why not they&rsquo;d use such editor; you&rsquo;ll find them easily. The sources that inspired me and I go back to from time to time are:</p>
+
+<ul>
+<li><a href="http://www.viemu.com/a-why-vi-vim.html">Why, by Jon Beltran de Heredia</a>: Very old source but explanatory for somebody not familiar with the editor.</li>
+<li><a href="https://danielmiessler.com/study/vim/">Daniel Miessler&rsquo;s intro</a>: Very well written examples and thinking mode that goes with the editor.</li>
+</ul>
+
+
+<h1>Investments</h1>
+
+<p>Getting familiar and productive with your IDE is a time investment. It can take you from weeks to years, and it&rsquo;s very recommended you do so, because it&rsquo;s rather useful to produce code with less time to have time for other interesting tasks (or coffee!). If you become fast enough, your thoughts will <em>convert</em> to code almost instantly, delaying the time between thinking what to do and actually doing. This is specially important when dealing with many files or a moderate amount of complexity.</p>
+
+<p>About 3 years ago, I moved all my workflows to command-line. So any use of git, external text file editing, or remote server management, I would do through command line. For the command-line interface I chose vim as my  editor. But I never learnt more than the modes and clumsy editing in one page of text. I would always rely on external editors to do the bulk of my work.</p>
+
+<p>A year ago I was already familiar with Xcode and it&rsquo;s keybindings. I was moderately productive with it, but I felt I had to improve. The main thing I noticed was my constant switching to the mouse to navigate within a file. Being also a user of <a href="https://www.jetbrains.com/objc/">AppCode</a>, I thought my vanilla Xcode experience was not very productive.</p>
+
+<p>And so I concluded why not try and invest more time with vim, given I would not only use it for iOS development? I installed <a href="https://github.com/XVimProject/XVim">xvim</a> plugin for Xcode 3 months ago, and I don&rsquo;t want to go back to vanilla Xcode. I&rsquo;ll try and give you an overview.</p>
+
+<h1>Pros</h1>
+
+<p>Being proficient with vim has this implications:</p>
+
+<ul>
+<li>Hands mostly not moving from keyboard for much time; even switching between files can be easily done with keystrokes, so you can move around the project only with keyboard</li>
+<li>It may seem obvious, but having control of the whole project with keyboard empowers you as a programmer, makes you focus more, and lets you reach parts of code faster</li>
+<li>One muscle memory: I&rsquo;m using vim mode in <a href="http://atom.io">other editors</a>. This means I have to remember less keystrokes. The muscle memory is so strong that I miss it in text editors like gmail. I even started using <a href="https://vimium.github.io/">vimium</a>!</li>
+<li>With one muscle memory, as I use command line a lot, so I will edit very fast and go back to the IDE, with no loss of focus.</li>
+<li>Many other editors have a kind of vim mode available as plugin. So it is a good investment in my opinion.</li>
+</ul>
+
+
+<h1>Cons</h1>
+
+<p>This may be obvious, but the drawbacks of learning vim:</p>
+
+<ul>
+<li>Learning curve: I&rsquo;m only scratching the surface and I&rsquo;ve constantly forced myself to use Vim keybindings 100% of my programming time. There&rsquo;s so much more to learn, and it has very steep learning curve</li>
+<li>Integration with IDE: It can sometimes be rocky. My experience with the Xcode plugin has been very positive, but I have had crashes here and there. There can also be some key binding conflicts</li>
+<li>Not complete vim: Nothing beats the original editor in terms of functionality and customisation. Using vim this way is a middle ground, but for me personally is a necessary step to continue working with my existing tools, and still learn a new way of moving and editing</li>
+</ul>
+
+
+<h1>Learning process</h1>
+
+<p>As I mentioned, learning vim is a big time investment. It will slow you down at the beginning, but if you are convinced that you want to invest time on it, you&rsquo;ll prevail.</p>
+
+<p>Everybody learns differently, so you must find your way. My suggestions are:</p>
+
+<ul>
+<li>Print and consult <a href="http://www.viemu.com/a_vi_vim_graphical_cheat_sheet_tutorial.html">graphical Vim cheatsheet</a></li>
+<li>Force yourself to only use Vim keybindings for at least a week</li>
+<li>Read some introductory posts or books. The ones I mentioned before helped me a lot</li>
+</ul>
+
+
+<h1>The next step</h1>
+
+<p>There&rsquo;s much you can customise and learn. For now I&rsquo;ll try to be faster and more proficient with navigating and editing Objective-C and Swift code. When I&rsquo;m really productive, I&rsquo;ll try and learn more advanced features, mainly graphical mode and macros.</p>
+
+<p>I hope you found the article interesting, and that you also are improving your tooling and productivity as much as I am. <a href="https://twitter.com/miguelquinon">Tell me</a> what you think!</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Jumping into existing codebases]]></title>
+    <link href="http://miqu.me/blog/2015/11/15/jumping-into-existing-codebases/"/>
+    <updated>2015-11-15T18:55:18+00:00</updated>
+    <id>http://miqu.me/blog/2015/11/15/jumping-into-existing-codebases</id>
+    <content type="html"><![CDATA[<p>I’ve recently changed workplace - <a href="http://peak.net">we’re hiring!</a> - and I’ve jumped into an existing codebase. This is a good time to review what I like to do when I start to work on a project in these circumstances.</p>
+
+<!-- more -->
+
+
+<p>When you don&rsquo;t start a greenfield project, which is most of the time for many developers, you need to rapidly and effectively get to grasp with all the code, so you can become productive and acknowledgeable with any changes that need to be done. There&rsquo;s some things I always do in these cases.</p>
+
+<h1>Examining the repository</h1>
+
+<h2>Git stats</h2>
+
+<p>I always like to start with the repository itself. Looking at the history, commits and overall activity. Many times you will find that developers are not used to providing consistent and meaningful commit messages (how many times you’ve seem <strong>WIP feature X</strong> commit message?). So looking at the history is not informative. So I prefer to look at global statistics instead.</p>
+
+<p>Assuming you will work with a git repository, the first tool I like to use is <a href="https://github.com/tomgi/git_stats">git stats</a>. As easy as:</p>
+
+<pre><code class="bash">gem install git_stats
+cd &lt;repo&gt;
+git_stats generate
+</code></pre>
+
+<p>Running this tool will result in a nice html document giving insights about authors, commits, files and lines of code. It’s mostly informative but it’s good to get an overview of the key collaborators of a project, who created, and most importantly, who deleted the most lines of code!</p>
+
+<h3>Gource</h3>
+
+<p>A very interesting way to see the commit history in a graphical way is <a href="http://gource.io">gource</a>. I always like to run it for 5 minutes just to get a feel of the rush of the project, and basically to see
+in a glance what are the core parts of the codebase. It also is very funny to look at, and you can get a feel what is the core part of the repository, what parts changed the most, and the number of developers working at the same time. It&rsquo;s available via <a href="http://brew.sh">homebrew</a> as well so very easy to install and run:</p>
+
+<pre><code class="bash">brew install gource
+cd &lt;repo&gt;
+gource
+</code></pre>
+
+<p>Check the available options, like <code>seconds-per-day</code>, to customize how you see the animation. I like to run it with 2 seconds per day, to make the visualization move faster (and be funnier to watch!).</p>
+
+<h2>Commit messages</h2>
+
+<p>I like to just do a <code>git log</code> in terminal and understand if the team has any kind of agreement on what and how commit messages are structured. Having good commit messages beats any amount of commented code kept around and is a very integral part of the project.</p>
+
+<p>There has been plenty of discussion on the subject, I’m just going to link here 2 of my favorite articles: <a href="http://chris.beams.io/posts/git-commit/">this</a> and <a href="https://robots.thoughtbot.com/5-useful-tips-for-a-better-commit-message">this one</a>. I don’t adhere to all the points presented but agree to many of them. You’ll get an overview of how a project has evolved by looking at some logs, specially from the beginning. Just do:</p>
+
+<pre><code class="bash">git log --reverse
+</code></pre>
+
+<p>Having good commit messages helps a lot when dealing with bug fixes, using <a href="https://git-scm.com/docs/git-bisect">git bisect</a>. When you&rsquo;re the new one in a project you don&rsquo;t have the domain and code knowledge to understand what changed or debug, you can save hours of pain for  bug fixes by using it, and when you nail down the commit that broke something, you can understand the motivation behind it much better.</p>
+
+<h2>Structure</h2>
+
+<p>Just a quick glance of the repository structure can give you a feel of the (lack of) organization and practices of the team. Step number 2 after checking commit logs is browsing the project structure. I&rsquo;m not going to judge or give opinion on what project structure should be the best, as it very much depends on the project, but I generally will try to identify these kind of groups:</p>
+
+<ul>
+<li>Code</li>
+<li>Assets</li>
+<li>Submodules or dependencies</li>
+<li>Utility scripts</li>
+</ul>
+
+
+<p>If the repository does not even contain separate folders for this then you know what is your first task!</p>
+
+<h2>Dependency management</h2>
+
+<p>Once I&rsquo;ve checked the commit logs, and project structure, before I move on to the code, my last step is to understand the strategy for dependency management. As I work on iOS projects, let&rsquo;s see the options for these:</p>
+
+<ul>
+<li>Pre-built libraries</li>
+<li>Copied code (ideally in a sub folder)</li>
+<li>Submodule</li>
+<li>Cocoapods</li>
+<li>Carthage</li>
+</ul>
+
+
+<p>Every project will have a combination of strategies, as many times libraries come from various sources. But if there&rsquo;s a chance, I like to suggest and improve this if possible, and unify how libraries are managed in the project. My opinion is that it&rsquo;s easier to manage dependencies if they are contained and imported the same way.</p>
+
+<p>Many projects will use Cocoapods as the dependency management, even for internal libraries. If that is the case, my last stop is the Podfile. If the team hasn&rsquo;t yet, I just suggest to fix the version for all but internal libraries. This is a practice I consider a must if working with 3rd party libraries, as many unexpected bugs can occur if you import libraries with relaxed version requirements, or just the latest one.</p>
+
+<h1>Code</h1>
+
+<p>It is said that a programmer spends most of time reading code rather than writing it, and it will be specially true when you jump into an existing codebase.</p>
+
+<p>Reading (and understanding) the code of an existing project is very daunting at first. How much will take you to understand the fundamental bits depends on many factors, including domain knowledge, code style, code organization and background of the key project developers.</p>
+
+<p>Before diving into specifics of the code, I like to get an overview:</p>
+
+<ul>
+<li>Lines of code tool</li>
+<li>Dependency visualiser</li>
+</ul>
+
+
+<h2>Sloccount</h2>
+
+<p><a href="http://www.dwheeler.com/sloccount/">This tool</a> will give you a summary of lines of code in the repository. You will get a feel of overall complexity of code, and if you have source code for dependencies, you can also check which are the bigger dependencies in terms of code size.</p>
+
+<p>Once you take part in more than one project you&rsquo;ll be able to get a feel when a project is <em>big</em> or <em>small</em>, which is very subjective, but useful to know, when you approach new code.</p>
+
+<p>This tool is again available via <a href="http://brew.sh">homebrew</a>, so it&rsquo;s very easy to run in any project:
+<code>bash
+brew install sloccount
+sloccount &lt;source_directory&gt;
+</code></p>
+
+<h2>Dependency visualiser</h2>
+
+<p>The biggest problem of reading new code is that everything is kind of new: Domain, code style, requirements, patterns. A very good way to get a grasp of the code structure is visualise the relationships. I know of two tools that do that for Objective-C: <a href="https://github.com/PaulTaykalo/objc-dependency-visualizer">objc-dependency-visualizer</a> and <a href="https://github.com/nst/objc_dep">objc_dep</a>.</p>
+
+<p>I quite like <a href="https://github.com/PaulTaykalo/objc-dependency-visualizer">objc-dependency-visualizer</a> because it&rsquo;s easier to use to get a broad picture of relative code size between classes and relationships. Just be warned that for medium to big projects the visualisations are just messy. That&rsquo;s when you can use <a href="https://github.com/nst/objc_dep">obj_dep</a> to get graphs for specific files or modules.</p>
+
+<h2>iOS projects</h2>
+
+<p>Before I go into reading specific code, I do these checks first:</p>
+
+<ul>
+<li>Run static analyser</li>
+<li>Compile project and see warnings</li>
+<li>Basic objc good practices (swift is very new for practices yet)</li>
+</ul>
+
+
+<h3>Static analyser</h3>
+
+<p>I will run the static analyser, which is the part of the toolchain that will generally be overlooked by most teams. Developers don&rsquo;t trust analyser because it can give false positives, but in my opinion clean code should have 0 analyser warnings.</p>
+
+<h3>Compile warnings</h3>
+
+<p>With Objective-C and Swift, we get a program to check our code before it&rsquo;s even run. Many see the compiler as a nuisance, specially those used to interpreted languages. I will run a compilation first to see if the project has warnings, treats warnings as errors, and how many outstanding warnings the team is used to have. I consider Jon Reid&rsquo;s <a href="https://github.com/jonreid/XcodeWarnings">xcconfig</a> a very good base line for any project.</p>
+
+<p>Ideally I would like to work on code with most warnings turned on, and warnings treated as error, but this is not the case for many projects out there. The general problem with Xcode is that it creates projects with very lax default warning settings. So many developers don&rsquo;t bother changing them, thus having an unsafe environment for the project from the beginning.</p>
+
+<p>If you start a new project, I&rsquo;d recommend using a tool to configure properly the project, like <a href="https://github.com/thoughtbot/liftoff">liftoff</a> or <a href="https://github.com/krzysztofzablocki/crafter">crafter</a>. For project warnings, I personally prefer to have a .xcconfig file because it&rsquo;s more readable, maintainable, and allows for comments of disabled warnings. See <a href="https://github.com/jonreid/XcodeWarnings">xcconfig</a> or <a href="https://github.com/jspahrsummers/xcconfigs">xcconfigs</a> for examples.</p>
+
+<h3>Basic good practices</h3>
+
+<p>My last step when surveying new code, is checking the safety of the code. I&rsquo;ll check for basic safe usage of Objective-C which is a very punishing language with lots of sharp edges that can cut the unaware developer ;)</p>
+
+<ul>
+<li>Safe use of BOOL: See <a href="http://nshipster.com/bool/">http://nshipster.com/bool/</a></li>
+<li>Correct use of copy: For classes having mutable subclasses - NSArray, NSDictionary, NSString, NSData&hellip;</li>
+<li>Safe use of blocks: Checking for nil block parameters</li>
+<li>Memory leaks and blocks: Has the code a simple definition of <a href="https://github.com/jspahrsummers/libextobjc/blob/master/extobjc/EXTScope.h">@weakify and @strongify</a>, or dealing with retain cycles with blocks in a similar way?</li>
+<li>Modern code: Uses <a href="http://miqu.me/blog/2015/04/17/adopting-nullability-annotations/">nullability</a> and <a href="http://miqu.me/blog/2015/06/09/adopting-objectivec-generics/">generics</a>?</li>
+</ul>
+
+
+<h1>Start coding!</h1>
+
+<p>I hope you get some useful tips from my review of tools and checks I do when jumping into new projects. I you&rsquo;ve got any more, <a href="https://twitter.com/miguelquinon">tell me!</a>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Code injection: Continued]]></title>
+    <link href="http://miqu.me/blog/2015/01/29/code-injection-continued/"/>
+    <updated>2015-01-29T17:33:30+00:00</updated>
+    <id>http://miqu.me/blog/2015/01/29/code-injection-continued</id>
+    <content type="html"><![CDATA[<p>I&rsquo;ve recently done a short talk <a href="http://badoo.com">@Badoo</a> about code injection. Summarized and gave a demo of my previous <a href="http://www.miqu.me/blog/2014/11/23/ios-code-injection">blog post</a>.</p>
+
+<p><a href="https://www.youtube.com/watch?v=VEardIxgZNE&amp;feature=youtu.be">Check it out</a> if you are interested. Feedback on the talk is more than welcome, <a href="https://twitter.com/miguelquinon">contact me</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[iOS Code Injection]]></title>
+    <link href="http://miqu.me/blog/2014/11/23/ios-code-injection/"/>
+    <updated>2014-11-23T12:21:36+00:00</updated>
+    <id>http://miqu.me/blog/2014/11/23/ios-code-injection</id>
+    <content type="html"><![CDATA[<p>Write code, compile, <strong>wait</strong>, navigate to screen in application. Fix problem, recompile <strong>wait</strong>. Oh it was not fixed, start again&hellip; Does it sound familiar? For compiled languages there seems to be no workaround this bottleneck. Even though this is true, there are situations where we can reduce the waiting time, increasing our productivity and happiness. Enter code injection.
+<br/></p>
+
+<!-- more -->
+
+
+<h1>The problem</h1>
+
+<p>When a program is launched by the OS, the code is read from the binary file and loaded in volatile memory and it is then executed by the CPU. When that program is written in a compiled language, the classic approach to update the code is to kill it, recompile it, and load it again from scratch. This guarantees a fresh start and ensures you are running your <em>&lsquo;bleeding edge&rsquo;</em> version.</p>
+
+<p>The problem with this approach is that recompiling and relaunching the program can take a small, but not insignificant, amount of time. One recompile-relaunch cycle may not be a waste of time in itself, but a developer can go through this cycle hundreds of times in a day, so the time sums up considerably. Adding to this problem, if the program itself is an application, then the developer needs to navigate to the section she is working on and interact with the UI manually to check her updates.</p>
+
+<h3>What about iOS apps?</h3>
+
+<p>Thinking in the domain of iOS apps, this fact is even worse. Many iOS apps are not overly complicated, but the process of developing an application
+is time consuming and involves hundreds of iterations and small tweaks to a screen. Working in an environment where small iterations evolve a product,
+it is not uncommon that a developer needs to change small UI values or needs to do some small logic changes to a small part of an application. Being highly graphical applications, it&rsquo;s faster to develop and &lsquo;transform&rsquo; the code if you can see your changes directly updated on the screen after saving.</p>
+
+<h1>Code Injection</h1>
+
+<p>Code Injection is a way of inserting code in a running process without killing it and relaunching it. You still need to recompile the changed files, but if you inject the code you can remove all the waiting time to relaunch, and the time to setup the state of your application, like navigating to a specific screen.</p>
+
+<h3>Available tools</h3>
+
+<p>Currently there are two open source tools available:</p>
+
+<ul>
+<li><a href="https://github.com/johnno1962/injectionforxcode">injection for xcode</a></li>
+<li><a href="https://github.com/DyCI/dyci-main">dyci</a></li>
+</ul>
+
+
+<p>Both tools take advantage of Objective-C runtime to modify the code while it is running. <em>Injection for xcode</em> offers more features, such as some adjustement sliders, and integration with Apportable, or recent (limited) Swift support.</p>
+
+<h3>How does it work?</h3>
+
+<p>You can always look at the source code for details, but in a nutshell:</p>
+
+<p>The tool will be watching your source code and then will trigger a recompile when changes are found. The recompile is done through clang directly instead of through XCode. A client side of the tool will be running in the device, waiting to changes to be <em>&lsquo;injected&rsquo;</em> into the application. Then, leveraging Objective-C runtime, the actual code is modified.</p>
+
+<p>After the code is modified, the tool will offer you as developer ways to <em>&lsquo;reload&rsquo;</em> after changes; you may want to load a whole view controller back into memory from it&rsquo;s XIB file, or trigger <em>setNeedsDisplay</em> in your custom view.</p>
+
+<h1>Using dyci</h1>
+
+<p>As this is my tool of choice, I will show you how to use it.</p>
+
+<h2>Set up</h2>
+
+<ol>
+<li>Clone the repository and run install script
+<code>bash
+git clone https://github.com/DyCI/dyci-main
+./dyci-main/Install/install.sh
+</code></li>
+</ol>
+
+
+<p>The script is doing three things:</p>
+
+<ul>
+<li><em>Proxy</em> clang to capture the build commands it issues, so it can know how to compile your source code</li>
+<li>Installs plugins for XCode and Appcode in your computer</li>
+<li><p>Sets up a script and .dyci folder in your $HOME</p></li>
+<li><p>Embed client code into your app</p></li>
+</ul>
+
+
+<p>Dyci will run in your application, watching for a .dyci directory in your $HOME, so you need to include it in your code. I prefer to use Cocoapods as it is simpler. Ensure you don&rsquo;t ship this to your users, by linking it to debug configuration only. In your podfile:</p>
+
+<pre><code class="ruby">pod 'dyci', :configuration =&gt; ['Debug']
+</code></pre>
+
+<h2>Usage</h2>
+
+<h3>Triggering an rebuild</h3>
+
+<p>You have two choices to trigger a recompile of your code. The first one is to use the provided plugins for XCode or Appcode.</p>
+
+<p>A second choice is to run the rebuild script yourself once a source file is saved in your repository. I first learned this technique from <a href="https://github.com/krzysztofzablocki/KZPlayground">Krzystof Zabłocki&rsquo;s</a> approach in KZPlayground, and haven&rsquo;t used the plugins since.</p>
+
+<p>You will need a file watcher tool, for example <a href="https://github.com/alloy/kicker">kicker</a>, to trigger scripts when files are changed. The script you want to run is installed by dyci under <em>$HOME/.dyci/scripts/dyci-recompile.py</em>.</p>
+
+<p>To trigger recompiles using kicker, you need to install the gem and to create a custom recipe. I prefer to make the recipe available globally in your system:
+<code>ruby
+gem install kicker
+cd ~/.kick
+touch code_injection.rb
+</code></p>
+
+<p>The custom recipe in ~/.kick/code_injection.rb:
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">recipe</span> <span class="ss">:code_injection</span> <span class="k">do</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;  process do |potential_files|</span>
+</span><span class='line'><span class="sr">    files = potential_files.take_and_map do |file|</span>
+</span><span class='line'><span class="sr">        if file =~ %r{^.*.(swift|m|xib|storyboard|strings|png|jpeg|jpg)$}</span>
+</span><span class='line'><span class="sr">          cmd = [&amp;lsquo;/us</span><span class="n">r</span><span class="o">/</span><span class="n">bin</span><span class="o">/</span><span class="n">python</span><span class="o">&amp;</span><span class="n">rsquo</span><span class="p">;</span><span class="o">]</span>
+</span><span class='line'>          <span class="n">cmd</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span><span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="no">File</span><span class="o">.</span><span class="n">expand_path</span><span class="p">(</span><span class="o">&amp;</span><span class="n">lsquo</span><span class="p">;</span><span class="o">~</span><span class="sr">/.dyci/s</span><span class="n">cripts</span><span class="o">/</span><span class="n">dyci</span><span class="o">-</span><span class="n">recompile</span><span class="o">.</span><span class="n">py</span><span class="o">&amp;</span><span class="n">rsquo</span><span class="p">;)</span><span class="o">.</span><span class="n">safe_shell_path</span>
+</span><span class='line'>          <span class="n">cmd</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span><span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="no">File</span><span class="o">.</span><span class="n">expand_path</span><span class="p">(</span><span class="n">file</span><span class="p">)</span><span class="o">.</span><span class="n">safe_shell_path</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;pre&gt;&lt;code&gt;      command = cmd.join(&#39; &#39;)</span>
+</span><span class='line'><span class="sr">      puts &quot;Executing </span><span class="si">#{</span><span class="n">command</span><span class="si">}</span><span class="sr">&quot;</span>
+</span><span class='line'><span class="sr">      execute(command)</span>
+</span><span class='line'><span class="sr">      puts &quot;DYCI: Recompiled </span><span class="si">#{</span><span class="n">file</span><span class="si">}</span><span class="sr">&quot;</span>
+</span><span class='line'><span class="sr">      file</span>
+</span><span class='line'><span class="sr">    end</span>
+</span><span class='line'><span class="sr">  end</span>
+</span><span class='line'><span class="sr">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;</span><span class="sr">/pre&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;  end&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span>  <span class="n">process</span> <span class="k">do</span> <span class="o">|</span><span class="n">remaining_files</span><span class="o">|</span>
+</span><span class='line'>    <span class="n">remaining_files</span><span class="o">.</span><span class="n">take_and_map</span> <span class="k">do</span> <span class="o">|</span><span class="n">file</span><span class="o">|</span>
+</span><span class='line'>        <span class="nb">puts</span> <span class="o">&amp;</span><span class="n">ldquo</span><span class="p">;</span><span class="ss">DYCI</span><span class="p">:</span> <span class="no">Ignored</span> <span class="c1">#{file}&amp;rdquo;</span>
+</span><span class='line'>      <span class="n">file</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;  startup do</span>
+</span><span class='line'><span class="sr">    log &amp;ldquo;DYCI: Kicker watching for file changes to recompile!&amp;rdquo;</span>
+</span><span class='line'><span class="sr">  end&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span><span class="k">end</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;class String</span>
+</span><span class='line'><span class="sr">  def safe_shell_path</span>
+</span><span class='line'><span class="sr">    &amp;ldquo;\&amp;rdquo;</span><span class="si">#{</span><span class="nb">self</span><span class="si">}</span><span class="sr">\&amp;ldquo;&amp;rdquo;</span>
+</span><span class='line'><span class="sr">  end</span>
+</span><span class='line'><span class="sr">end</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p>Then on your repository root run:
+<code>bash
+kicker -r code_injection
+</code>
+Trigger a full project recompile and run your application. From now on, when you save a file, it will automatically be recompiled. Save a file and test in your console that the file is recompiled, you should see the logged lines and a success. The script will generate a dynamic library that can then be loaded by the client code in your application.</p>
+
+<h3>Injecting the code</h3>
+
+<p>Once dyci has rebuilt your modified file(s), the code running in your application will grab the newly built dynamic library and load it into your application. Then it modifies the necessary code.</p>
+
+<p>Once your application is running, check that upon initialization, the app is watching for changes under your ~/.dyci directory. If this is not the case, then the app will not receive new built libraries and your code will not update.You should see some log lines like:
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="mi">2014</span><span class="o">-</span><span class="mi">11</span><span class="o">-</span><span class="mi">26</span> <span class="mi">11</span><span class="p">:</span><span class="mi">23</span><span class="p">:</span><span class="mi">49</span><span class="o">.</span><span class="mi">242</span> <span class="no">InjectionObjC</span><span class="o">[</span><span class="mi">63278</span><span class="p">:</span><span class="mi">435583</span><span class="o">]</span> <span class="no">DYCI</span> <span class="n">directory</span> <span class="n">path</span> <span class="n">is</span> <span class="p">:</span> <span class="sr">/Users/m</span><span class="n">quinones</span><span class="o">/.</span><span class="n">dyci</span>
+</span><span class='line'><span class="mi">2014</span><span class="o">-</span><span class="mi">11</span><span class="o">-</span><span class="mi">26</span> <span class="mi">11</span><span class="p">:</span><span class="mi">23</span><span class="p">:</span><span class="mi">49</span><span class="o">.</span><span class="mi">249</span> <span class="no">InjectionObjC</span><span class="o">[</span><span class="mi">63278</span><span class="p">:</span><span class="mi">435583</span><span class="o">]</span> <span class="o">============================================</span>
+</span><span class='line'><span class="mi">2014</span><span class="o">-</span><span class="mi">11</span><span class="o">-</span><span class="mi">26</span> <span class="mi">11</span><span class="p">:</span><span class="mi">23</span><span class="p">:</span><span class="mi">49</span><span class="o">.</span><span class="mi">249</span> <span class="no">InjectionObjC</span><span class="o">[</span><span class="mi">63278</span><span class="p">:</span><span class="mi">435583</span><span class="o">]</span> <span class="no">DYCI</span> <span class="p">:</span> <span class="no">Dynamic</span> <span class="no">Code</span> <span class="no">Injection</span> <span class="n">was</span> <span class="n">started</span><span class="o">&amp;</span><span class="n">hellip</span><span class="p">;</span>
+</span><span class='line'><span class="mi">2014</span><span class="o">-</span><span class="mi">11</span><span class="o">-</span><span class="mi">26</span> <span class="mi">11</span><span class="p">:</span><span class="mi">23</span><span class="p">:</span><span class="mi">49</span><span class="o">.</span><span class="mi">250</span> <span class="no">InjectionObjC</span><span class="o">[</span><span class="mi">63278</span><span class="p">:</span><span class="mi">435583</span><span class="o">]</span> <span class="no">To</span> <span class="n">disable</span> <span class="n">it</span><span class="p">,</span> <span class="n">paste</span> <span class="k">next</span> <span class="n">line</span> <span class="k">in</span> <span class="n">your</span> <span class="ss">application</span><span class="p">:</span><span class="ss">didFinishLaunching</span><span class="p">:</span> <span class="nb">method</span> <span class="p">:</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;[NSClassFromString(@&amp;ldquo;SFDynamicCodeInjection&amp;rdquo;) performSelector:@selector(disable)];&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span><span class="mi">2014</span><span class="o">-</span><span class="mi">11</span><span class="o">-</span><span class="mi">26</span> <span class="mi">11</span><span class="p">:</span><span class="mi">23</span><span class="p">:</span><span class="mi">49</span><span class="o">.</span><span class="mi">250</span> <span class="no">InjectionObjC</span><span class="o">[</span><span class="mi">63278</span><span class="p">:</span><span class="mi">435583</span><span class="o">]</span>      <span class="ow">or</span>
+</span><span class='line'><span class="mi">2014</span><span class="o">-</span><span class="mi">11</span><span class="o">-</span><span class="mi">26</span> <span class="mi">11</span><span class="p">:</span><span class="mi">23</span><span class="p">:</span><span class="mi">49</span><span class="o">.</span><span class="mi">250</span> <span class="no">InjectionObjC</span><span class="o">[</span><span class="mi">63278</span><span class="p">:</span><span class="mi">435583</span><span class="o">]</span> <span class="no">Simply</span> <span class="n">remove</span> <span class="n">dyci</span> <span class="n">from</span> <span class="n">dependencies</span>
+</span><span class='line'><span class="mi">2014</span><span class="o">-</span><span class="mi">11</span><span class="o">-</span><span class="mi">26</span> <span class="mi">11</span><span class="p">:</span><span class="mi">23</span><span class="p">:</span><span class="mi">49</span><span class="o">.</span><span class="mi">250</span> <span class="no">InjectionObjC</span><span class="o">[</span><span class="mi">63278</span><span class="p">:</span><span class="mi">435583</span><span class="o">]</span> <span class="o">============================================</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p>So, using XCode, when you save a file it gets recompiled and injected, watch for this in console:
+<code>
+2014-11-26 11:29:10.402 InjectionObjC[64757:439975] New file injection detected at path : /Users/mquinones/.dyci/dyci3950098.dylib
+2014-11-26 11:29:10.402 InjectionObjC[64757:439975]
+2014-11-26 11:29:10.402 InjectionObjC[64757:439975]  =================================================
+2014-11-26 11:29:10.403 InjectionObjC[64757:439975] Found new DCI ... Loading
+2014-11-26 11:29:10.413 InjectionObjC[64757:439975] DYCI was successfully loaded
+2014-11-26 11:29:10.413 InjectionObjC[64757:439975] Searching classes to inject
+2014-11-26 11:29:10.419 InjectionObjC[64757:439975] Injecting  class : ViewController
+2014-11-26 11:29:10.419 InjectionObjC[64757:439975] Injecting meta class : ViewController
+2014-11-26 11:29:10.419 InjectionObjC[64757:439975] Class (ViewController) and their subclasses instances would be notified with
+2014-11-26 11:29:10.419 InjectionObjC[64757:439975]  - (void)updateOnClassInjection
+2014-11-26 11:29:10.426 InjectionObjC[64757:439975] 1 (ViewController) class instanses were notified on Class Injection :
+2014-11-26 11:29:10.426 InjectionObjC[64757:439975] 1 instanses were notified on Class Injection by injecting class: (ViewController)
+2014-11-26 11:29:10.427 InjectionObjC[64757:439975] Class was successfully injected
+2014-11-26 11:29:10.427 InjectionObjC[64757:439975]
+</code></p>
+
+<h3>Updating after injection</h3>
+
+<p>So your code is injected, but nothing happens in the user interface? If you think about it, this is completely normal, as iOS is not aware that something changed, so nothing is updated in your screen, unless you force it to do so. The updates you may want to do are different depending on what you are modifying, so bear in mind that just injecting the code is not enough.</p>
+
+<p> The library offers some hooks where you can write test-only code to update what you need. Those methods are declared in the category NSObject+DyCInjection. Use them as you want to trigger <em>layoutSubviews</em> <em>reloadData</em> for example.</p>
+
+<h3>Pixel perfect tweaks</h3>
+
+<p>You generally need to ensure that what your designer wanted is shown exacly as she wanted in your application. I Use code injection, paired with a very simple app: <a href="https://itunes.apple.com/us/app/uberlayer/id510139938?mt=12">Uberlayer</a>.</p>
+
+<p>This app lets you put an image over anything in your screen. Overlay it exactly on top of iOS simulator and you can incrementally update the code till it matches perfectly a desired application design.</p>
+
+<h3>Gotchas</h3>
+
+<p>After you install a new version of XCode, dyci needs to be reinstalled, because dyci is not proxying clang anymore.</p>
+
+<p>Some code is harder to modify using code injection, for example the code in a singleton initialization.</p>
+
+<p>Dyci only works in simulator, because of the hook in your computer&rsquo;s file system. Injection for xcode does work on devices though.</p>
+
+<p>I didn&rsquo;t mention Swift because it is a less dynamic language than Objective-C and I expect injection to be harder to do. &lsquo;injection for xcode&rsquo; added limited support for it though.</p>
+
+<p><strong>Do not</strong> link against the code injection library in release, or you risk removing it and shipping it to your users. You really don&rsquo;t want that.</p>
+
+<h1>Conclusion</h1>
+
+<p>No more excuse for this:
+<br/>
+<img src="http://imgs.xkcd.com/comics/compiling.png" alt="image" />
+<br/>
+We have reviewed a very useful tool to avoid long compile-wait-launch-navigate cycles and improve productivity. Code injection is not a silver bullet  of course (is there a silver bullet in programming?), but a very useful tool to use for small changes to code or prototyping. You should really consider using it more often as it can be a huge time saver.</p>
+
+<h3>Good for:</h3>
+
+<ul>
+<li>Tweaking UI values</li>
+<li>Pixel-perfect tweaks: Paired with my favourite pixel-perfecting app: <a href="https://itunes.apple.com/us/app/uberlayer/id510139938?mt=12">Uberlayer</a></li>
+<li>Changing existing logic</li>
+<li>Prototyping</li>
+<li>Changing strings</li>
+<li>Visual debugging</li>
+</ul>
+
+
+<h3>Not so good for:</h3>
+
+<ul>
+<li>Writing new code and debugging it</li>
+<li>Unit testing</li>
+<li>Changing singletons or long-lived application objects (like services)</li>
+<li>Rewriting lots of code</li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Continuously improving with your tools]]></title>
+    <link href="http://miqu.me/blog/2014/10/18/continously-improving-with-your-tools/"/>
+    <updated>2014-10-18T12:17:49+00:00</updated>
+    <id>http://miqu.me/blog/2014/10/18/continously-improving-with-your-tools</id>
+    <content type="html"><![CDATA[<p>Have you ever setup your tools in half an hour? In my opinion, the key to improving your tools is gradually evolving what you use, and how you use them. Here’s what I think about it.</p>
+
+<!-- more -->
+
+
+<h1>Continuous improvement</h1>
+
+<p>I like to improve and learn incrementally. This means I start using new tools, improve how I use existing ones, and in the 21st century, working in different computers at different times during the day.</p>
+
+<p>So, I usually find myself in situations where I tweak my config files or I add a new tool to my favourites, and then I customise it a bit. You would expect to have all these new settings across different computers. Wouldn’t it be great if we could automate all this?</p>
+
+<h1>Enter git</h1>
+
+<p>So I decided a while ago to version my config files using git, as many other programmers do nowadays. I like to keep my dotfiles and configuration files for applications I use in the same repo.</p>
+
+<p>I take the approach to hard link dotfiles to my $HOME from my cloned repository. Regarding links, <a href="http://stackoverflow.com/questions/11786623/cant-hard-link-the-gitconfig-file">others have tried it before</a> and you can have problems, specially with .gitconfig. I never had any problem with it, because I edit files manually.</p>
+
+<h1>Remember: There is life after origin</h1>
+
+<p>Sometimes we are used to git origin to be the repo we push code to, or github/bitbucket for our personal or open source projects. But you can do more. I like having those settings stored in Dropbox as a remote for my settings. The advantage is that I don’t have to remember the remote urls of my public source repo, just reference a local disk url, which is usually ~/Dropbox/reponame.</p>
+
+<p>You can setup a new remote in dropbox like this:
+<code>bash
+cd /path/to/dropbox/
+git init --bare myrepo.git
+</code>
+Then from your local repo:
+<code>bash
+git remote add dropbox /path/to/dropbox/myrepo.git
+</code>
+That’s it! You can push to it normally:
+<code>bash
+git push dropbox master
+</code>
+Bonus for push/pull speed, as both repos are local to your machine.</p>
+
+<h1>Conclusion</h1>
+
+<p>So the goal is to improve gradually, because we learn new tools and tweak existing ones. Git can help you with that, and you can take <a href="http://dotfiles.github.io/">many approaches</a> to how you manage your dotiles. Whatever your approach to keeping these settings, it&rsquo;s important to take care of them normally, improve them, tweak them as you use them.
+<br/>
+Spend 20 minutes now to think about how to gradually improve your workflow, and you will be saving hours of time in the long term.</p>
+]]></content>
+  </entry>
+  
+</feed>

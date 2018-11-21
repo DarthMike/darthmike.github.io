@@ -1,0 +1,298 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Reducing the pain of git bisect with Xcode - miqu.me</title>
+  <meta name="author" content="Miguel Angel Quiñones">
+
+   
+  <meta name="description" content="Software engineering thoughts">
+  
+  <meta name="keywords" content="">
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://miqu.me/blog/2017/01/22/reducing-the-pain-of-git-bisect-with-xcode">
+  <link href="/favicon.png" rel="icon">
+  <link href='https://fonts.googleapis.com/css?family=Quicksand:300,400' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="miqu.me" type="application/atom+xml">
+  <script src="/js/jquery.js"></script>
+  <script src="/js/bootstrap-collapse.js"></script>
+  <script src="/js/modernizr-2.0.js"></script>
+  <script src="/js/octopress.js" type="text/javascript"></script>
+  <script src="/js/application.js"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="https://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="https://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <div class="navbar navbar-inverse navbar-static-top">
+  	<div class="navbar-inner">
+  	  <div class="container">
+        <a class="btn btn-navbar" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+          <span class="fui-menu-24"></span>
+        </a>
+  	  	<div class="nav-collapse collapse navbar-responsive-collapse" style="height:0;">
+  	      <ul class="nav">
+    
+        <li ><a href="/">Blog</a></li>
+    
+        <li ><a href="/about/">Who?</a></li>
+    
+        <li ><a href="/games/">Games</a></li>
+    
+        <li ><a href="/speaking/">Speaking</a></li>
+    
+</ul>
+
+<ul class="nav pull-right">
+    
+    <li><a href="https://github.com/DarthMike" title="Github Profile"><i class="icon-github-sign social-navbar"></i></a></li>
+    
+    
+    
+    <li><a href="https://linkedin.com/in/miguelquinon" title="Linkedin Profile"><i class="icon-linkedin-sign social-navbar"></i></a></li>
+    
+    
+    <li><a href="https://twitter.com/@miguelquinon" title="Twitter Profile"><i class="icon-twitter-sign social-navbar"></i></a></li>
+    
+    
+    
+    
+
+    
+    <li><a href="mailto:miguel@miqu.me" title="Email"><i class="icon-envelope social-navbar"></i></a></li>
+    
+</ul>
+
+  	    </div>
+  	  </div>
+  	</div>
+  </div>
+  <div class="container" id="main">
+      <div class="row-fluid">
+        <div id="content">
+          <div>
+<article class="hentry" role="article">
+  
+
+  <header>
+  <div class="jumbotron">
+    Reducing the Pain of Git Bisect With Xcode
+	<h5>
+
+
+
+
+
+
+
+
+  
+
+
+
+<i class="icon-calendar-empty"></i> <time datetime="2017-01-22T11:49:01+00:00" pubdate data-updated="true">22 Jan 2017</time></h5>
+  </div>
+</header>
+  <div class="row-fluid">
+    <div class="span12">
+      <p>There&rsquo;s times when you need to investigate regressions in your project, and you don&rsquo;t know have any clue as why something is happening. <a href="https://git-scm.com/docs/git-bisect">Git bisect</a> is the best tool for this cases, but it can be painful to use in non small projects using CocoaPods and Xcode. I want to share what I&rsquo;ve been doing to ease the pain.</p>
+
+<!-- more -->
+
+
+<p>If you never used Git bisect, check this <a href="https://git-scm.com/book/en/v2/Git-Tools-Debugging-with-Git">introduction</a>. The git command performs a <a href="https://en.wikipedia.org/wiki/Binary_search_algorithm">binary search</a> across your repository history, starting from two known commits you provide to the algorithm: &lsquo;Good&rsquo; and &lsquo;Bad&rsquo;. &lsquo;Bad&rsquo; will usually be your last commit, and &lsquo;Good&rsquo; will be a commit back in the history of your repository, when you know the code was working as expected. For every step of the search you need to tell git if a commit is good or bad, either manually or automatically by running a script.</p>
+
+<h1>Pain points</h1>
+
+<p>When we enter the realm of iOS development, there&rsquo;s a some factors that make bisect tedious to use.</p>
+
+<p>If you use CocoaPods, and if you don&rsquo;t check in the &lsquo;Pods&rsquo; directory in source control, every time you change branch or bisect selects a new commit, you might need to run <code>pod install</code> in order to have all dependencies available and compile correctly.</p>
+
+<p>If you are searching for a regression, chances are you don&rsquo;t have an automated test suite, so you&rsquo;ll need to run your app manually and reproduce the issue you are searching for. There will be cases when you&rsquo;re dealing with a bug that needs an app reinstall or needs to run on device to reproduce. To top all this, Xcode will start the long indexing process every time there&rsquo;s changes to the sources due to change of commit, so your computer will start doing lot of work.</p>
+
+<p>All of these nuances makes the process of searching for issues using bisect very tedious and not so &lsquo;magical&rsquo; as it is supposed to be. I&rsquo;ve nevertheless used bisect many times to save time otherwise wasted reading code and navigating breakpoints during long debugging sessions. You just need some patience and the will to automate some stuff.</p>
+
+<h1>Reducing the pain</h1>
+
+<h2>Automate pod install</h2>
+
+<p>If you don&rsquo;t check in the &lsquo;Pods&rsquo; directory in source control, you might want to run <code>pod install</code> after every bisect step, to refresh all dependencies. Make use of git&rsquo;s <code>post-checkout</code> <a href="https://git-scm.com/docs/githooks">hook</a> and just perform the operation automatically. I like to close Xcode while updating pods so it doesn&rsquo;t turn crazy and slows down computer even more than usual:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/sh</span>
+</span><span class='line'><span class="c"># Script for .git/hooks/post-checkout</span>
+</span><span class='line'><span class="nb">set</span> -e
+</span><span class='line'>osascript -e <span class="s1">&#39;quit app &quot;Xcode&quot;&#39;</span>
+</span><span class='line'>pod install
+</span><span class='line'>open -a Xcode
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>After you say &lsquo;good&rsquo; or &lsquo;bad&rsquo;, bisect chooses another commit, and automatically close Xcode, update dependencies and open Xcode again. You can be more sophisticated and open the current project directly. See this <a href="https://github.com/robbyrussell/oh-my-zsh/blob/57fcee0f1c520a7c5e3aa5e2bde974154cdaf0c3/plugins/xcode/xcode.plugin.zsh">example</a>.</p>
+
+<h2>Automate build and run</h2>
+
+<p>As I&rsquo;ve mentioned before, if you end up doing a bisect in the codebase you don&rsquo;t have unit tests covering the issue, or any other kind of regression suite covering the issue. You&rsquo;ll need to manually run the project and reproduce the bug. You can still automate the building and running, so you just need to wait to reproduce, and tell git if the commit was good or bad.</p>
+
+<p>Combine <code>xcodebuild</code> with <a href="https://github.com/phonegap/ios-sim">ios-sim</a> in a <code>post-checkout</code> script:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/sh</span>
+</span><span class='line'><span class="nb">set</span> -e
+</span><span class='line'>xcodebuild -arch x86_64 -sdk iphonesimulator10.2 -derivedDataPath <span class="s2">&quot;.build&quot;</span> -scheme myScheme
+</span><span class='line'>
+</span><span class='line'>ios-sim launch --devicetypeid com.apple.CoreSimulator.SimDeviceType.iPhone-6-Plus .build/Build/Products/Debug-iphonesimulator/myapp.app
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here we force a simulator-only build and run it straight away so you can do your painful manual testing. You can combine the update of dependencies to just leave reproducing the issue and feedback as manual steps in the process.</p>
+
+<h2>Repository discipline</h2>
+
+<p>In order to be able to bisect faster and achieve meaningful results there&rsquo;s some practices to follow in your commits:</p>
+
+<ul>
+<li><strong>Granular commits are better</strong>: Smaller commits will make results of bisect more useful as the commit will have small changes, and will be easier to determine the source of the problem.</li>
+<li><strong>Ensure every commit compiles</strong>: It will make a potential bisect easier by not struggling with commits that need to be fixed before tested</li>
+<li><strong>Check in CocoaPods</strong>: There&rsquo;s many <a href="https://www.dzombak.com/blog/2014/03/including-pods-in-source-control.html">advantages some disadvantages</a> of keeping Pods in the repository. And one advantage will be the code compiles as-is without need of fetching dependencies.</li>
+<li><strong>Write meaningful commits</strong>: This should be general practice in the team, but a meaningful commit might tell you what went wrong without even looking at the code, and will help teammates understand your changes.</li>
+</ul>
+
+
+<h1>Use bisect</h1>
+
+<p>Everybody makes mistakes, and there will be the time when you&rsquo;ll be the one tasked to find out why something is not working, with no clue whatsoever of why. This is the time to think about using <code>git bisect</code>. It can be tedious under iOS projects, but you can ease the pain by automating some bits of the process and some patience.</p>
+
+<p>And if you find finally find a commit of your 1-month younger self, you&rsquo;ll thank yourself if you wrote a meaningful commit message.</p>
+
+    </div>
+  </div>
+
+
+
+  <footer>
+    <hr>
+    
+    <div class="row-fluid">
+      
+      <div class="span6">
+        <p class="meta">
+        
+        
+
+
+
+  <a href="/blog/categories/git/"><span class="badge">git</span></a>
+
+  <a href="/blog/categories/ios/"><span class="badge">ios</span></a>
+
+  <a href="/blog/categories/tips/"><span class="badge">tips</span></a>
+
+  <a href="/blog/categories/tools/"><span class="badge">tools</span></a>
+
+  <a href="/blog/categories/xcode/"><span class="badge">xcode</span></a>
+
+
+
+
+        </p>
+      </div>
+      
+      <div class="span6 social-sharing">
+        <div class="sharing">
+  <div class="addthis_toolbox addthis_default_style ">
+  
+  
+  <a class="addthis_button_tweet"></a>
+  
+  
+  <a class="addthis_counter addthis_pill_style"></a>
+  </div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
+</div>
+
+      </div>
+      
+      
+    </div>
+    
+    <div class="row-fluid">
+      <div class="span12">
+        <p class="meta">
+          
+            <a class="basic-alignment left" href="/blog/2016/11/28/app-extensions-xcode-and-cocoapods-omg/" title="Previous Post: App extensions, Xcode and Cocoapods, OMG!">&laquo; App extensions, Xcode and Cocoapods, OMG!</a>
+          
+          
+            <a class="basic-alignment right" href="/blog/2017/01/29/temporary-build-settings/" title="Next Post: Build settings depending on Xcode version">Build settings depending on Xcode version &raquo;</a>
+          
+        </p>
+      </div>
+    </div>
+  </footer>
+</article>
+
+</div>
+
+
+
+        </div>
+      </div>
+      <div class="row-fluid">
+        <footer class="footer-page" role="contentinfo">
+          <p>
+  Copyright &copy; 2018 - Miguel Angel Quiñones -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span> - Theme by <a href="http://alexgaribay.com">Alex Garibay</a>
+</p>
+
+
+        </footer>
+      </div>
+  </div>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'https://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

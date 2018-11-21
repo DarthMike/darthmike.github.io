@@ -1,0 +1,252 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Knowing when to delete code - miqu.me</title>
+  <meta name="author" content="Miguel Angel Quiñones">
+
+   
+  <meta name="description" content="Software engineering thoughts">
+  
+  <meta name="keywords" content="">
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://miqu.me/blog/2016/08/16/knowing-when-to-delete-code">
+  <link href="/favicon.png" rel="icon">
+  <link href='https://fonts.googleapis.com/css?family=Quicksand:300,400' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="miqu.me" type="application/atom+xml">
+  <script src="/js/jquery.js"></script>
+  <script src="/js/bootstrap-collapse.js"></script>
+  <script src="/js/modernizr-2.0.js"></script>
+  <script src="/js/octopress.js" type="text/javascript"></script>
+  <script src="/js/application.js"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="https://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="https://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <div class="navbar navbar-inverse navbar-static-top">
+  	<div class="navbar-inner">
+  	  <div class="container">
+        <a class="btn btn-navbar" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+          <span class="fui-menu-24"></span>
+        </a>
+  	  	<div class="nav-collapse collapse navbar-responsive-collapse" style="height:0;">
+  	      <ul class="nav">
+    
+        <li ><a href="/">Blog</a></li>
+    
+        <li ><a href="/about/">Who?</a></li>
+    
+        <li ><a href="/games/">Games</a></li>
+    
+        <li ><a href="/speaking/">Speaking</a></li>
+    
+</ul>
+
+<ul class="nav pull-right">
+    
+    <li><a href="https://github.com/DarthMike" title="Github Profile"><i class="icon-github-sign social-navbar"></i></a></li>
+    
+    
+    
+    <li><a href="https://linkedin.com/in/miguelquinon" title="Linkedin Profile"><i class="icon-linkedin-sign social-navbar"></i></a></li>
+    
+    
+    <li><a href="https://twitter.com/@miguelquinon" title="Twitter Profile"><i class="icon-twitter-sign social-navbar"></i></a></li>
+    
+    
+    
+    
+
+    
+    <li><a href="mailto:miguel@miqu.me" title="Email"><i class="icon-envelope social-navbar"></i></a></li>
+    
+</ul>
+
+  	    </div>
+  	  </div>
+  	</div>
+  </div>
+  <div class="container" id="main">
+      <div class="row-fluid">
+        <div id="content">
+          <div>
+<article class="hentry" role="article">
+  
+
+  <header>
+  <div class="jumbotron">
+    Knowing When to Delete Code
+	<h5>
+
+
+
+
+
+
+
+
+  
+
+
+
+<i class="icon-calendar-empty"></i> <time datetime="2016-08-16T20:04:04+00:00" pubdate data-updated="true">16 Aug 2016</time></h5>
+  </div>
+</header>
+  <div class="row-fluid">
+    <div class="span12">
+      <p>Much of the literature and writing related to sofware development focuses on the creation, new ideas, fresh ideas and things to improve in your next project. But when is it a good moment to delete the old stuff in an long term project? Here&rsquo;s my short rant about this; I recently deleted a chunk of code in my current project and just felt I wanted to write my thoughts.</p>
+
+<!-- more -->
+
+
+<h1>Short-lived code</h1>
+
+<p>Working on application development field, it is very normal that some code is very short lived. If you&rsquo;re looking to build systems and generic components then you&rsquo;re generally out of luck. Most Application code is generally short lived. In my opinion we just need to know how to deal with it.</p>
+
+<p>Products evolve, ideas and markets change, and the code implementing those concepts has to change to reflect the direction of an application. If your code doesn&rsquo;t closely relate or express the domain of your application, you&rsquo;re bound to have design problems, miscomunication and likely many bugs. Application code is very likely to become legacy in a very short time. That time might be even less than 1 or 2 years.</p>
+
+<h1>Legacy code</h1>
+
+<p>There isn&rsquo;t consensus on what makes code reach the dreaded <em>legacy</em> status. The definition has changed since it&rsquo;s first introduction, and nowadays we generally consider legacy the code that we didn&rsquo;t write. See the <a href="https://en.wikipedia.org/wiki/Legacy_code">wikipedia entry</a>:</p>
+
+<blockquote><p>&hellip;source code inherited from someone else and source code inherited from an older version of the software</p></blockquote>
+
+<p>Or another definition:</p>
+
+<blockquote><p>Michael Feathers introduced a definition of legacy code as code without tests, which reflects the perspective of legacy code being difficult to work with in part due to a lack of automated regression tests</p></blockquote>
+
+<p>Many programmers generally call legacy code anything that they didn&rsquo;t write. While this is a very harsh treament of somebody&rsquo;s effort and time, it will mean that <strong>your</strong> code will become legacy in very short time as well.</p>
+
+<h1>Refactoring vs Rewriting</h1>
+
+<p>Legacy code is often mentioned when refactoring. The effort of writing some piece of functionality again versus the cost of refactoring code is something we all need to consider at some point. I think that you should always evaluate this in the light of your project and always ponder the real end-user value of your rewrite or refactor. Sometimes if something works <a href="http://www.cnbc.com/2016/05/25/us-military-uses-8-inch-floppy-disks-to-coordinate-nuclear-force-operations.html">it&rsquo;s better not to change it</a>.</p>
+
+<p>My view is that we should always try to do small refactorings, even if that implies rewriting small parts of functionality. Big rewrites never pay off in my experience, but hey I might be wrong. Read Martin Fowler&rsquo;s <a href="http://martinfowler.com/articles/workflowsOfRefactoring/">excellent entry</a> on refactoring.</p>
+
+<h1>Clean after yourself</h1>
+
+<p>I&rsquo;m more concerned about dead code than necessary refactoring efforts. We rarely spend the time to analyze our projects and search for dead code. Things we left out after refactoring or an old clean up. The engineering team is responsible to clean the lower decks of the ship, so to speak, and it&rsquo;s our duty to ensure that the environment we work in is clean and up to date. Nobody else will do it otherwise.</p>
+
+<p>I think developers need to emotionally detach themselves from code they wrote, and be ready to delete things that don&rsquo;t work or are no longer relevant. ABTests, temporary user migrations, temporary bridging code between legacy systems and new systems. I think we shouldn&rsquo;t save idle and not used code &lsquo;just in case we need it&rsquo;, as it adds to the cruft of the project. You&rsquo;ll forget after a while and nobody will know what to do with it. Just delete it.</p>
+
+<p>To conclude, if you introduce any kind of prize contest in your engineering team, then please, give a prize to the engineer that deleted the most lines of code, not the one that wrote the most. You can be sure that that engineer didn&rsquo;t introduce any bugs nor regressions.</p>
+
+<p>Ripley signing off.</p>
+
+    </div>
+  </div>
+
+
+
+  <footer>
+    <hr>
+    
+    <div class="row-fluid">
+      
+      <div class="span6">
+        <p class="meta">
+        
+        
+
+
+
+  <a href="/blog/categories/meta/"><span class="badge">meta</span></a>
+
+  <a href="/blog/categories/tips/"><span class="badge">tips</span></a>
+
+
+
+
+        </p>
+      </div>
+      
+      <div class="span6 social-sharing">
+        <div class="sharing">
+  <div class="addthis_toolbox addthis_default_style ">
+  
+  
+  <a class="addthis_button_tweet"></a>
+  
+  
+  <a class="addthis_counter addthis_pill_style"></a>
+  </div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
+</div>
+
+      </div>
+      
+      
+    </div>
+    
+    <div class="row-fluid">
+      <div class="span12">
+        <p class="meta">
+          
+            <a class="basic-alignment left" href="/blog/2016/07/31/xcode-8-new-build-settings-and-analyzer-improvements/" title="Previous Post: Xcode 8: New build settings and analyzer improvements">&laquo; Xcode 8: New build settings and analyzer improvements</a>
+          
+          
+            <a class="basic-alignment right" href="/blog/2016/10/26/controlling-time-in-the-app/" title="Next Post: Controlling time in the app">Controlling time in the app &raquo;</a>
+          
+        </p>
+      </div>
+    </div>
+  </footer>
+</article>
+
+</div>
+
+
+
+        </div>
+      </div>
+      <div class="row-fluid">
+        <footer class="footer-page" role="contentinfo">
+          <p>
+  Copyright &copy; 2018 - Miguel Angel Quiñones -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span> - Theme by <a href="http://alexgaribay.com">Alex Garibay</a>
+</p>
+
+
+        </footer>
+      </div>
+  </div>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'https://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

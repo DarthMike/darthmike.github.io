@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: tutorial | miqu.me]]></title>
+  <link href="http://miqu.me/blog/categories/tutorial/atom.xml" rel="self"/>
+  <link href="http://miqu.me/"/>
+  <updated>2018-11-21T10:05:53+00:00</updated>
+  <id>http://miqu.me/</id>
+  <author>
+    <name><![CDATA[Miguel Angel Quiñones]]></name>
+    <email><![CDATA[miguel@miqu.me]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Freehand Drawing]]></title>
+    <link href="http://miqu.me/blog/2015/08/20/freehand-drawing/"/>
+    <updated>2015-08-20T20:09:40+00:00</updated>
+    <id>http://miqu.me/blog/2015/08/20/freehand-drawing</id>
+    <content type="html"><![CDATA[<p>Yesterday my last post on the series ‘Let’s build Freehand Drawing for iOS’ has been published at Badoo Tech blog. It’s been a very good experience for me, and of course I recommend you visit the tutorials if you are interested.</p>
+
+<p>I divided the tutorials in 3 parts:</p>
+
+<ul>
+<li><a href="https://techblog.badoo.com/blog/2015/06/15/lets-build-freehand-drawing-in-ios-part-1/">Part 1</a>: Introduces the feature and a naive implementation</li>
+<li><a href="https://techblog.badoo.com/blog/2015/06/29/lets-build-freehand-drawing-in-ios-part-2/">Part 2</a>: Adds undo functionality, refactoring along the way</li>
+<li><a href="https://techblog.badoo.com/blog/2015/08/18/lets-build-freehand-drawing-in-ios-part-3/">Part 3</a>: Improves stroke to make it look smoother</li>
+</ul>
+
+
+<h1>Building tutorials is hard</h1>
+
+<p>This series has been my first take on writing technical tutorials. And I must say that it’s a lot harder than I thought. You need to keep track of the content, code correctness, and the pace of the articles so it’s readable and understandable. Coding while writing an article is challenging, but the experience has been very gratifying.</p>
+
+<p>I also get to brag about something I was really happy to build for the <a href="http://bumble.com/">Bumble</a> project. So I think I’ll definitely write other tutorials in the future.</p>
+]]></content>
+  </entry>
+  
+</feed>

@@ -1,0 +1,316 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Tip: ExFat HDD with Raspberry Pi - miqu.me</title>
+  <meta name="author" content="Miguel Angel Quiñones">
+
+   
+  <meta name="description" content="Software engineering thoughts">
+  
+  <meta name="keywords" content="">
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://miqu.me/blog/2015/01/14/tip-exfat-hdd-with-raspberry-pi">
+  <link href="/favicon.png" rel="icon">
+  <link href='https://fonts.googleapis.com/css?family=Quicksand:300,400' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="miqu.me" type="application/atom+xml">
+  <script src="/js/jquery.js"></script>
+  <script src="/js/bootstrap-collapse.js"></script>
+  <script src="/js/modernizr-2.0.js"></script>
+  <script src="/js/octopress.js" type="text/javascript"></script>
+  <script src="/js/application.js"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="https://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="https://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <div class="navbar navbar-inverse navbar-static-top">
+  	<div class="navbar-inner">
+  	  <div class="container">
+        <a class="btn btn-navbar" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+          <span class="fui-menu-24"></span>
+        </a>
+  	  	<div class="nav-collapse collapse navbar-responsive-collapse" style="height:0;">
+  	      <ul class="nav">
+    
+        <li ><a href="/">Blog</a></li>
+    
+        <li ><a href="/about/">Who?</a></li>
+    
+        <li ><a href="/games/">Games</a></li>
+    
+        <li ><a href="/speaking/">Speaking</a></li>
+    
+</ul>
+
+<ul class="nav pull-right">
+    
+    <li><a href="https://github.com/DarthMike" title="Github Profile"><i class="icon-github-sign social-navbar"></i></a></li>
+    
+    
+    
+    <li><a href="https://linkedin.com/in/miguelquinon" title="Linkedin Profile"><i class="icon-linkedin-sign social-navbar"></i></a></li>
+    
+    
+    <li><a href="https://twitter.com/@miguelquinon" title="Twitter Profile"><i class="icon-twitter-sign social-navbar"></i></a></li>
+    
+    
+    
+    
+
+    
+    <li><a href="mailto:miguel@miqu.me" title="Email"><i class="icon-envelope social-navbar"></i></a></li>
+    
+</ul>
+
+  	    </div>
+  	  </div>
+  	</div>
+  </div>
+  <div class="container" id="main">
+      <div class="row-fluid">
+        <div id="content">
+          <div>
+<article class="hentry" role="article">
+  
+
+  <header>
+  <div class="jumbotron">
+    Tip: ExFat HDD With Raspberry Pi
+	<h5>
+
+
+
+
+
+
+
+
+  
+
+
+
+<i class="icon-calendar-empty"></i> <time datetime="2015-01-14T10:11:11+00:00" pubdate data-updated="true">14 Jan 2015</time></h5>
+  </div>
+</header>
+  <div class="row-fluid">
+    <div class="span12">
+      <p>A few days ago I switched my HDD on my Raspberry Pi to a SSD drive. I use the Pi as a NAS serving files at home and I wanted to use a HDD for music with less storage but more reliability. This drive runs 24/7. I also chose exFat for the filesystem. I write this as a future self-reference, but may be useful for somebody else, so here it goes.</p>
+
+<!-- more -->
+
+
+<p>Steps:</p>
+
+<h2>Find the drive</h2>
+
+<p>First you need to find the drive you want to mount. Run:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo fdisk -l
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Which will list disk partitions in the system. In my case the interesting bit is:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>Disk /dev/sda: 240.1 GB, <span class="m">240057409024</span> bytes
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And this one:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>Disk identifier: 0xb6474e4f
+</span><span class='line'>
+</span><span class='line'>   Device Boot      Start         End      Blocks   Id  System
+</span><span class='line'>/dev/sda1               <span class="m">2</span>   <span class="m">468862126</span>   234431062+   <span class="m">7</span>  HPFS/NTFS/exFAT
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So note the location of the partition - in my example <strong>/dev/sda1</strong>.</p>
+
+<h2>Mount it manually</h2>
+
+<p>Test that you can mount it with <em>mnt</em> command:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>mkdir /mnt/PIHDD
+</span><span class='line'>mount /dev/sda1 /mnt/PIHDD
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you then check the contents they should be visible:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>ls /mnt/PIHDD
+</span><span class='line'>…
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>ExFat</h2>
+
+<p>If you have an exFat drive, mounting will not work, as you need a driver with support for it. On Debian and Raspbian, just install it with the package manager:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo apt-get install exfat-fuse
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Mount it automatically</h2>
+
+<p>So you can mount and unmount the USB drive manually. But you can automate it even further so every time you start the Pi, it mounts the drive to the specified location. For this you need the UUID, not just the location, as it could potentially change.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo blkid
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Gives you a list of devices and their UUIDs. Note the one for your partition:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>/dev/mmcblk0p1: <span class="nv">SEC_TYPE</span><span class="o">=</span><span class="s2">&quot;msdos&quot;</span> <span class="nv">LABEL</span><span class="o">=</span><span class="s2">&quot;boot&quot;</span> <span class="nv">UUID</span><span class="o">=</span><span class="s2">&quot;787C-2FD4&quot;</span> <span class="nv">TYPE</span><span class="o">=</span><span class="s2">&quot;vfat&quot;</span>
+</span><span class='line'>/dev/mmcblk0p2: <span class="nv">UUID</span><span class="o">=</span><span class="s2">&quot;3d81d9e2-7d1b-4015-8c2c-29ec0875f762&quot;</span> <span class="nv">TYPE</span><span class="o">=</span><span class="s2">&quot;ext4&quot;</span>
+</span><span class='line'>/dev/sda1: <span class="nv">LABEL</span><span class="o">=</span><span class="s2">&quot;Music&quot;</span> <span class="nv">UUID</span><span class="o">=</span><span class="s2">&quot;54AF-0252&quot;</span> <span class="nv">TYPE</span><span class="o">=</span><span class="s2">&quot;exfat&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then last step is to modify the file in /ect/fstab to mount your  partition:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">UUID</span><span class="o">=</span>54AF-0252 /mnt/PIHDD exfat defaults,auto,umask<span class="o">=</span>000,users,rw <span class="m">0</span> 0
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>For the meaning of each value run the manual pages, but these are reasonable defaults for home drives.</p>
+
+<p>Now every time the Pi starts it knows how to mount that drive. Also, if you run <em>sudo mount -a</em> command, it will also know how to mount it. Good for quick system maintenance.</p>
+
+<p><strong>EDIT 05/08/2016</strong>:
+I&rsquo;m seen a lot of traffic coming to this post, so I wanted to give a heads up to anybody reading this:
+<strong>I&rsquo;m no longer using ExFat for my Raspberry Pi</strong>. The reasons are in <a href="http://miqu.me/blog/2015/04/14/exfat-with-raspberry-pi-continued/">this post</a>.
+If you want to try it yourself, you&rsquo;re very welcome, and the steps are still valid AFAIK.</p>
+
+    </div>
+  </div>
+
+
+
+  <footer>
+    <hr>
+    
+    <div class="row-fluid">
+      
+      <div class="span6">
+        <p class="meta">
+        
+        
+
+
+
+  <a href="/blog/categories/raspberry-pi/"><span class="badge">raspberry pi</span></a>
+
+  <a href="/blog/categories/tips/"><span class="badge">tips</span></a>
+
+
+
+
+        </p>
+      </div>
+      
+      <div class="span6 social-sharing">
+        <div class="sharing">
+  <div class="addthis_toolbox addthis_default_style ">
+  
+  
+  <a class="addthis_button_tweet"></a>
+  
+  
+  <a class="addthis_counter addthis_pill_style"></a>
+  </div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
+</div>
+
+      </div>
+      
+      
+    </div>
+    
+    <div class="row-fluid">
+      <div class="span12">
+        <p class="meta">
+          
+            <a class="basic-alignment left" href="/blog/2014/12/20/a-tale-of-categories-and-extensions/" title="Previous Post: A tale of categories and extensions">&laquo; A tale of categories and extensions</a>
+          
+          
+            <a class="basic-alignment right" href="/blog/2015/01/29/code-injection-continued/" title="Next Post: Code injection: Continued">Code injection: Continued &raquo;</a>
+          
+        </p>
+      </div>
+    </div>
+  </footer>
+</article>
+
+</div>
+
+
+
+        </div>
+      </div>
+      <div class="row-fluid">
+        <footer class="footer-page" role="contentinfo">
+          <p>
+  Copyright &copy; 2018 - Miguel Angel Quiñones -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span> - Theme by <a href="http://alexgaribay.com">Alex Garibay</a>
+</p>
+
+
+        </footer>
+      </div>
+  </div>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'https://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

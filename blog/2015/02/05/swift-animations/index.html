@@ -1,0 +1,429 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Swift Animations - miqu.me</title>
+  <meta name="author" content="Miguel Angel Quiñones">
+
+   
+  <meta name="description" content="Software engineering thoughts">
+  
+  <meta name="keywords" content="">
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://miqu.me/blog/2015/02/05/swift-animations">
+  <link href="/favicon.png" rel="icon">
+  <link href='https://fonts.googleapis.com/css?family=Quicksand:300,400' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="miqu.me" type="application/atom+xml">
+  <script src="/js/jquery.js"></script>
+  <script src="/js/bootstrap-collapse.js"></script>
+  <script src="/js/modernizr-2.0.js"></script>
+  <script src="/js/octopress.js" type="text/javascript"></script>
+  <script src="/js/application.js"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="https://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="https://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <div class="navbar navbar-inverse navbar-static-top">
+  	<div class="navbar-inner">
+  	  <div class="container">
+        <a class="btn btn-navbar" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+          <span class="fui-menu-24"></span>
+        </a>
+  	  	<div class="nav-collapse collapse navbar-responsive-collapse" style="height:0;">
+  	      <ul class="nav">
+    
+        <li ><a href="/">Blog</a></li>
+    
+        <li ><a href="/about/">Who?</a></li>
+    
+        <li ><a href="/games/">Games</a></li>
+    
+        <li ><a href="/speaking/">Speaking</a></li>
+    
+</ul>
+
+<ul class="nav pull-right">
+    
+    <li><a href="https://github.com/DarthMike" title="Github Profile"><i class="icon-github-sign social-navbar"></i></a></li>
+    
+    
+    
+    <li><a href="https://linkedin.com/in/miguelquinon" title="Linkedin Profile"><i class="icon-linkedin-sign social-navbar"></i></a></li>
+    
+    
+    <li><a href="https://twitter.com/@miguelquinon" title="Twitter Profile"><i class="icon-twitter-sign social-navbar"></i></a></li>
+    
+    
+    
+    
+
+    
+    <li><a href="mailto:miguel@miqu.me" title="Email"><i class="icon-envelope social-navbar"></i></a></li>
+    
+</ul>
+
+  	    </div>
+  	  </div>
+  	</div>
+  </div>
+  <div class="container" id="main">
+      <div class="row-fluid">
+        <div id="content">
+          <div>
+<article class="hentry" role="article">
+  
+
+  <header>
+  <div class="jumbotron">
+    Swift Animations
+	<h5>
+
+
+
+
+
+
+
+
+  
+
+
+
+<i class="icon-calendar-empty"></i> <time datetime="2015-02-05T20:00:14+00:00" pubdate data-updated="true">05 Feb 2015</time></h5>
+  </div>
+</header>
+  <div class="row-fluid">
+    <div class="span12">
+      <p>Today I introduce <a href="https://github.com/DarthMike/SwiftAnimations">a small Swift DSL</a> to improve how complex and chained animation code looks, and reads.</p>
+
+<!-- more -->
+
+
+<h1>But… we already have a very good API!</h1>
+
+<p>We iOS Developers are spoiled. We have a rich set of Frameworks built by Apple, and some of the APIs are very idiomatic and easy to use.</p>
+
+<p>This is the case of UIKit animations. A simple method call and you can achieve <em>fire-and-forget</em> animations, all asynchronously executed and interpolated for you. But these APIs are part of the <em>’legacy’</em> of <a href="http://nshipster.com/the-death-of-cocoa">Cocoa Touch</a>. Sometimes you feel wanting a bit more, specially when writing Swift code.</p>
+
+<p>Let’s look at how the simplest kind of animation looks like in Code:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='swift'><span class='line'><span class="n">UIKit</span><span class="p">.</span><span class="n">animateWithDuration</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nb">self</span><span class="p">.</span><span class="n">view</span><span class="p">.</span><span class="n">center</span><span class="p">.</span><span class="n">x</span> <span class="o">+=</span> <span class="mi">100</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><strong>Amazing!</strong> There is a lot going on here; Interpolating values for you, refreshing screen automatically and giving you proper callbacks at the end.</p>
+
+<p>Unfortunately, in any iOS app, these kind of animations are rarely useful. Let’s see a more involved and tweaked animation. Imagine a photo taking app, with a button to save to disk the captured image. Now you want to do this animation:</p>
+
+<ul>
+<li>Snap to center</li>
+<li>Move to Save button</li>
+<li>Scale up a bit</li>
+<li>Scale till disappearing in the button</li>
+</ul>
+
+
+<p>Code might look like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='swift'><span class='line'><span class="c1">// Create snapshot</span>
+</span><span class='line'><span class="bp">UIView</span><span class="p">.</span><span class="n">animateWithDuration</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="nl">animations</span><span class="p">:</span> <span class="p">{</span>
+</span><span class='line'>  <span class="c1">// Scale Snapshot</span>
+</span><span class='line'><span class="p">},</span> <span class="nl">completion</span><span class="p">:</span> <span class="p">{</span>
+</span><span class='line'>  <span class="bp">UIView</span><span class="p">.</span><span class="n">animateWithDuration</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="nl">animations</span><span class="p">:</span> <span class="p">{</span>
+</span><span class='line'>    <span class="c1">// Move to button</span>
+</span><span class='line'>  <span class="p">},</span> <span class="nl">completion</span><span class="p">:</span> <span class="p">{</span>
+</span><span class='line'>    <span class="bp">UIView</span><span class="p">.</span><span class="n">animateWithDuration</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="nl">animations</span><span class="p">:</span> <span class="p">{</span>
+</span><span class='line'>      <span class="c1">// Animate scale up</span>
+</span><span class='line'>    <span class="p">},</span> <span class="nl">completion</span><span class="p">:</span> <span class="p">{</span>
+</span><span class='line'>      <span class="bp">UIView</span><span class="p">.</span><span class="n">animateWithDuration</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="nl">animations</span><span class="p">:</span> <span class="p">{</span>
+</span><span class='line'>        <span class="c1">//Scale to 0</span>
+</span><span class='line'>      <span class="p">},</span> <span class="nl">completion</span><span class="p">:</span> <span class="p">{</span>
+</span><span class='line'>        <span class="c1">// Cleanup</span>
+</span><span class='line'>      <span class="p">})</span>
+</span><span class='line'>    <span class="p">})</span>
+</span><span class='line'>  <span class="p">})</span>
+</span><span class='line'><span class="p">})</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Nesting and chaining animations</h1>
+
+<h2>Dealing with Pyramids</h2>
+
+<p>The previous code works but feels <em>dirty and hacky</em> to me. How can we do better? How can we simplify it and make it more readable?</p>
+
+<p>It seems <em>easy</em> to tweak. We actually have several options; The first one is to extract the animation blocks to inner functions in the calling method, like so:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class='swift'><span class='line'><span class="k">let</span> <span class="n">animationA</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'><span class="c1">// Animation</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">let</span> <span class="n">animationB</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'><span class="c1">// Animation</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">let</span> <span class="n">animationC</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'><span class="c1">// Animation</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">let</span> <span class="n">animationD</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'><span class="c1">// Animation</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="bp">UIView</span><span class="p">.</span><span class="n">animateWithDuration</span><span class="p">(</span><span class="mf">0.3</span> <span class="p">,</span> <span class="nl">animations</span><span class="p">:</span> <span class="n">animationA</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="bp">UIView</span><span class="p">.</span><span class="n">animateWithDuration</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="nl">animations</span><span class="p">:</span> <span class="n">animationB</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="bp">UIView</span><span class="p">.</span><span class="n">animateWithDuration</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="nl">animations</span><span class="p">:</span> <span class="n">animationC</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="bp">UIView</span><span class="p">.</span><span class="n">animateWithDuration</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="nl">animations</span><span class="p">:</span> <span class="n">animationD</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="c1">// Cleanup</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Some may argue this is ok, and I will argue it is better but not worse than the <a href="http://www.scottlogic.com/blog/2014/12/08/swift-optional-pyramids-of-doom.html">Swift optional pyramids of Doom</a> or <em>if else if else if else</em> blocks.</p>
+
+<p>Now bear in mind that this example <strong>this is the simplest chain of animations</strong> we can come up with. Now there are <strong>variants</strong> you might need for every animation. Say the second animation curve is different, durations are obviously different.</p>
+
+<h2>Core Animation</h2>
+
+<p>Another way to approach this is to turn to Core Animation. That is what I actually did in a recent project. The problem is that Core Animation will be even more verbose than this, and actually you need to take into account the difference between presentation and model trees, and overall write more code.</p>
+
+<p>Core Animation is awesome and powerful, but this comes at a price: verbosity and more complex API. I just want to chain a series of animations to do small but simple UI tweaks. The kind of small things that make iOS apps so special.</p>
+
+<p>Core Animation API is more suited to do very advanced animations, follow paths when animating, when your animation is so complex that layers are more efficient, or when you need to do masking or 3D transforms.</p>
+
+<h2>Keyframe animations</h2>
+
+<p>Another option to simplify the pyramids is to use keyframe animations. This is true, you can add arbitrary points and values for an animation, and it is very powerful.</p>
+
+<p>But in my opinion the UIKit keyframes API is flawed and makes you duplicate information and keep track of relative durations and values. Like:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='swift'><span class='line'>    <span class="bp">UIView</span><span class="p">.</span><span class="n">animateKeyframesWithDuration</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="nl">delay</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="nl">options</span><span class="p">:</span> <span class="n">UIViewKeyframeAnimationOptions</span><span class="p">.</span><span class="n">CalculationModeCubic</span><span class="p">,</span> <span class="nl">animations</span><span class="p">:</span> <span class="p">{</span>
+</span><span class='line'>        <span class="bp">UIView</span><span class="p">.</span><span class="n">addKeyframeWithRelativeStartTime</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nl">relativeDuration</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span> <span class="nl">animations</span><span class="p">:</span> <span class="n">animationA</span><span class="p">)</span>
+</span><span class='line'>        <span class="bp">UIView</span><span class="p">.</span><span class="n">addKeyframeWithRelativeStartTime</span><span class="p">(</span><span class="mf">0.2</span><span class="p">,</span><span class="nl">relativeDuration</span><span class="p">:</span> <span class="mf">0.3</span> <span class="nl">animations</span><span class="p">:</span> <span class="n">animationA</span><span class="p">)</span>
+</span><span class='line'>        <span class="bp">UIView</span><span class="p">.</span><span class="n">addKeyframeWithRelativeStartTime</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="nl">relativeDuration</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="nl">animations</span><span class="p">:</span> <span class="n">animationC</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">},</span> <span class="nl">completion</span><span class="p">:</span> <span class="p">{</span>
+</span><span class='line'>        <span class="c1">// Cleanup</span>
+</span><span class='line'>    <span class="p">})</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Not bad, but still not clean, and there is repeated information between end and start of the next animation. Also, it’s still very verbose.</p>
+
+<h2>Prototyping</h2>
+
+<p>What about if you are prototyping the animation. You want a non-intrusive and simple API that lets you change things in a breeze. You may want to rewrite these animations or reorder them many times till you are satisfied with the result.</p>
+
+<h1>A DSL approach</h1>
+
+<p>So I’ve been thinking it would be good to be able to express simply what we want do: <strong>Animate</strong> view A here, <strong>then</strong> rotate another view, <strong>and then</strong> fade out the previous view.</p>
+
+<p>So my the same block of animations will look like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='swift'><span class='line'><span class="n">animate</span> <span class="p">{</span>
+</span><span class='line'>  <span class="c1">//First animation</span>
+</span><span class='line'><span class="p">}.</span><span class="n">thenAnimate</span> <span class="p">{</span>
+</span><span class='line'>  <span class="c1">//Second animation</span>
+</span><span class='line'><span class="p">}.</span><span class="n">thenAnimate</span> <span class="p">{</span>
+</span><span class='line'>  <span class="c1">//Third </span>
+</span><span class='line'><span class="p">}.</span><span class="n">withOptions</span><span class="p">(.</span><span class="n">CurveEaseOut</span><span class="p">).</span><span class="n">thenAnimate</span> <span class="p">{</span>
+</span><span class='line'>  <span class="c1">//Fourth </span>
+</span><span class='line'><span class="p">}.</span><span class="n">withOptions</span><span class="p">(.</span><span class="n">CurveEaseOut</span><span class="p">).</span><span class="n">thenAnimate</span> <span class="p">{</span>
+</span><span class='line'>  <span class="c1">//</span>
+</span><span class='line'><span class="p">}.</span><span class="n">start</span><span class="p">()</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I think it’s a big improvement. I believe only the most complex animation code should look <em>dirty and hacky</em>. Most UI code does not need to look like it is written in a rush. Specially if we think that we need to actually run it to see the movements.</p>
+
+<p>I might change the API a bit in the following days, but the idea stays the same.</p>
+
+<p>The code is on <a href="https://github.com/DarthMike/SwiftAnimations">Github</a>. Take a look at it and <a href="http://twitter.com/miguelquinon">tell me what you think</a>.</p>
+
+    </div>
+  </div>
+
+
+
+  <footer>
+    <hr>
+    
+    <div class="row-fluid">
+      
+      <div class="span6">
+        <p class="meta">
+        
+        
+
+
+
+  <a href="/blog/categories/ios/"><span class="badge">ios</span></a>
+
+  <a href="/blog/categories/swift/"><span class="badge">swift</span></a>
+
+  <a href="/blog/categories/ui/"><span class="badge">ui</span></a>
+
+
+
+
+        </p>
+      </div>
+      
+      <div class="span6 social-sharing">
+        <div class="sharing">
+  <div class="addthis_toolbox addthis_default_style ">
+  
+  
+  <a class="addthis_button_tweet"></a>
+  
+  
+  <a class="addthis_counter addthis_pill_style"></a>
+  </div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
+</div>
+
+      </div>
+      
+      
+    </div>
+    
+    <div class="row-fluid">
+      <div class="span12">
+        <p class="meta">
+          
+            <a class="basic-alignment left" href="/blog/2015/01/29/code-injection-continued/" title="Previous Post: Code injection: Continued">&laquo; Code injection: Continued</a>
+          
+          
+            <a class="basic-alignment right" href="/blog/2015/02/13/code-signing-and-distributing-swift/" title="Next Post: Code signing and distributing - Swift">Code signing and distributing - Swift &raquo;</a>
+          
+        </p>
+      </div>
+    </div>
+  </footer>
+</article>
+
+</div>
+
+
+
+        </div>
+      </div>
+      <div class="row-fluid">
+        <footer class="footer-page" role="contentinfo">
+          <p>
+  Copyright &copy; 2018 - Miguel Angel Quiñones -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span> - Theme by <a href="http://alexgaribay.com">Alex Garibay</a>
+</p>
+
+
+        </footer>
+      </div>
+  </div>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'https://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

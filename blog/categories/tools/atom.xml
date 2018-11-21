@@ -1,0 +1,761 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: tools | miqu.me]]></title>
+  <link href="http://miqu.me/blog/categories/tools/atom.xml" rel="self"/>
+  <link href="http://miqu.me/"/>
+  <updated>2018-11-21T10:05:53+00:00</updated>
+  <id>http://miqu.me/</id>
+  <author>
+    <name><![CDATA[Miguel Angel Quiñones]]></name>
+    <email><![CDATA[miguel@miqu.me]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Automatic bridging from Swift to Objective-C using Sourcery]]></title>
+    <link href="http://miqu.me/blog/2017/05/21/automatic-bridging-from-swift-to-objective-c-using-sourcery/"/>
+    <updated>2017-05-21T21:30:00+00:00</updated>
+    <id>http://miqu.me/blog/2017/05/21/automatic-bridging-from-swift-to-objective-c-using-sourcery</id>
+    <content type="html"><![CDATA[<p>I recently read a <a href="http://blog.benjamin-encz.de/post/bridging-swift-types-to-objective-c/">great post</a> by <a href="https://twitter.com/benjaminencz">Benjamin Encz</a> about bridging Swift to Objective-C by creating bridging types that can be exposed to the older language. I wondered if his idea can be improved and automated using meta-programming with <a href="https://github.com/krzysztofzablocki/Sourcery">Sourcery</a> by <a href="https://twitter.com/merowing_">Krzystof Zablocki</a>. The answer is a very impressive ObjC-like uppercase <strong>YES</strong>.</p>
+
+<!-- more -->
+
+
+<p>First of all, you should read <a href="http://blog.benjamin-encz.de/post/bridging-swift-types-to-objective-c/">Benjamin&rsquo;s post</a>. He proposes to use a bridging class that can be instantiated from Objective-C and Swift because it inherits from <code>NSObject</code>. The bridging class has properties to get and set the properties of the bridged type.</p>
+
+<p>In this post I&rsquo;m just going to give an overview of the template and highlight the simpler parts. If you want to jump directly in the code, here&rsquo;s the <a href="https://github.com/DarthMike/AutoObjCBridgeable">project</a>, and the <a href="https://github.com/DarthMike/AutoObjCBridgeable/blob/master/Templates/AutoObjCBridgeable.stencil">template</a>. The example template bridges struct and enum, but doesn&rsquo;t handle custom protocols to keep it as simple as possible.</p>
+
+<h2>About Sourcery</h2>
+
+<p><a href="https://github.com/krzysztofzablocki/Sourcery">Sourcery</a> is a tool to generate code, using your written templates, using metadata from your production code. In other words, it&rsquo;s a tool to do <a href="https://en.wikipedia.org/wiki/Metaprogramming">metaprogramming</a> in Swift. If you are not familiar with Sourcery I encourage you to go read the documentation and at least understand the simple examples like generating <code>Equatable</code> implementations for your types. Getting familiar with <a href="https://github.com/kylef/Stencil">Stencil</a>, one of the supported template languages is also fundamental.</p>
+
+<h2>Building the template</h2>
+
+<p>We&rsquo;ll need to generate a new class for every struct and enum that we bridge. In order to opt-in to the feature, we use <a href="https://www.objc.io/blog/2014/12/29/functional-snippet-13-phantom-types/">phantom types</a> in order to mark swift types (our custom structs or enums) that can be bridged to Objective-C. Our template will use this protocol to which types to introspect:
+<code>swift
+protocol AutoObjCBridgeable {}
+</code></p>
+
+<p>For example, take Benjamin&rsquo;s example code:
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='swift'><span class='line'><span class="k">enum</span> <span class="n">CheckoutOption</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">case</span> <span class="n">creditCard</span><span class="p">(</span><span class="nl">given</span><span class="p">:</span> <span class="n">Int</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">case</span> <span class="n">paypal</span><span class="p">(</span><span class="n">String</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="k">struct</span> <span class="n">ShoppingCart</span>  <span class="p">{</span>
+</span><span class='line'>    <span class="k">var</span> <span class="nl">items</span><span class="p">:</span> <span class="p">[</span><span class="n">String</span><span class="p">]</span>
+</span><span class='line'>    <span class="k">var</span> <span class="nl">checkoutOption</span><span class="p">:</span> <span class="n">CheckoutOption</span><span class="o">?&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="k">init</span><span class="p">(</span><span class="nl">items</span><span class="p">:</span> <span class="p">[</span><span class="n">String</span><span class="p">],</span> <span class="nl">checkoutOption</span><span class="p">:</span> <span class="n">CheckoutOption</span><span class="o">?</span> <span class="o">=</span> <span class="nb">nil</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nb">self</span><span class="p">.</span><span class="n">items</span> <span class="o">=</span> <span class="n">items</span>
+</span><span class='line'>    <span class="nb">self</span><span class="p">.</span><span class="n">checkoutOption</span> <span class="o">=</span> <span class="n">checkoutOption</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p>We just need to adopt the protocol in an extension for the types, in order to opt-in to code generation with Sourcery:
+<code>swift
+extension ShoppingCart : AutoObjCBridgeable {}
+extension CheckoutOption : AutoObjCBridgeable {}
+</code></p>
+
+<h3>Structs vs enums</h3>
+
+<p>Structs are straightforward to bridge, as we only need to handle properties. On the other hand, enums are much more involved because we need to take care of handling an arbitrary number of associated values. Fear not, as Sourcery provides all the necessary metadata for our nefarious needs!</p>
+
+<p>We will divide the template in two parts: one loop for structs, one for enums.</p>
+
+<pre><code class="javascript">// Bridging for structs
+
+
+// Bridging of enums
+
+</code></pre>
+
+<p>For structs, we only generate one class that contains the Swift native type. We wrap the type with API to set and get properties, following Benjamin&rsquo;s design. Enumerations will require more classes (see below).</p>
+
+<p>Also bear in mind that when bridging properties in either an enum or a struct, we need to handle differently types that are bridged by ourselves (our custom struct and enums).</p>
+
+<h3>Bridging an empty struct</h3>
+
+<p>This is how we start generating classes for every bridgeable struct:</p>
+
+<p>
+<code>javascript
+{% for type in types.implementing.AutoObjCBridgeable|struct %}
+@objc(XYZ{{type.name}})
+class _ObjC{{type.name}} : NSObject {
+    // TODO
+}
+{% endfor %}
+</code>
+</p>
+
+<p>Given a simple, empty struct:
+<code>swift
+struct EmptyStruct : AutoObjCBridgeable {
+}
+</code></p>
+
+<p>Let&rsquo;s look at what a the resulting bridging code for the simplest struct would look like; An empty struct should only wrap the type in an Objective-C class, like so:
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='swift'><span class='line'><span class="p">@</span><span class="n">objc</span><span class="p">(</span><span class="n">XYZEmptyStruct</span><span class="p">)</span>
+</span><span class='line'><span class="k">class</span> <span class="nl">_ObjCEmptyStruct</span> <span class="p">:</span> <span class="bp">NSObject</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">private</span> <span class="p">(</span><span class="kr">set</span><span class="p">)</span> <span class="k">var</span> <span class="nl">emptyStruct</span><span class="p">:</span> <span class="n">EmptyStruct</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="c1">// Initializer to be used from Swift code</span>
+</span><span class='line'><span class="k">init</span><span class="p">(</span><span class="nl">emptyStruct</span><span class="p">:</span> <span class="n">EmptyStruct</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nb">self</span><span class="p">.</span><span class="n">emptyStruct</span> <span class="o">=</span> <span class="n">emptyStruct</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Initializer to be used from ObjC code</span>
+</span><span class='line'><span class="kr">override</span> <span class="k">init</span><span class="p">(){</span>
+</span><span class='line'>    <span class="nb">self</span><span class="p">.</span><span class="n">emptyStruct</span> <span class="o">=</span> <span class="n">EmptyStruct</span><span class="p">()</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p>Now for a more useful type, say a struct with some values, like this one:
+<code>swift
+struct StructWithSwiftProperties : AutoObjCBridgeable {
+    let name: String
+    let count: Int
+}
+</code></p>
+
+<p>The bridging code looks like this:
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+</pre></td><td class='code'><pre><code class='swift'><span class='line'><span class="p">@</span><span class="n">objc</span><span class="p">(</span><span class="n">XYZStructWithSwiftProperties</span><span class="p">)</span>
+</span><span class='line'><span class="k">class</span> <span class="nl">_ObjCStructWithSwiftProperties</span> <span class="p">:</span> <span class="bp">NSObject</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">private</span> <span class="p">(</span><span class="kr">set</span><span class="p">)</span> <span class="k">var</span> <span class="nl">structWithSwiftProperties</span><span class="p">:</span> <span class="n">StructWithSwiftProperties</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="c1">// Initializer to be used from Swift code</span>
+</span><span class='line'><span class="k">init</span><span class="p">(</span><span class="nl">structWithSwiftProperties</span><span class="p">:</span> <span class="n">StructWithSwiftProperties</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nb">self</span><span class="p">.</span><span class="n">structWithSwiftProperties</span> <span class="o">=</span> <span class="n">structWithSwiftProperties</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Initializer to be used from ObjC code</span>
+</span><span class='line'><span class="k">init</span><span class="p">(</span>
+</span><span class='line'>    <span class="nl">name</span><span class="p">:</span> <span class="n">String</span><span class="p">,</span>
+</span><span class='line'>    <span class="nl">count</span><span class="p">:</span> <span class="n">Int</span><span class="p">,</span>
+</span><span class='line'>    <span class="nl">valid</span><span class="p">:</span> <span class="n">Bool</span><span class="p">,</span>
+</span><span class='line'>    <span class="nl">mutableValid</span><span class="p">:</span> <span class="n">Bool</span><span class="p">,</span>
+</span><span class='line'>    <span class="nl">someStuff</span><span class="p">:</span> <span class="p">[</span><span class="n">String</span><span class="p">]</span>
+</span><span class='line'><span class="p">){</span>
+</span><span class='line'>    <span class="nb">self</span><span class="p">.</span><span class="n">structWithSwiftProperties</span> <span class="o">=</span> <span class="n">StructWithSwiftProperties</span><span class="p">(</span>
+</span><span class='line'>            <span class="nl">name</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+</span><span class='line'>            <span class="nl">count</span><span class="p">:</span> <span class="n">count</span><span class="p">,</span>
+</span><span class='line'>            <span class="nl">valid</span><span class="p">:</span> <span class="n">valid</span><span class="p">,</span>
+</span><span class='line'>            <span class="nl">mutableValid</span><span class="p">:</span> <span class="n">mutableValid</span><span class="p">,</span>
+</span><span class='line'>            <span class="nl">someStuff</span><span class="p">:</span> <span class="n">someStuff</span>
+</span><span class='line'>        <span class="p">)</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">var</span> <span class="nl">name</span> <span class="p">:</span> <span class="n">String</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nb">self</span><span class="p">.</span><span class="n">structWithSwiftProperties</span><span class="p">.</span><span class="n">name</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">var</span> <span class="nl">count</span> <span class="p">:</span> <span class="n">Int</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nb">self</span><span class="p">.</span><span class="n">structWithSwiftProperties</span><span class="p">.</span><span class="n">count</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p>The generated code will need to provide read-only properties for the inmutable properties, and read-write properties for the mutable ones. This example only contains simple types, but not other structs or enumerations. Generating those will require to nest bridged classes. You can check the <a href="https://github.com/DarthMike/AutoObjCBridgeable/blob/master/Templates/AutoObjCBridgeable.stencil">template code</a> by yourself for the rest of it.</p>
+
+<p>Generating properties for standard Swift types is simple:
+
+<code>javascript
+{% if variable.type.kind != "struct" and variable.type.kind != "enum" %}
+    // Forwarding property for native types
+    var {{variable.name}} : {{variable.typeName}}
+    {
+        get {
+            return self.{{type.name|lowerFirstWord}}.{{variable.name}}
+        }
+        {% if variable.isMutable %}
+        set {
+            self.{{type.name|lowerFirstWord}}.{{variable.name}} = newValue
+        }
+        {% endif %}
+    }
+{% endif %}
+</code>
+</p>
+
+<p>Generating the swift initializer and the wrapped property is also simple:
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kr">private</span> <span class="p">(</span><span class="nx">set</span><span class="p">)</span> <span class="kd">var</span> <span class="p">{{</span><span class="nx">type</span><span class="p">.</span><span class="nx">name</span><span class="o">|</span><span class="nx">lowerFirstWord</span><span class="p">}}</span><span class="o">:</span> <span class="p">{{</span><span class="nx">type</span><span class="p">.</span><span class="nx">name</span><span class="p">}}</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span><span class="c1">// Initializer to be used from Swift code</span>
+</span><span class='line'><span class="nx">init</span><span class="p">({{</span><span class="nx">type</span><span class="p">.</span><span class="nx">name</span><span class="o">|</span><span class="nx">lowerFirstWord</span><span class="p">}}</span><span class="o">:</span> <span class="p">{{</span><span class="nx">type</span><span class="p">.</span><span class="nx">name</span><span class="p">}})</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">self</span><span class="p">.{{</span><span class="nx">type</span><span class="p">.</span><span class="nx">name</span><span class="o">|</span><span class="nx">lowerFirstWord</span><span class="p">}}</span> <span class="o">=</span> <span class="p">{{</span><span class="nx">type</span><span class="p">.</span><span class="nx">name</span><span class="o">|</span><span class="nx">lowerFirstWord</span><span class="p">}}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+</p>
+
+<p>Generating the initializer from Objective-C will require to handle structs and enumerations specially, so you can check it yourself in the <a href="https://github.com/DarthMike/AutoObjCBridgeable/blob/master/Templates/AutoObjCBridgeable.stencil">template</a>.</p>
+
+<h3>Bridging simple enumerations</h3>
+
+<p>The template code to bridge enumerations is a bit more complex. We&rsquo;re just going to review what the generated code would look like in this case. Take a simple example:</p>
+
+<pre><code class="swift">enum OtherEnum : AutoObjCBridgeable {
+    case a
+    case b(EmptyStruct)
+}
+</code></pre>
+
+<p>The generated bridging code should contain a class for the enum, and separate classes for every case. We initialize from Objective-C casting from <code>Any</code> to the concrete class corresponding to every case. Take note we&rsquo;ll need to handle associated values and because of this the template code is a bit messy.
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+</pre></td><td class='code'><pre><code class='swift'><span class='line'><span class="p">@</span><span class="n">objc</span><span class="p">(</span><span class="n">XYZOtherEnum</span><span class="p">)</span>
+</span><span class='line'><span class="k">class</span> <span class="nl">_ObjCOtherEnum</span> <span class="p">:</span> <span class="bp">NSObject</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">private</span> <span class="p">(</span><span class="kr">set</span><span class="p">)</span> <span class="k">var</span> <span class="nl">otherEnum</span><span class="p">:</span> <span class="n">OtherEnum</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="c1">// Initializer for Swift code</span>
+</span><span class='line'><span class="k">init</span><span class="p">(</span><span class="nl">value</span><span class="p">:</span> <span class="n">OtherEnum</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nb">self</span><span class="p">.</span><span class="n">otherEnum</span> <span class="o">=</span> <span class="n">value</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Initializer for Objective-C code</span>
+</span><span class='line'><span class="k">init</span><span class="p">(</span><span class="nl">caseValue</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="k">let</span> <span class="n">_</span> <span class="o">=</span> <span class="n">caseValue</span> <span class="kt">as</span><span class="o">?</span> <span class="n">_ObjCOtherEnumA</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nb">self</span><span class="p">.</span><span class="n">otherEnum</span> <span class="o">=</span> <span class="p">.</span><span class="n">a</span>
+</span><span class='line'>    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="k">let</span> <span class="n">caseValue</span> <span class="o">=</span> <span class="n">caseValue</span> <span class="kt">as</span><span class="o">?</span> <span class="n">_ObjCOtherEnumB</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nb">self</span><span class="p">.</span><span class="n">otherEnum</span> <span class="o">=</span> <span class="p">.</span><span class="n">b</span><span class="p">(</span><span class="n">caseValue</span><span class="p">.</span><span class="n">value1</span><span class="p">.</span><span class="n">emptyStruct</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">preconditionFailure</span><span class="p">(</span><span class="s">&quot;Value \(caseValue) is not compatible with cases of OtherEnum&quot;</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="p">}</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="c1">// A case of OtherEnum</span>
+</span><span class='line'><span class="p">@</span><span class="n">objc</span><span class="p">(</span><span class="n">XYZOtherEnumA</span><span class="p">)</span>
+</span><span class='line'><span class="k">class</span> <span class="nl">_ObjCOtherEnumA</span> <span class="p">:</span> <span class="bp">NSObject</span> <span class="p">{</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="p">}</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="c1">// A case of OtherEnum</span>
+</span><span class='line'><span class="p">@</span><span class="n">objc</span><span class="p">(</span><span class="n">XYZOtherEnumB</span><span class="p">)</span>
+</span><span class='line'><span class="k">class</span> <span class="o">&lt;</span><span class="n">em</span><span class="o">&gt;</span><span class="nl">ObjCOtherEnumB</span> <span class="p">:</span> <span class="bp">NSObject</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">let</span> <span class="nl">value1</span> <span class="p">:</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;</span><span class="n">ObjCEmptyStruct</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="k">init</span><span class="p">(</span><span class="nl">value1</span> <span class="p">:</span> <span class="n">_ObjCEmptyStruct</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="nb">self</span><span class="p">.</span><span class="n">value1</span> <span class="o">=</span> <span class="n">value1</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<h2>Conclusion</h2>
+
+<p>Automating the generation of complex things like bridging is possible with Sourcery. The template I&rsquo;ve written doesn&rsquo;t handle all cases of possible code; For example, the template doesn&rsquo;t handle private properties, doesn&rsquo;t take default values for initializers, we don&rsquo;t forward methods, and it doesn&rsquo;t handle properly structs as associated values of enums. The template also doesn&rsquo;t bridge protocols.</p>
+
+<p>I stopped here on purpose, as this generated code should be temporary until a migration eventually happens. In general, interaction from Objective-C to Swift should be kept to a minimum.</p>
+
+<p>I&rsquo;m very surprised that such complexity can be automated using Sourcery, and I really love the concept of the tool. If you never used it, it&rsquo;s a very useful addition for your Swift toolbelt.</p>
+
+<p>If you have any feedback, please open an issue in the <a href="https://github.com/DarthMike/AutoObjCBridgeable">example repository</a>, or reach me on <a href="https://twitter.com/miguelquinon">twitter</a>. I&rsquo;d love to hear your thoughts!</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Reducing the pain of git bisect with Xcode]]></title>
+    <link href="http://miqu.me/blog/2017/01/22/reducing-the-pain-of-git-bisect-with-xcode/"/>
+    <updated>2017-01-22T11:49:01+00:00</updated>
+    <id>http://miqu.me/blog/2017/01/22/reducing-the-pain-of-git-bisect-with-xcode</id>
+    <content type="html"><![CDATA[<p>There&rsquo;s times when you need to investigate regressions in your project, and you don&rsquo;t know have any clue as why something is happening. <a href="https://git-scm.com/docs/git-bisect">Git bisect</a> is the best tool for this cases, but it can be painful to use in non small projects using CocoaPods and Xcode. I want to share what I&rsquo;ve been doing to ease the pain.</p>
+
+<!-- more -->
+
+
+<p>If you never used Git bisect, check this <a href="https://git-scm.com/book/en/v2/Git-Tools-Debugging-with-Git">introduction</a>. The git command performs a <a href="https://en.wikipedia.org/wiki/Binary_search_algorithm">binary search</a> across your repository history, starting from two known commits you provide to the algorithm: &lsquo;Good&rsquo; and &lsquo;Bad&rsquo;. &lsquo;Bad&rsquo; will usually be your last commit, and &lsquo;Good&rsquo; will be a commit back in the history of your repository, when you know the code was working as expected. For every step of the search you need to tell git if a commit is good or bad, either manually or automatically by running a script.</p>
+
+<h1>Pain points</h1>
+
+<p>When we enter the realm of iOS development, there&rsquo;s a some factors that make bisect tedious to use.</p>
+
+<p>If you use CocoaPods, and if you don&rsquo;t check in the &lsquo;Pods&rsquo; directory in source control, every time you change branch or bisect selects a new commit, you might need to run <code>pod install</code> in order to have all dependencies available and compile correctly.</p>
+
+<p>If you are searching for a regression, chances are you don&rsquo;t have an automated test suite, so you&rsquo;ll need to run your app manually and reproduce the issue you are searching for. There will be cases when you&rsquo;re dealing with a bug that needs an app reinstall or needs to run on device to reproduce. To top all this, Xcode will start the long indexing process every time there&rsquo;s changes to the sources due to change of commit, so your computer will start doing lot of work.</p>
+
+<p>All of these nuances makes the process of searching for issues using bisect very tedious and not so &lsquo;magical&rsquo; as it is supposed to be. I&rsquo;ve nevertheless used bisect many times to save time otherwise wasted reading code and navigating breakpoints during long debugging sessions. You just need some patience and the will to automate some stuff.</p>
+
+<h1>Reducing the pain</h1>
+
+<h2>Automate pod install</h2>
+
+<p>If you don&rsquo;t check in the &lsquo;Pods&rsquo; directory in source control, you might want to run <code>pod install</code> after every bisect step, to refresh all dependencies. Make use of git&rsquo;s <code>post-checkout</code> <a href="https://git-scm.com/docs/githooks">hook</a> and just perform the operation automatically. I like to close Xcode while updating pods so it doesn&rsquo;t turn crazy and slows down computer even more than usual:</p>
+
+<pre><code class="bash">#!/bin/sh
+# Script for .git/hooks/post-checkout
+set -e
+osascript -e 'quit app "Xcode"'
+pod install
+open -a Xcode
+</code></pre>
+
+<p>After you say &lsquo;good&rsquo; or &lsquo;bad&rsquo;, bisect chooses another commit, and automatically close Xcode, update dependencies and open Xcode again. You can be more sophisticated and open the current project directly. See this <a href="https://github.com/robbyrussell/oh-my-zsh/blob/57fcee0f1c520a7c5e3aa5e2bde974154cdaf0c3/plugins/xcode/xcode.plugin.zsh">example</a>.</p>
+
+<h2>Automate build and run</h2>
+
+<p>As I&rsquo;ve mentioned before, if you end up doing a bisect in the codebase you don&rsquo;t have unit tests covering the issue, or any other kind of regression suite covering the issue. You&rsquo;ll need to manually run the project and reproduce the bug. You can still automate the building and running, so you just need to wait to reproduce, and tell git if the commit was good or bad.</p>
+
+<p>Combine <code>xcodebuild</code> with <a href="https://github.com/phonegap/ios-sim">ios-sim</a> in a <code>post-checkout</code> script:</p>
+
+<pre><code class="bash">#!/bin/sh
+set -e
+xcodebuild -arch x86_64 -sdk iphonesimulator10.2 -derivedDataPath ".build" -scheme myScheme
+
+ios-sim launch --devicetypeid com.apple.CoreSimulator.SimDeviceType.iPhone-6-Plus .build/Build/Products/Debug-iphonesimulator/myapp.app
+</code></pre>
+
+<p>Here we force a simulator-only build and run it straight away so you can do your painful manual testing. You can combine the update of dependencies to just leave reproducing the issue and feedback as manual steps in the process.</p>
+
+<h2>Repository discipline</h2>
+
+<p>In order to be able to bisect faster and achieve meaningful results there&rsquo;s some practices to follow in your commits:</p>
+
+<ul>
+<li><strong>Granular commits are better</strong>: Smaller commits will make results of bisect more useful as the commit will have small changes, and will be easier to determine the source of the problem.</li>
+<li><strong>Ensure every commit compiles</strong>: It will make a potential bisect easier by not struggling with commits that need to be fixed before tested</li>
+<li><strong>Check in CocoaPods</strong>: There&rsquo;s many <a href="https://www.dzombak.com/blog/2014/03/including-pods-in-source-control.html">advantages some disadvantages</a> of keeping Pods in the repository. And one advantage will be the code compiles as-is without need of fetching dependencies.</li>
+<li><strong>Write meaningful commits</strong>: This should be general practice in the team, but a meaningful commit might tell you what went wrong without even looking at the code, and will help teammates understand your changes.</li>
+</ul>
+
+
+<h1>Use bisect</h1>
+
+<p>Everybody makes mistakes, and there will be the time when you&rsquo;ll be the one tasked to find out why something is not working, with no clue whatsoever of why. This is the time to think about using <code>git bisect</code>. It can be tedious under iOS projects, but you can ease the pain by automating some bits of the process and some patience.</p>
+
+<p>And if you find finally find a commit of your 1-month younger self, you&rsquo;ll thank yourself if you wrote a meaningful commit message.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[App extensions, Xcode and Cocoapods, OMG!]]></title>
+    <link href="http://miqu.me/blog/2016/11/28/app-extensions-xcode-and-cocoapods-omg/"/>
+    <updated>2016-11-28T09:44:54+00:00</updated>
+    <id>http://miqu.me/blog/2016/11/28/app-extensions-xcode-and-cocoapods-omg</id>
+    <content type="html"><![CDATA[<p>Have you encountered this error when upgrading to the latest CocoaPods (1.1.0), or sharing a library between your iOS App and your extension?</p>
+
+<pre><code class="bash">'sharedApplication' is unavailable: not available on iOS (App Extension) - Use view controller based solutions where appropriate instead.
+</code></pre>
+
+<p>If yes, continue reading, as you might have encountered same issue as myself. I&rsquo;ve recently had to upgrade a project to using Cocoapods 1.1.0. Things stopped compiling, and I had to investigate the root cause of the problem. It has to do with iOS App extensions, unavailable APIs and how fragile our tooling is ;).</p>
+
+<!-- more -->
+
+
+<h1>TL;DR</h1>
+
+<ul>
+<li>The first cause of error can be fixed by conditionally compiling with a macro. See example <a href="https://github.com/snowplow/snowplow-objc-tracker/blob/86c1049e960f72966ed61faa8824dbf1a73840f4/Snowplow/OpenIDFA.m#L48-L52">here</a></li>
+<li>It&rsquo;s better if you define whole classes or API unavailable using <code>NS_EXTENSION_UNAVAILABLE_IOS</code></li>
+<li>If you had this error in a 3rd party library you&rsquo;ll need it to be fixed by the author (see below)</li>
+<li>If you are a library author and need to have different code paths via preprocessor macros, read <a href="cocoapods-issue">this thread</a>, and follow the recommendation to create a separated subspec for an extension target</li>
+</ul>
+
+
+<h1>Unavailable API for App extensions</h1>
+
+<p>Since the introduction of <a href="https://developer.apple.com/library/content/documentation/General/Conceptual/ExtensibilityPG/index.html">Application extensions</a> several years ago, Apple has marked some API as unavailable for these targets. For example, <code>sharedApplication</code> from <code>UIApplication</code>:</p>
+
+<pre><code class="objc">@property(class, nonatomic, readonly) UIApplication *sharedApplication NS_EXTENSION_UNAVAILABLE_IOS("Use view controller based solutions where appropriate instead.");
+</code></pre>
+
+<p>or in Swift:</p>
+
+<pre><code class="swift">@available(iOSApplicationExtension, unavailable)
+open class var shared: UIApplication { get }
+</code></pre>
+
+<p>Apple is using a new macro, <code>NS_EXTENSION_UNAVAILABLE_IOS</code> to mark API as unavailable. There&rsquo;s a new setting on Xcode, <code>APPLICATION_EXTENSION_API_ONLY</code>, and if set, the code will not compile if it contains a call to <code>sharedApplication</code>. This setting is automatically enabled for extension targets so you get the error in your code when you are writing it.</p>
+
+<p>Writing separate code for an App target and and extension target is not an issue. You just don&rsquo;t use the unavailable API in the extension. But what about reusable libraries?</p>
+
+<h1>Libraries using unavailable API for extensions</h1>
+
+<p>You might be using several libraries, and some of these might be using unavailable API for extensions. Notably AFNetworking is one of these, check the <a href="https://github.com/AFNetworking/AFNetworking/blob/master/UIKit%2BAFNetworking/AFNetworkActivityIndicatorManager.h#L44">sources</a>. The developer of the library must take care of this in their code, and mark API that is unavailable for extensions because of the usage of restricted system API.</p>
+
+<p>But then, there might be code that is executing a different code path when compiled against an extension, for example <a href="https://github.com/pinterest/PINCache/pull/72">PinCache</a>. If this is the case, the library is forcing you to decide between using unsafe API or not using it. You&rsquo;ll need to define the designated macro in your project to achieve this. See an example <a href="https://github.com/snowplow/snowplow-objc-tracker/blob/86c1049e960f72966ed61faa8824dbf1a73840f4/Snowplow/OpenIDFA.m#L48-L52">here</a>.</p>
+
+<h1>Enter CocoaPods</h1>
+
+<p>The problem comes with the integration with CocoaPods, as they (correctly) deduplicate targets. This means that you&rsquo;ll compile the library once (say without unavailable API) and link it to your targets. But sometimes you want to compile with usage of unavailable APIs against your main app, and removing unavailable usage on the extension. If you want this, you&rsquo;re out of luck as it&rsquo;s not directly supported by Cocoapods.</p>
+
+<h2>What changed?</h2>
+
+<p>Since <a href="http://blog.cocoapods.org/CocoaPods-1.1.0/">Cocoapods 1.1.0</a>, they improved integration with App extensions, and the generated project will enable the flag <code>APPLICATION_EXTENSION_API_ONLY</code> for libraries linking against an extension target. This is correct, but then you&rsquo;ll start seeing compilation errors that can be a bit puzzling. Bear in mind that the code will not compile even if you don&rsquo;t use the offending API. The compiler just complains that there is code that uses unavailable API.</p>
+
+<h1>Solutions</h1>
+
+<p>So you can&rsquo;t compile, you can&rsquo;t just disable all unavailable API for your main App target. What do you do? There is hope! See <a href="cocoapods-issue">this discussion</a>, and you&rsquo;ll see <a href="https://twitter.com/neonacho">neonacho</a> suggests to use a subspec to duplicate the targets. This is a very practical solution, but it requires the library author to modify their podspec.</p>
+
+<h2>Example</h2>
+
+<p>Let&rsquo;s see an example for a specific library. I had to fork Snowplow (the library we&rsquo;re using) and add the subspec. If you want to check the real changes, a PR is <a href="https://github.com/snowplow/snowplow-objc-tracker/pull/303">here</a>. Now let&rsquo;s work it out with a fictional example replicating what&rsquo;s required. Say you&rsquo;re owner of <code>MyLibrary</code>:</p>
+
+<pre><code class="ruby">Pod::Spec.new do |s|
+  s.name             = "MyLibrary"
+  # Omitting metadata stuff and deployment targets
+
+  s.source_files = 'MyLibrary/*.{m,h}'
+end
+</code></pre>
+
+<p>You use unavailable API, so the code conditionally compiles some parts based on a preprocessor macro called <code>MYLIBRARY_APP_EXTENSIONS</code>. We declare a subspec, called <strong>Core</strong> with all the code, but the flag off. We make that subspec the default one if user doesn&rsquo;t specify one. Then we&rsquo;ll declare an additional subspec, called <strong>AppExtension</strong> including all the code, but setting the preprocessor macro:</p>
+
+<pre><code class="ruby">Pod::Spec.new do |s|
+  s.name             = "MyLibrary"
+  # Omitting metadata stuff and deployment targets
+  s.default_subspec = 'Core'
+
+  s.subspec 'Core' do |core|
+    core.source_files = 'MyLibrary/*.{m,h}'
+  end
+
+  s.subspec 'AppExtension' do |ext|
+    ext.source_files = 'MyLibrary/*.{m,h}'
+    # For app extensions, disabling code paths using unavailable API
+    ext.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' =&gt; 'MYLIBRARY_APP_EXTENSIONS=1' }
+  end
+end
+</code></pre>
+
+<p>Then in your application Podfile you&rsquo;ll link against <strong>Core</strong> in your main app target, and against <strong>AppExtension</strong> in your extension, like so:</p>
+
+<pre><code class="ruby">abstract_target 'App' do
+  # Shared pods between App and extension, compiled with same preprocessor macros
+  pod 'AFNetworking'
+
+  target 'MyApp' do
+    pod 'MyLibrary/Core'
+  end
+
+  target 'MyExtension' do
+    pod 'MyLibrary/AppExtension'
+  end
+end
+</code></pre>
+
+<p>That&rsquo;s it! <a href="https://twitter.com/neonacho">neonacho&rsquo;s</a> suggestion works very well and it&rsquo;s kind of simple. Hopefully this writeup will help you find the solution to your problem (and understand it) if you ever face it. Kudos for the CocoaPods team to offer support on these issues. We&rsquo;re always catching up with Apple after they break (again) Xcode.</p>
+
+<h1>A note about Swift</h1>
+
+<p>I&rsquo;ve found an issue created for Swift, <a href="https://bugs.swift.org/browse/SR-1226">SR-1226</a>, that is still unresolved and might cause you problems. It seems that as of now, marking API as unavailable for extensions in Swift still doesn&rsquo;t let you compile for App extensions. So be aware of this limitation.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Easy localization management with Google spreadsheets]]></title>
+    <link href="http://miqu.me/blog/2016/11/19/easy-localizations-management-with-spreadsheets/"/>
+    <updated>2016-11-19T16:50:18+00:00</updated>
+    <id>http://miqu.me/blog/2016/11/19/easy-localizations-management-with-spreadsheets</id>
+    <content type="html"><![CDATA[<p>Last thursday I gave a talk at <a href="http://www.meetup.com/NSLondon/">NSLondon meetup</a> called &lsquo;Minimum Viable Tooling&rsquo;. The topic was examples of approaching tooling and automation for small teams. I showed real examples of what we do at <a href="http://www.peak.net">Peak</a>, where I currently work. One of the things people showed interest in after the talk was how we deal with localizations.</p>
+
+<p>In this post I will replicate the simple solution from scratch, so you can follow along and get started with your own projects. And we will be using Swift for the scripting, just because we can!</p>
+
+<!-- more -->
+
+
+<h1>The minimal CMS</h1>
+
+<p>In the talk I showed what we currently use to automate generation of strings at <a href="http://www.peak.net">Peak</a>. The goal of the solution is twofold: The first is to remove manual manipulation of local strings files by developers. The second is to raise visibility of any translation across the company and enable easier collaboration with translators. This is generally achieved by using a CMS, either a built solution or your own. We&rsquo;ll build our own by leveraging Google spreadsheets as a database and web interface.</p>
+
+<p>So we&rsquo;ll need two simple parts: One one side, the strings are hosted in a Google spreasheet. Then on the other side, we&rsquo;ll run a script locally or on our CI every time we want to update strings in the application. The script will load the spreasheet contents, and generate the appropiate <code>.strings</code> file contents.</p>
+
+<h1>The spreadsheet</h1>
+
+<p>I&rsquo;ve created an example spreadsheet <a href="https://docs.google.com/spreadsheets/d/1pduU_ZiMNjPmQVl5_dDjK2XcgacfJkARsA567ddOrGg/edit?usp=sharing">here</a>. It contains rows with keys, and columns with the supported language keys in your app:</p>
+
+<p><img src="/images/posts/spreadsheet-1.png" alt="spreadsheet1" /></p>
+
+<p>Here you can take two approaches for your script; you can either use any Google spreadsheet library for a popular scripting language like Ruby or Python, or you can leverage yet another service on top of spreasheets: <a href="https://sheetsu.com">Sheetsu</a>. Using the service means you don&rsquo;t need any library because it converts the content to a JSON API that can be easily parsed with traditional code. We&rsquo;ll use this as it&rsquo;s the simplest solution. Note that we would need to pay to have more flexibility as the free plan only allows one spreadsheet without any additional sheets, but this is fine for our example.</p>
+
+<h2>Sheetsu</h2>
+
+<p>Sign up to <a href="https://sheetsu.com">Sheetsu</a>, and give them the spreadsheet you want to use. Once you do this, they&rsquo;ll automatically create an API endpoint:</p>
+
+<p><img src="/images/posts/sheetsu-1.png" alt="sheetsu1" /></p>
+
+<h1>The script</h1>
+
+<p>We&rsquo;ll need to setup Swift for scripting. Given that we don&rsquo;t use any libraries, we can develop the code in a playground, and when we&rsquo;re done we can move the file to our repository. Here&rsquo;s an example playground code:</p>
+
+<pre><code class="swift">import Foundation
+import PlaygroundSupport
+
+PlaygroundPage.current.needsIndefiniteExecution = true
+
+typealias RawLocalizationData = [[String:String]]
+
+struct Entry {
+    var key: String
+    var value: String
+}
+
+struct Localization {
+    var languageKey: String
+    var entries: [Entry]
+}
+
+extension Localization {
+    func export() -&gt; [String] {
+        return entries.map { entry in
+            let value = entry.value.characters.count &gt; 0 ? entry.value : "NOT_TRANSLATED"
+            return "\"\(entry.key)\" = \"\(value)\";"
+        }
+    }
+}
+
+func findLanguages(in data: RawLocalizationData) -&gt; [String] {
+    guard let firstEntry = data.first else { return [] }
+    assert(firstEntry["key"] != nil)
+    let languages = firstEntry.keys.filter { $0 != "key" }
+    return languages.map { $0 }
+}
+
+func parse(_ data: RawLocalizationData) -&gt; [Localization] {
+    let languages = findLanguages(in: data)
+    var localizations = [String:Localization]()
+
+    for entry in data {
+        let key = entry["key"] ?? "__ERROR__NO_KEY__"
+        let values = languages.map { (language: $0, entry: Entry(key: key, value: entry[$0]!)) }
+        for value in values {
+            var localization = localizations[value.language] ?? Localization(languageKey: value.language, entries: [])
+            localization.entries.append(value.entry)
+            localizations[value.language] = localization
+        }
+    }
+
+    return localizations.values.map { $0 }
+}
+
+func write(_ localizations: [Localization]) {
+    for localization in localizations {
+        print(localization.export().joined(separator: "\n"))
+    }
+}
+
+let spreadsheetURL = URL(string: "https://sheetsu.com/apis/v1.0/a96943d37c32", relativeTo: nil)!
+
+let session = URLSession.shared
+let task = session.dataTask(with: spreadsheetURL) { data, response, error in
+    guard let data = data else { print("Error"); return }
+
+    let json = try? JSONSerialization.jsonObject(with: data, options: []) as! RawLocalizationData
+    let localizations = parse(json ?? [])
+    write(localizations)
+
+    PlaygroundPage.current.finishExecution()
+}
+
+task.resume()
+</code></pre>
+
+<p>The only thing worthy of note is using <code>PlaygroundSupport</code> to enable asynchrous execution. All the other code is straightforward use of <code>URLSesssion</code> to parse JSON. All that is left is converting the playground to a script. The script doesn&rsquo;t save contents to any file, because when running in playground we&rsquo;re constrained to the sandbox. When moving to a script we can generate the folders and files as appropiate for our application. We&rsquo;re not going to do all these finishing touches now, but it&rsquo;s very simple to continue from here.</p>
+
+<p>It only took me 1 hours to setup, and considering I had to look up how to use <code>PlaygroundSupport</code>, I would say it&rsquo;s very quick to implement!</p>
+
+<h1>Caveats</h1>
+
+<p>With this approach we can quickly build automation around localizations, and we can share the spreadsheet with our translators. This example spreadsheet does not contain strings with placeholders (for example: <code>"WELCOME_MESSAGE" = "Hello %@!"</code>). This will require handling validation, because the translators can - and will - make mistakes when writing their new strings. In a later post I will elaborate the required validation of strings with placeholders, and how we can reduce errors with human-readable tokens.</p>
+
+<p>I hope this is useful to you.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Controlling time in the app]]></title>
+    <link href="http://miqu.me/blog/2016/10/26/controlling-time-in-the-app/"/>
+    <updated>2016-10-26T18:38:37+00:00</updated>
+    <id>http://miqu.me/blog/2016/10/26/controlling-time-in-the-app</id>
+    <content type="html"><![CDATA[<p>Today I want to share a small utility we&rsquo;ve been using for a while at <a href="http://www.peak.net">Peak</a>, my current workplace, to control the system time inside the application and save time while testing or debugging.</p>
+
+<!-- more -->
+
+
+<p>In most application code you&rsquo;ll eventually end up with tasks that need to execute periodically, or after some time has passed.  The period of time will depend on the actual application requirements, and might change from the order of seconds to days. For example, you might have a data cleanup every 30 days, your application might ping a backend for synchronization every 10 minutes, or by the start of every day, some data needs to be generated and presented to the user.</p>
+
+<h2>Foundation and dates</h2>
+
+<p>You&rsquo;ll eventually use <code>NSDate</code> and <code>NSCalendar</code> (or <code>Date</code> and <code>Calendar</code> in Swift) to calculate when your tasks should be executed. As an example, say you have a task scheduler, and it will run tasks after a specific amount of time passed:</p>
+
+<pre><code class="swift">protocol Task {
+  func execute()
+}
+
+class Scheduler {
+  func schedule(_ task: Task, every: TimeInterval) {
+    // Schedule and save task to run every x seconds
+  }
+
+  func run(with date: Date) {
+    // Actually perform the calculations and fire due tasks
+  }
+}
+</code></pre>
+
+<p>For this code to be testable it&rsquo;s a very common practice to pass the <code>Date</code> in, as we do in the example above. This will improve testability as the date can be controlled from unit tests, thus isolating the system date from the date the component uses to operate.</p>
+
+<p>But what about the times when you want to check the integration between the code and the system date? What if you want to trigger code that reacts to <code>UIApplicationSignificantTimeChange</code>?</p>
+
+<p>The traditional way to test this kind of interactions is to change the date on the device, be it on iOS directly, or you or computer if running the simulator. But it would be very useful to control the system date and time inside the application without having to change the system date in the device or your computer.</p>
+
+<h2>Time travel</h2>
+
+<p>To control the time from a debugging menu in the application, we used a library called <a href="https://github.com/tuenti/TUDelorean">TUDelorean</a>. This library does some runtime method substitutions to trick any user of <code>Date</code> to a date that is no longer tied to the system, but controlled by us. This class is intended to used for unit tests, and that&rsquo;s how I&rsquo;ve used it in the past. But you can also use it inside your app for testing purposes, and offset the time all the code, even system code, sees.</p>
+
+<p>You can build a small in-app debugging menu where you can specify the amount of time to move from the system date, and trigger the update through the library while you run the app.</p>
+
+<p>Shifting the time is very easy:
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='swift'><span class='line'><span class="k">let</span> <span class="nl">futureDate</span><span class="p">:</span> <span class="n">Date</span> <span class="c1">// Calculate your future date here&lt;/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="n">TUDelorean</span><span class="p">.</span><span class="n">timeTravel</span><span class="p">(</span><span class="nl">to</span><span class="p">:</span> <span class="n">futureDate</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p>After this, any code calling <code>Date</code> will be handled a fake date not tied to the system anymore. If you build this testing facility, you can also trigger events on behalf of the system, just to test your assumptions. For example, if you move your date a day forward, you can emit <code>UIApplicationSignificantTimeChange</code> as if a real new day passed in the system clock. This is very useful because you&rsquo;ll be able to test integrations otherwise impossible from unit tests.</p>
+
+<p>When you&rsquo;re done with testing, and want to return to your &lsquo;current&rsquo; system date, just reset it with the provided method:
+<code>swift
+TUDelorean.backToThePresent()
+</code></p>
+
+<h2>Conclusion</h2>
+
+<p>Using a tool designed for unit tests, you can build a small utility that can make your day to day development tasks more effective and less tedious. Here we looked at how controlling the time while running your application is useful, and we used a <a href="https://github.com/tuenti/TUDelorean">library</a> designed for use in unit tests for our in-app debugging usage.</p>
+
+<p>I hope you find this as useful as we&rsquo;ve found it. Suffice to say that it should not be used for more than testing and debugging.</p>
+]]></content>
+  </entry>
+  
+</feed>

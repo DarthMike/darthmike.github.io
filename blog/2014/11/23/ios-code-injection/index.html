@@ -1,0 +1,515 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>iOS Code Injection - miqu.me</title>
+  <meta name="author" content="Miguel Angel Quiñones">
+
+   
+  <meta name="description" content="Software engineering thoughts">
+  
+  <meta name="keywords" content="">
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://miqu.me/blog/2014/11/23/ios-code-injection">
+  <link href="/favicon.png" rel="icon">
+  <link href='https://fonts.googleapis.com/css?family=Quicksand:300,400' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="miqu.me" type="application/atom+xml">
+  <script src="/js/jquery.js"></script>
+  <script src="/js/bootstrap-collapse.js"></script>
+  <script src="/js/modernizr-2.0.js"></script>
+  <script src="/js/octopress.js" type="text/javascript"></script>
+  <script src="/js/application.js"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="https://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="https://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <div class="navbar navbar-inverse navbar-static-top">
+  	<div class="navbar-inner">
+  	  <div class="container">
+        <a class="btn btn-navbar" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+          <span class="fui-menu-24"></span>
+        </a>
+  	  	<div class="nav-collapse collapse navbar-responsive-collapse" style="height:0;">
+  	      <ul class="nav">
+    
+        <li ><a href="/">Blog</a></li>
+    
+        <li ><a href="/about/">Who?</a></li>
+    
+        <li ><a href="/games/">Games</a></li>
+    
+        <li ><a href="/speaking/">Speaking</a></li>
+    
+</ul>
+
+<ul class="nav pull-right">
+    
+    <li><a href="https://github.com/DarthMike" title="Github Profile"><i class="icon-github-sign social-navbar"></i></a></li>
+    
+    
+    
+    <li><a href="https://linkedin.com/in/miguelquinon" title="Linkedin Profile"><i class="icon-linkedin-sign social-navbar"></i></a></li>
+    
+    
+    <li><a href="https://twitter.com/@miguelquinon" title="Twitter Profile"><i class="icon-twitter-sign social-navbar"></i></a></li>
+    
+    
+    
+    
+
+    
+    <li><a href="mailto:miguel@miqu.me" title="Email"><i class="icon-envelope social-navbar"></i></a></li>
+    
+</ul>
+
+  	    </div>
+  	  </div>
+  	</div>
+  </div>
+  <div class="container" id="main">
+      <div class="row-fluid">
+        <div id="content">
+          <div>
+<article class="hentry" role="article">
+  
+
+  <header>
+  <div class="jumbotron">
+    iOS Code Injection
+	<h5>
+
+
+
+
+
+
+
+
+  
+
+
+
+<i class="icon-calendar-empty"></i> <time datetime="2014-11-23T12:21:36+00:00" pubdate data-updated="true">23 Nov 2014</time></h5>
+  </div>
+</header>
+  <div class="row-fluid">
+    <div class="span12">
+      <p>Write code, compile, <strong>wait</strong>, navigate to screen in application. Fix problem, recompile <strong>wait</strong>. Oh it was not fixed, start again&hellip; Does it sound familiar? For compiled languages there seems to be no workaround this bottleneck. Even though this is true, there are situations where we can reduce the waiting time, increasing our productivity and happiness. Enter code injection.
+<br/></p>
+
+<!-- more -->
+
+
+<h1>The problem</h1>
+
+<p>When a program is launched by the OS, the code is read from the binary file and loaded in volatile memory and it is then executed by the CPU. When that program is written in a compiled language, the classic approach to update the code is to kill it, recompile it, and load it again from scratch. This guarantees a fresh start and ensures you are running your <em>&lsquo;bleeding edge&rsquo;</em> version.</p>
+
+<p>The problem with this approach is that recompiling and relaunching the program can take a small, but not insignificant, amount of time. One recompile-relaunch cycle may not be a waste of time in itself, but a developer can go through this cycle hundreds of times in a day, so the time sums up considerably. Adding to this problem, if the program itself is an application, then the developer needs to navigate to the section she is working on and interact with the UI manually to check her updates.</p>
+
+<h3>What about iOS apps?</h3>
+
+<p>Thinking in the domain of iOS apps, this fact is even worse. Many iOS apps are not overly complicated, but the process of developing an application
+is time consuming and involves hundreds of iterations and small tweaks to a screen. Working in an environment where small iterations evolve a product,
+it is not uncommon that a developer needs to change small UI values or needs to do some small logic changes to a small part of an application. Being highly graphical applications, it&rsquo;s faster to develop and &lsquo;transform&rsquo; the code if you can see your changes directly updated on the screen after saving.</p>
+
+<h1>Code Injection</h1>
+
+<p>Code Injection is a way of inserting code in a running process without killing it and relaunching it. You still need to recompile the changed files, but if you inject the code you can remove all the waiting time to relaunch, and the time to setup the state of your application, like navigating to a specific screen.</p>
+
+<h3>Available tools</h3>
+
+<p>Currently there are two open source tools available:</p>
+
+<ul>
+<li><a href="https://github.com/johnno1962/injectionforxcode">injection for xcode</a></li>
+<li><a href="https://github.com/DyCI/dyci-main">dyci</a></li>
+</ul>
+
+
+<p>Both tools take advantage of Objective-C runtime to modify the code while it is running. <em>Injection for xcode</em> offers more features, such as some adjustement sliders, and integration with Apportable, or recent (limited) Swift support.</p>
+
+<h3>How does it work?</h3>
+
+<p>You can always look at the source code for details, but in a nutshell:</p>
+
+<p>The tool will be watching your source code and then will trigger a recompile when changes are found. The recompile is done through clang directly instead of through XCode. A client side of the tool will be running in the device, waiting to changes to be <em>&lsquo;injected&rsquo;</em> into the application. Then, leveraging Objective-C runtime, the actual code is modified.</p>
+
+<p>After the code is modified, the tool will offer you as developer ways to <em>&lsquo;reload&rsquo;</em> after changes; you may want to load a whole view controller back into memory from it&rsquo;s XIB file, or trigger <em>setNeedsDisplay</em> in your custom view.</p>
+
+<h1>Using dyci</h1>
+
+<p>As this is my tool of choice, I will show you how to use it.</p>
+
+<h2>Set up</h2>
+
+<ol>
+<li>Clone the repository and run install script</li>
+</ol>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>git clone https://github.com/DyCI/dyci-main
+</span><span class='line'>./dyci-main/Install/install.sh
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The script is doing three things:</p>
+
+<ul>
+<li><em>Proxy</em> clang to capture the build commands it issues, so it can know how to compile your source code</li>
+<li>Installs plugins for XCode and Appcode in your computer</li>
+<li><p>Sets up a script and .dyci folder in your $HOME</p></li>
+<li><p>Embed client code into your app</p></li>
+</ul>
+
+
+<p>Dyci will run in your application, watching for a .dyci directory in your $HOME, so you need to include it in your code. I prefer to use Cocoapods as it is simpler. Ensure you don&rsquo;t ship this to your users, by linking it to debug configuration only. In your podfile:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">pod</span> <span class="s1">&#39;dyci&#39;</span><span class="p">,</span> <span class="ss">:configuration</span> <span class="o">=&gt;</span> <span class="o">[</span><span class="s1">&#39;Debug&#39;</span><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Usage</h2>
+
+<h3>Triggering an rebuild</h3>
+
+<p>You have two choices to trigger a recompile of your code. The first one is to use the provided plugins for XCode or Appcode.</p>
+
+<p>A second choice is to run the rebuild script yourself once a source file is saved in your repository. I first learned this technique from <a href="https://github.com/krzysztofzablocki/KZPlayground">Krzystof Zabłocki&rsquo;s</a> approach in KZPlayground, and haven&rsquo;t used the plugins since.</p>
+
+<p>You will need a file watcher tool, for example <a href="https://github.com/alloy/kicker">kicker</a>, to trigger scripts when files are changed. The script you want to run is installed by dyci under <em>$HOME/.dyci/scripts/dyci-recompile.py</em>.</p>
+
+<p>To trigger recompiles using kicker, you need to install the gem and to create a custom recipe. I prefer to make the recipe available globally in your system:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">gem</span> <span class="n">install</span> <span class="n">kicker</span>
+</span><span class='line'><span class="n">cd</span> <span class="o">~</span><span class="sr">/.kick</span>
+</span><span class='line'><span class="sr">touch code_injection.rb</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The custom recipe in ~/.kick/code_injection.rb:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">recipe</span> <span class="ss">:code_injection</span> <span class="k">do</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">process</span> <span class="k">do</span> <span class="o">|</span><span class="n">potential_files</span><span class="o">|</span>
+</span><span class='line'>    <span class="n">files</span> <span class="o">=</span> <span class="n">potential_files</span><span class="o">.</span><span class="n">take_and_map</span> <span class="k">do</span> <span class="o">|</span><span class="n">file</span><span class="o">|</span>
+</span><span class='line'>        <span class="k">if</span> <span class="n">file</span> <span class="o">=~</span> <span class="sr">%r{^.*\.(swift|m|xib|storyboard|strings|png|jpeg|jpg)$}</span>
+</span><span class='line'>          <span class="n">cmd</span> <span class="o">=</span> <span class="o">[</span><span class="s1">&#39;/usr/bin/python&#39;</span><span class="o">]</span>
+</span><span class='line'>          <span class="n">cmd</span> <span class="o">&lt;&lt;</span> <span class="no">File</span><span class="o">.</span><span class="n">expand_path</span><span class="p">(</span><span class="s1">&#39;~/.dyci/scripts/dyci-recompile.py&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">safe_shell_path</span>
+</span><span class='line'>          <span class="n">cmd</span> <span class="o">&lt;&lt;</span> <span class="no">File</span><span class="o">.</span><span class="n">expand_path</span><span class="p">(</span><span class="n">file</span><span class="p">)</span><span class="o">.</span><span class="n">safe_shell_path</span>
+</span><span class='line'>
+</span><span class='line'>          <span class="n">command</span> <span class="o">=</span> <span class="n">cmd</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+</span><span class='line'>          <span class="nb">puts</span> <span class="s2">&quot;Executing </span><span class="si">#{</span><span class="n">command</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span class='line'>          <span class="n">execute</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+</span><span class='line'>          <span class="nb">puts</span> <span class="s2">&quot;DYCI: Recompiled </span><span class="si">#{</span><span class="n">file</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span class='line'>          <span class="n">file</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">process</span> <span class="k">do</span> <span class="o">|</span><span class="n">remaining_files</span><span class="o">|</span>
+</span><span class='line'>    <span class="n">remaining_files</span><span class="o">.</span><span class="n">take_and_map</span> <span class="k">do</span> <span class="o">|</span><span class="n">file</span><span class="o">|</span>
+</span><span class='line'>        <span class="nb">puts</span> <span class="s2">&quot;DYCI: Ignored </span><span class="si">#{</span><span class="n">file</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span class='line'>      <span class="n">file</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">startup</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">log</span> <span class="s2">&quot;DYCI: Kicker watching for file changes to recompile!&quot;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">String</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">safe_shell_path</span>
+</span><span class='line'>    <span class="s2">&quot;</span><span class="se">\&quot;</span><span class="si">#{</span><span class="nb">self</span><span class="si">}</span><span class="se">\&quot;</span><span class="s2">&quot;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then on your repository root run:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>kicker -r code_injection
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Trigger a full project recompile and run your application. From now on, when you save a file, it will automatically be recompiled. Save a file and test in your console that the file is recompiled, you should see the logged lines and a success. The script will generate a dynamic library that can then be loaded by the client code in your application.</p>
+
+<h3>Injecting the code</h3>
+
+<p>Once dyci has rebuilt your modified file(s), the code running in your application will grab the newly built dynamic library and load it into your application. Then it modifies the necessary code.</p>
+
+<p>Once your application is running, check that upon initialization, the app is watching for changes under your ~/.dyci directory. If this is not the case, then the app will not receive new built libraries and your code will not update.You should see some log lines like:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>2014-11-26 11:23:49.242 InjectionObjC<span class="o">[</span>63278:435583<span class="o">]</span> DYCI directory path is : /Users/mquinones/.dyci
+</span><span class='line'>2014-11-26 11:23:49.249 InjectionObjC<span class="o">[</span>63278:435583<span class="o">]</span> <span class="o">============================================</span>
+</span><span class='line'>2014-11-26 11:23:49.249 InjectionObjC<span class="o">[</span>63278:435583<span class="o">]</span> DYCI : Dynamic Code Injection was started...
+</span><span class='line'>2014-11-26 11:23:49.250 InjectionObjC<span class="o">[</span>63278:435583<span class="o">]</span> To disable it, paste next line in your application:didFinishLaunching: method :
+</span><span class='line'>
+</span><span class='line'><span class="o">[</span>NSClassFromString<span class="o">(</span>@<span class="s2">&quot;SFDynamicCodeInjection&quot;</span><span class="o">)</span> performSelector:@selector<span class="o">(</span>disable<span class="o">)]</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>2014-11-26 11:23:49.250 InjectionObjC<span class="o">[</span>63278:435583<span class="o">]</span>      or
+</span><span class='line'>2014-11-26 11:23:49.250 InjectionObjC<span class="o">[</span>63278:435583<span class="o">]</span> Simply remove dyci from dependencies
+</span><span class='line'>2014-11-26 11:23:49.250 InjectionObjC<span class="o">[</span>63278:435583<span class="o">]</span> <span class="o">============================================</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So, using XCode, when you save a file it gets recompiled and injected, watch for this in console:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>2014-11-26 11:29:10.402 InjectionObjC<span class="o">[</span>64757:439975<span class="o">]</span> New file injection detected at path : /Users/mquinones/.dyci/dyci3950098.dylib
+</span><span class='line'>2014-11-26 11:29:10.402 InjectionObjC<span class="o">[</span>64757:439975<span class="o">]</span>
+</span><span class='line'>2014-11-26 11:29:10.402 InjectionObjC<span class="o">[</span>64757:439975<span class="o">]</span>  <span class="o">=================================================</span>
+</span><span class='line'>2014-11-26 11:29:10.403 InjectionObjC<span class="o">[</span>64757:439975<span class="o">]</span> Found new DCI ... Loading
+</span><span class='line'>2014-11-26 11:29:10.413 InjectionObjC<span class="o">[</span>64757:439975<span class="o">]</span> DYCI was successfully loaded
+</span><span class='line'>2014-11-26 11:29:10.413 InjectionObjC<span class="o">[</span>64757:439975<span class="o">]</span> Searching classes to inject
+</span><span class='line'>2014-11-26 11:29:10.419 InjectionObjC<span class="o">[</span>64757:439975<span class="o">]</span> Injecting  class : ViewController
+</span><span class='line'>2014-11-26 11:29:10.419 InjectionObjC<span class="o">[</span>64757:439975<span class="o">]</span> Injecting meta class : ViewController
+</span><span class='line'>2014-11-26 11:29:10.419 InjectionObjC<span class="o">[</span>64757:439975<span class="o">]</span> Class <span class="o">(</span>ViewController<span class="o">)</span> and their subclasses instances would be notified with
+</span><span class='line'>2014-11-26 11:29:10.419 InjectionObjC<span class="o">[</span>64757:439975<span class="o">]</span>  - <span class="o">(</span>void<span class="o">)</span>updateOnClassInjection
+</span><span class='line'>2014-11-26 11:29:10.426 InjectionObjC<span class="o">[</span>64757:439975<span class="o">]</span> <span class="m">1</span> <span class="o">(</span>ViewController<span class="o">)</span> class instanses were notified on Class Injection :
+</span><span class='line'>2014-11-26 11:29:10.426 InjectionObjC<span class="o">[</span>64757:439975<span class="o">]</span> <span class="m">1</span> instanses were notified on Class Injection by injecting class: <span class="o">(</span>ViewController<span class="o">)</span>
+</span><span class='line'>2014-11-26 11:29:10.427 InjectionObjC<span class="o">[</span>64757:439975<span class="o">]</span> Class was successfully injected
+</span><span class='line'>2014-11-26 11:29:10.427 InjectionObjC<span class="o">[</span>64757:439975<span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Updating after injection</h3>
+
+<p>So your code is injected, but nothing happens in the user interface? If you think about it, this is completely normal, as iOS is not aware that something changed, so nothing is updated in your screen, unless you force it to do so. The updates you may want to do are different depending on what you are modifying, so bear in mind that just injecting the code is not enough.</p>
+
+<p> The library offers some hooks where you can write test-only code to update what you need. Those methods are declared in the category NSObject+DyCInjection. Use them as you want to trigger <em>layoutSubviews</em> <em>reloadData</em> for example.</p>
+
+<h3>Pixel perfect tweaks</h3>
+
+<p>You generally need to ensure that what your designer wanted is shown exacly as she wanted in your application. I Use code injection, paired with a very simple app: <a href="https://itunes.apple.com/us/app/uberlayer/id510139938?mt=12">Uberlayer</a>.</p>
+
+<p>This app lets you put an image over anything in your screen. Overlay it exactly on top of iOS simulator and you can incrementally update the code till it matches perfectly a desired application design.</p>
+
+<h3>Gotchas</h3>
+
+<p>After you install a new version of XCode, dyci needs to be reinstalled, because dyci is not proxying clang anymore.</p>
+
+<p>Some code is harder to modify using code injection, for example the code in a singleton initialization.</p>
+
+<p>Dyci only works in simulator, because of the hook in your computer&rsquo;s file system. Injection for xcode does work on devices though.</p>
+
+<p>I didn&rsquo;t mention Swift because it is a less dynamic language than Objective-C and I expect injection to be harder to do. &lsquo;injection for xcode&rsquo; added limited support for it though.</p>
+
+<p><strong>Do not</strong> link against the code injection library in release, or you risk removing it and shipping it to your users. You really don&rsquo;t want that.</p>
+
+<h1>Conclusion</h1>
+
+<p>No more excuse for this:
+<br/>
+<img src="http://imgs.xkcd.com/comics/compiling.png" alt="image" />
+<br/>
+We have reviewed a very useful tool to avoid long compile-wait-launch-navigate cycles and improve productivity. Code injection is not a silver bullet  of course (is there a silver bullet in programming?), but a very useful tool to use for small changes to code or prototyping. You should really consider using it more often as it can be a huge time saver.</p>
+
+<h3>Good for:</h3>
+
+<ul>
+<li>Tweaking UI values</li>
+<li>Pixel-perfect tweaks: Paired with my favourite pixel-perfecting app: <a href="https://itunes.apple.com/us/app/uberlayer/id510139938?mt=12">Uberlayer</a></li>
+<li>Changing existing logic</li>
+<li>Prototyping</li>
+<li>Changing strings</li>
+<li>Visual debugging</li>
+</ul>
+
+
+<h3>Not so good for:</h3>
+
+<ul>
+<li>Writing new code and debugging it</li>
+<li>Unit testing</li>
+<li>Changing singletons or long-lived application objects (like services)</li>
+<li>Rewriting lots of code</li>
+</ul>
+
+
+    </div>
+  </div>
+
+
+
+  <footer>
+    <hr>
+    
+    <div class="row-fluid">
+      
+      <div class="span6">
+        <p class="meta">
+        
+        
+
+
+
+  <a href="/blog/categories/productivity/"><span class="badge">productivity</span></a>
+
+  <a href="/blog/categories/tools/"><span class="badge">tools</span></a>
+
+
+
+
+        </p>
+      </div>
+      
+      <div class="span6 social-sharing">
+        <div class="sharing">
+  <div class="addthis_toolbox addthis_default_style ">
+  
+  
+  <a class="addthis_button_tweet"></a>
+  
+  
+  <a class="addthis_counter addthis_pill_style"></a>
+  </div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
+</div>
+
+      </div>
+      
+      
+    </div>
+    
+    <div class="row-fluid">
+      <div class="span12">
+        <p class="meta">
+          
+            <a class="basic-alignment left" href="/blog/2014/10/24/technical-fanatism/" title="Previous Post: Technical fanatism">&laquo; Technical fanatism</a>
+          
+          
+            <a class="basic-alignment right" href="/blog/2014/11/27/travis-plus-octopress-equals-yay/" title="Next Post: Travis + octopress = Yay!">Travis + octopress = Yay! &raquo;</a>
+          
+        </p>
+      </div>
+    </div>
+  </footer>
+</article>
+
+</div>
+
+
+
+        </div>
+      </div>
+      <div class="row-fluid">
+        <footer class="footer-page" role="contentinfo">
+          <p>
+  Copyright &copy; 2018 - Miguel Angel Quiñones -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span> - Theme by <a href="http://alexgaribay.com">Alex Garibay</a>
+</p>
+
+
+        </footer>
+      </div>
+  </div>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'https://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

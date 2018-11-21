@@ -1,0 +1,615 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Automatic bridging from Swift to Objective-C using Sourcery - miqu.me</title>
+  <meta name="author" content="Miguel Angel Quiñones">
+
+   
+  <meta name="description" content="Software engineering thoughts">
+  
+  <meta name="keywords" content="">
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://miqu.me/blog/2017/05/21/automatic-bridging-from-swift-to-objective-c-using-sourcery">
+  <link href="/favicon.png" rel="icon">
+  <link href='https://fonts.googleapis.com/css?family=Quicksand:300,400' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="miqu.me" type="application/atom+xml">
+  <script src="/js/jquery.js"></script>
+  <script src="/js/bootstrap-collapse.js"></script>
+  <script src="/js/modernizr-2.0.js"></script>
+  <script src="/js/octopress.js" type="text/javascript"></script>
+  <script src="/js/application.js"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="https://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="https://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <div class="navbar navbar-inverse navbar-static-top">
+  	<div class="navbar-inner">
+  	  <div class="container">
+        <a class="btn btn-navbar" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+          <span class="fui-menu-24"></span>
+        </a>
+  	  	<div class="nav-collapse collapse navbar-responsive-collapse" style="height:0;">
+  	      <ul class="nav">
+    
+        <li ><a href="/">Blog</a></li>
+    
+        <li ><a href="/about/">Who?</a></li>
+    
+        <li ><a href="/games/">Games</a></li>
+    
+        <li ><a href="/speaking/">Speaking</a></li>
+    
+</ul>
+
+<ul class="nav pull-right">
+    
+    <li><a href="https://github.com/DarthMike" title="Github Profile"><i class="icon-github-sign social-navbar"></i></a></li>
+    
+    
+    
+    <li><a href="https://linkedin.com/in/miguelquinon" title="Linkedin Profile"><i class="icon-linkedin-sign social-navbar"></i></a></li>
+    
+    
+    <li><a href="https://twitter.com/@miguelquinon" title="Twitter Profile"><i class="icon-twitter-sign social-navbar"></i></a></li>
+    
+    
+    
+    
+
+    
+    <li><a href="mailto:miguel@miqu.me" title="Email"><i class="icon-envelope social-navbar"></i></a></li>
+    
+</ul>
+
+  	    </div>
+  	  </div>
+  	</div>
+  </div>
+  <div class="container" id="main">
+      <div class="row-fluid">
+        <div id="content">
+          <div>
+<article class="hentry" role="article">
+  
+
+  <header>
+  <div class="jumbotron">
+    Automatic Bridging From Swift to Objective-C Using Sourcery
+	<h5>
+
+
+
+
+
+
+
+
+  
+
+
+
+<i class="icon-calendar-empty"></i> <time datetime="2017-05-21T21:30:00+00:00" pubdate data-updated="true">21 May 2017</time></h5>
+  </div>
+</header>
+  <div class="row-fluid">
+    <div class="span12">
+      <p>I recently read a <a href="http://blog.benjamin-encz.de/post/bridging-swift-types-to-objective-c/">great post</a> by <a href="https://twitter.com/benjaminencz">Benjamin Encz</a> about bridging Swift to Objective-C by creating bridging types that can be exposed to the older language. I wondered if his idea can be improved and automated using meta-programming with <a href="https://github.com/krzysztofzablocki/Sourcery">Sourcery</a> by <a href="https://twitter.com/merowing_">Krzystof Zablocki</a>. The answer is a very impressive ObjC-like uppercase <strong>YES</strong>.</p>
+
+<!-- more -->
+
+
+<p>First of all, you should read <a href="http://blog.benjamin-encz.de/post/bridging-swift-types-to-objective-c/">Benjamin&rsquo;s post</a>. He proposes to use a bridging class that can be instantiated from Objective-C and Swift because it inherits from <code>NSObject</code>. The bridging class has properties to get and set the properties of the bridged type.</p>
+
+<p>In this post I&rsquo;m just going to give an overview of the template and highlight the simpler parts. If you want to jump directly in the code, here&rsquo;s the <a href="https://github.com/DarthMike/AutoObjCBridgeable">project</a>, and the <a href="https://github.com/DarthMike/AutoObjCBridgeable/blob/master/Templates/AutoObjCBridgeable.stencil">template</a>. The example template bridges struct and enum, but doesn&rsquo;t handle custom protocols to keep it as simple as possible.</p>
+
+<h2>About Sourcery</h2>
+
+<p><a href="https://github.com/krzysztofzablocki/Sourcery">Sourcery</a> is a tool to generate code, using your written templates, using metadata from your production code. In other words, it&rsquo;s a tool to do <a href="https://en.wikipedia.org/wiki/Metaprogramming">metaprogramming</a> in Swift. If you are not familiar with Sourcery I encourage you to go read the documentation and at least understand the simple examples like generating <code>Equatable</code> implementations for your types. Getting familiar with <a href="https://github.com/kylef/Stencil">Stencil</a>, one of the supported template languages is also fundamental.</p>
+
+<h2>Building the template</h2>
+
+<p>We&rsquo;ll need to generate a new class for every struct and enum that we bridge. In order to opt-in to the feature, we use <a href="https://www.objc.io/blog/2014/12/29/functional-snippet-13-phantom-types/">phantom types</a> in order to mark swift types (our custom structs or enums) that can be bridged to Objective-C. Our template will use this protocol to which types to introspect:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='swift'><span class='line'><span class="k">protocol</span> <span class="n">AutoObjCBridgeable</span> <span class="p">{}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>For example, take Benjamin&rsquo;s example code:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='swift'><span class='line'><span class="k">enum</span> <span class="n">CheckoutOption</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">case</span> <span class="n">creditCard</span><span class="p">(</span><span class="nl">given</span><span class="p">:</span> <span class="n">Int</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">case</span> <span class="n">paypal</span><span class="p">(</span><span class="n">String</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">struct</span> <span class="n">ShoppingCart</span>  <span class="p">{</span>
+</span><span class='line'>    <span class="k">var</span> <span class="nl">items</span><span class="p">:</span> <span class="p">[</span><span class="n">String</span><span class="p">]</span>
+</span><span class='line'>    <span class="k">var</span> <span class="nl">checkoutOption</span><span class="p">:</span> <span class="n">CheckoutOption</span><span class="o">?</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">init</span><span class="p">(</span><span class="nl">items</span><span class="p">:</span> <span class="p">[</span><span class="n">String</span><span class="p">],</span> <span class="nl">checkoutOption</span><span class="p">:</span> <span class="n">CheckoutOption</span><span class="o">?</span> <span class="o">=</span> <span class="nb">nil</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nb">self</span><span class="p">.</span><span class="n">items</span> <span class="o">=</span> <span class="n">items</span>
+</span><span class='line'>        <span class="nb">self</span><span class="p">.</span><span class="n">checkoutOption</span> <span class="o">=</span> <span class="n">checkoutOption</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We just need to adopt the protocol in an extension for the types, in order to opt-in to code generation with Sourcery:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='swift'><span class='line'><span class="k">extension</span> <span class="nl">ShoppingCart</span> <span class="p">:</span> <span class="n">AutoObjCBridgeable</span> <span class="p">{}</span>
+</span><span class='line'><span class="k">extension</span> <span class="nl">CheckoutOption</span> <span class="p">:</span> <span class="n">AutoObjCBridgeable</span> <span class="p">{}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Structs vs enums</h3>
+
+<p>Structs are straightforward to bridge, as we only need to handle properties. On the other hand, enums are much more involved because we need to take care of handling an arbitrary number of associated values. Fear not, as Sourcery provides all the necessary metadata for our nefarious needs!</p>
+
+<p>We will divide the template in two parts: one loop for structs, one for enums.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">// Bridging for structs</span>
+</span><span class='line'><span class="p">{</span><span class="o">%</span> <span class="k">for</span> <span class="nx">type</span> <span class="k">in</span> <span class="nx">types</span><span class="p">.</span><span class="nx">implementing</span><span class="p">.</span><span class="nx">AutoObjCBridgeable</span><span class="o">|</span><span class="nx">struct</span> <span class="o">%</span><span class="p">}</span>
+</span><span class='line'><span class="p">{</span><span class="o">%</span> <span class="nx">endfor</span> <span class="o">%</span><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Bridging of enums</span>
+</span><span class='line'><span class="p">{</span><span class="o">%</span> <span class="k">for</span> <span class="kr">enum</span> <span class="k">in</span> <span class="nx">types</span><span class="p">.</span><span class="nx">implementing</span><span class="p">.</span><span class="nx">AutoObjCBridgeable</span><span class="o">|</span><span class="kr">enum</span> <span class="o">%</span><span class="p">}</span>
+</span><span class='line'><span class="p">{</span><span class="o">%</span> <span class="nx">endfor</span> <span class="o">%</span><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>For structs, we only generate one class that contains the Swift native type. We wrap the type with API to set and get properties, following Benjamin&rsquo;s design. Enumerations will require more classes (see below).</p>
+
+<p>Also bear in mind that when bridging properties in either an enum or a struct, we need to handle differently types that are bridged by ourselves (our custom struct and enums).</p>
+
+<h3>Bridging an empty struct</h3>
+
+<p>This is how we start generating classes for every bridgeable struct:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="p">{</span><span class="o">%</span> <span class="k">for</span> <span class="nx">type</span> <span class="k">in</span> <span class="nx">types</span><span class="p">.</span><span class="nx">implementing</span><span class="p">.</span><span class="nx">AutoObjCBridgeable</span><span class="o">|</span><span class="nx">struct</span> <span class="o">%</span><span class="p">}</span>
+</span><span class='line'><span class="err">@</span><span class="nx">objc</span><span class="p">(</span><span class="nx">XYZ</span><span class="p">{{</span><span class="nx">type</span><span class="p">.</span><span class="nx">name</span><span class="p">}})</span>
+</span><span class='line'><span class="kr">class</span> <span class="nx">_ObjC</span><span class="p">{{</span><span class="nx">type</span><span class="p">.</span><span class="nx">name</span><span class="p">}}</span> <span class="o">:</span> <span class="nx">NSObject</span> <span class="p">{</span>
+</span><span class='line'>    <span class="c1">// TODO</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="p">{</span><span class="o">%</span> <span class="nx">endfor</span> <span class="o">%</span><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Given a simple, empty struct:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='swift'><span class='line'><span class="k">struct</span> <span class="nl">EmptyStruct</span> <span class="p">:</span> <span class="n">AutoObjCBridgeable</span> <span class="p">{</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Let&rsquo;s look at what a the resulting bridging code for the simplest struct would look like; An empty struct should only wrap the type in an Objective-C class, like so:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='swift'><span class='line'><span class="p">@</span><span class="n">objc</span><span class="p">(</span><span class="n">XYZEmptyStruct</span><span class="p">)</span>
+</span><span class='line'><span class="k">class</span> <span class="nl">_ObjCEmptyStruct</span> <span class="p">:</span> <span class="bp">NSObject</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">private</span> <span class="p">(</span><span class="kr">set</span><span class="p">)</span> <span class="k">var</span> <span class="nl">emptyStruct</span><span class="p">:</span> <span class="n">EmptyStruct</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Initializer to be used from Swift code</span>
+</span><span class='line'>    <span class="k">init</span><span class="p">(</span><span class="nl">emptyStruct</span><span class="p">:</span> <span class="n">EmptyStruct</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nb">self</span><span class="p">.</span><span class="n">emptyStruct</span> <span class="o">=</span> <span class="n">emptyStruct</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Initializer to be used from ObjC code</span>
+</span><span class='line'>    <span class="kr">override</span> <span class="k">init</span><span class="p">(){</span>
+</span><span class='line'>        <span class="nb">self</span><span class="p">.</span><span class="n">emptyStruct</span> <span class="o">=</span> <span class="n">EmptyStruct</span><span class="p">()</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now for a more useful type, say a struct with some values, like this one:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='swift'><span class='line'><span class="k">struct</span> <span class="nl">StructWithSwiftProperties</span> <span class="p">:</span> <span class="n">AutoObjCBridgeable</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">let</span> <span class="nl">name</span><span class="p">:</span> <span class="n">String</span>
+</span><span class='line'>    <span class="k">let</span> <span class="nl">count</span><span class="p">:</span> <span class="n">Int</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The bridging code looks like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+</pre></td><td class='code'><pre><code class='swift'><span class='line'><span class="p">@</span><span class="n">objc</span><span class="p">(</span><span class="n">XYZStructWithSwiftProperties</span><span class="p">)</span>
+</span><span class='line'><span class="k">class</span> <span class="nl">_ObjCStructWithSwiftProperties</span> <span class="p">:</span> <span class="bp">NSObject</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">private</span> <span class="p">(</span><span class="kr">set</span><span class="p">)</span> <span class="k">var</span> <span class="nl">structWithSwiftProperties</span><span class="p">:</span> <span class="n">StructWithSwiftProperties</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Initializer to be used from Swift code</span>
+</span><span class='line'>    <span class="k">init</span><span class="p">(</span><span class="nl">structWithSwiftProperties</span><span class="p">:</span> <span class="n">StructWithSwiftProperties</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nb">self</span><span class="p">.</span><span class="n">structWithSwiftProperties</span> <span class="o">=</span> <span class="n">structWithSwiftProperties</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Initializer to be used from ObjC code</span>
+</span><span class='line'>    <span class="k">init</span><span class="p">(</span>
+</span><span class='line'>        <span class="nl">name</span><span class="p">:</span> <span class="n">String</span><span class="p">,</span>
+</span><span class='line'>        <span class="nl">count</span><span class="p">:</span> <span class="n">Int</span><span class="p">,</span>
+</span><span class='line'>        <span class="nl">valid</span><span class="p">:</span> <span class="n">Bool</span><span class="p">,</span>
+</span><span class='line'>        <span class="nl">mutableValid</span><span class="p">:</span> <span class="n">Bool</span><span class="p">,</span>
+</span><span class='line'>        <span class="nl">someStuff</span><span class="p">:</span> <span class="p">[</span><span class="n">String</span><span class="p">]</span>
+</span><span class='line'>    <span class="p">){</span>
+</span><span class='line'>        <span class="nb">self</span><span class="p">.</span><span class="n">structWithSwiftProperties</span> <span class="o">=</span> <span class="n">StructWithSwiftProperties</span><span class="p">(</span>
+</span><span class='line'>                <span class="nl">name</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+</span><span class='line'>                <span class="nl">count</span><span class="p">:</span> <span class="n">count</span><span class="p">,</span>
+</span><span class='line'>                <span class="nl">valid</span><span class="p">:</span> <span class="n">valid</span><span class="p">,</span>
+</span><span class='line'>                <span class="nl">mutableValid</span><span class="p">:</span> <span class="n">mutableValid</span><span class="p">,</span>
+</span><span class='line'>                <span class="nl">someStuff</span><span class="p">:</span> <span class="n">someStuff</span>
+</span><span class='line'>            <span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">var</span> <span class="nl">name</span> <span class="p">:</span> <span class="n">String</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="nb">self</span><span class="p">.</span><span class="n">structWithSwiftProperties</span><span class="p">.</span><span class="n">name</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">var</span> <span class="nl">count</span> <span class="p">:</span> <span class="n">Int</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="nb">self</span><span class="p">.</span><span class="n">structWithSwiftProperties</span><span class="p">.</span><span class="n">count</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The generated code will need to provide read-only properties for the inmutable properties, and read-write properties for the mutable ones. This example only contains simple types, but not other structs or enumerations. Generating those will require to nest bridged classes. You can check the <a href="https://github.com/DarthMike/AutoObjCBridgeable/blob/master/Templates/AutoObjCBridgeable.stencil">template code</a> by yourself for the rest of it.</p>
+
+<p>Generating properties for standard Swift types is simple:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="p">{</span><span class="o">%</span> <span class="k">if</span> <span class="nx">variable</span><span class="p">.</span><span class="nx">type</span><span class="p">.</span><span class="nx">kind</span> <span class="o">!=</span> <span class="s2">&quot;struct&quot;</span> <span class="nx">and</span> <span class="nx">variable</span><span class="p">.</span><span class="nx">type</span><span class="p">.</span><span class="nx">kind</span> <span class="o">!=</span> <span class="s2">&quot;enum&quot;</span> <span class="o">%</span><span class="p">}</span>
+</span><span class='line'>    <span class="c1">// Forwarding property for native types</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="p">{{</span><span class="nx">variable</span><span class="p">.</span><span class="nx">name</span><span class="p">}}</span> <span class="o">:</span> <span class="p">{{</span><span class="nx">variable</span><span class="p">.</span><span class="nx">typeName</span><span class="p">}}</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="nx">get</span> <span class="p">{</span>
+</span><span class='line'>            <span class="k">return</span> <span class="nx">self</span><span class="p">.{{</span><span class="nx">type</span><span class="p">.</span><span class="nx">name</span><span class="o">|</span><span class="nx">lowerFirstWord</span><span class="p">}}.{{</span><span class="nx">variable</span><span class="p">.</span><span class="nx">name</span><span class="p">}}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="p">{</span><span class="o">%</span> <span class="k">if</span> <span class="nx">variable</span><span class="p">.</span><span class="nx">isMutable</span> <span class="o">%</span><span class="p">}</span>
+</span><span class='line'>        <span class="nx">set</span> <span class="p">{</span>
+</span><span class='line'>            <span class="nx">self</span><span class="p">.{{</span><span class="nx">type</span><span class="p">.</span><span class="nx">name</span><span class="o">|</span><span class="nx">lowerFirstWord</span><span class="p">}}.{{</span><span class="nx">variable</span><span class="p">.</span><span class="nx">name</span><span class="p">}}</span> <span class="o">=</span> <span class="nx">newValue</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="p">{</span><span class="o">%</span> <span class="nx">endif</span> <span class="o">%</span><span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">{</span><span class="o">%</span> <span class="nx">endif</span> <span class="o">%</span><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Generating the swift initializer and the wrapped property is also simple:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kr">private</span> <span class="p">(</span><span class="nx">set</span><span class="p">)</span> <span class="kd">var</span> <span class="p">{{</span><span class="nx">type</span><span class="p">.</span><span class="nx">name</span><span class="o">|</span><span class="nx">lowerFirstWord</span><span class="p">}}</span><span class="o">:</span> <span class="p">{{</span><span class="nx">type</span><span class="p">.</span><span class="nx">name</span><span class="p">}}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Initializer to be used from Swift code</span>
+</span><span class='line'><span class="nx">init</span><span class="p">({{</span><span class="nx">type</span><span class="p">.</span><span class="nx">name</span><span class="o">|</span><span class="nx">lowerFirstWord</span><span class="p">}}</span><span class="o">:</span> <span class="p">{{</span><span class="nx">type</span><span class="p">.</span><span class="nx">name</span><span class="p">}})</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">self</span><span class="p">.{{</span><span class="nx">type</span><span class="p">.</span><span class="nx">name</span><span class="o">|</span><span class="nx">lowerFirstWord</span><span class="p">}}</span> <span class="o">=</span> <span class="p">{{</span><span class="nx">type</span><span class="p">.</span><span class="nx">name</span><span class="o">|</span><span class="nx">lowerFirstWord</span><span class="p">}}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Generating the initializer from Objective-C will require to handle structs and enumerations specially, so you can check it yourself in the <a href="https://github.com/DarthMike/AutoObjCBridgeable/blob/master/Templates/AutoObjCBridgeable.stencil">template</a>.</p>
+
+<h3>Bridging simple enumerations</h3>
+
+<p>The template code to bridge enumerations is a bit more complex. We&rsquo;re just going to review what the generated code would look like in this case. Take a simple example:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='swift'><span class='line'><span class="k">enum</span> <span class="nl">OtherEnum</span> <span class="p">:</span> <span class="n">AutoObjCBridgeable</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">case</span> <span class="n">a</span>
+</span><span class='line'>    <span class="k">case</span> <span class="n">b</span><span class="p">(</span><span class="n">EmptyStruct</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The generated bridging code should contain a class for the enum, and separate classes for every case. We initialize from Objective-C casting from <code>Any</code> to the concrete class corresponding to every case. Take note we&rsquo;ll need to handle associated values and because of this the template code is a bit messy.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+</pre></td><td class='code'><pre><code class='swift'><span class='line'><span class="p">@</span><span class="n">objc</span><span class="p">(</span><span class="n">XYZOtherEnum</span><span class="p">)</span>
+</span><span class='line'><span class="k">class</span> <span class="nl">_ObjCOtherEnum</span> <span class="p">:</span> <span class="bp">NSObject</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">private</span> <span class="p">(</span><span class="kr">set</span><span class="p">)</span> <span class="k">var</span> <span class="nl">otherEnum</span><span class="p">:</span> <span class="n">OtherEnum</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Initializer for Swift code</span>
+</span><span class='line'>    <span class="k">init</span><span class="p">(</span><span class="nl">value</span><span class="p">:</span> <span class="n">OtherEnum</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nb">self</span><span class="p">.</span><span class="n">otherEnum</span> <span class="o">=</span> <span class="n">value</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Initializer for Objective-C code</span>
+</span><span class='line'>    <span class="k">init</span><span class="p">(</span><span class="nl">caseValue</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">if</span> <span class="k">let</span> <span class="n">_</span> <span class="o">=</span> <span class="n">caseValue</span> <span class="kt">as</span><span class="o">?</span> <span class="n">_ObjCOtherEnumA</span> <span class="p">{</span>
+</span><span class='line'>            <span class="nb">self</span><span class="p">.</span><span class="n">otherEnum</span> <span class="o">=</span> <span class="p">.</span><span class="n">a</span>
+</span><span class='line'>        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="k">let</span> <span class="n">caseValue</span> <span class="o">=</span> <span class="n">caseValue</span> <span class="kt">as</span><span class="o">?</span> <span class="n">_ObjCOtherEnumB</span> <span class="p">{</span>
+</span><span class='line'>            <span class="nb">self</span><span class="p">.</span><span class="n">otherEnum</span> <span class="o">=</span> <span class="p">.</span><span class="n">b</span><span class="p">(</span><span class="n">caseValue</span><span class="p">.</span><span class="n">value1</span><span class="p">.</span><span class="n">emptyStruct</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">preconditionFailure</span><span class="p">(</span><span class="s">&quot;Value \(caseValue) is not compatible with cases of OtherEnum&quot;</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// A case of OtherEnum</span>
+</span><span class='line'><span class="p">@</span><span class="n">objc</span><span class="p">(</span><span class="n">XYZOtherEnumA</span><span class="p">)</span>
+</span><span class='line'><span class="k">class</span> <span class="nl">_ObjCOtherEnumA</span> <span class="p">:</span> <span class="bp">NSObject</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// A case of OtherEnum</span>
+</span><span class='line'><span class="p">@</span><span class="n">objc</span><span class="p">(</span><span class="n">XYZOtherEnumB</span><span class="p">)</span>
+</span><span class='line'><span class="k">class</span> <span class="nl">_ObjCOtherEnumB</span> <span class="p">:</span> <span class="bp">NSObject</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">let</span> <span class="nl">value1</span> <span class="p">:</span> <span class="n">_ObjCEmptyStruct</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">init</span><span class="p">(</span><span class="nl">value1</span> <span class="p">:</span> <span class="n">_ObjCEmptyStruct</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="nb">self</span><span class="p">.</span><span class="n">value1</span> <span class="o">=</span> <span class="n">value1</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Conclusion</h2>
+
+<p>Automating the generation of complex things like bridging is possible with Sourcery. The template I&rsquo;ve written doesn&rsquo;t handle all cases of possible code; For example, the template doesn&rsquo;t handle private properties, doesn&rsquo;t take default values for initializers, we don&rsquo;t forward methods, and it doesn&rsquo;t handle properly structs as associated values of enums. The template also doesn&rsquo;t bridge protocols.</p>
+
+<p>I stopped here on purpose, as this generated code should be temporary until a migration eventually happens. In general, interaction from Objective-C to Swift should be kept to a minimum.</p>
+
+<p>I&rsquo;m very surprised that such complexity can be automated using Sourcery, and I really love the concept of the tool. If you never used it, it&rsquo;s a very useful addition for your Swift toolbelt.</p>
+
+<p>If you have any feedback, please open an issue in the <a href="https://github.com/DarthMike/AutoObjCBridgeable">example repository</a>, or reach me on <a href="https://twitter.com/miguelquinon">twitter</a>. I&rsquo;d love to hear your thoughts!</p>
+
+    </div>
+  </div>
+
+
+
+  <footer>
+    <hr>
+    
+    <div class="row-fluid">
+      
+      <div class="span6">
+        <p class="meta">
+        
+        
+
+
+
+  <a href="/blog/categories/meta-programming/"><span class="badge">meta-programming</span></a>
+
+  <a href="/blog/categories/objective-c/"><span class="badge">objective-c</span></a>
+
+  <a href="/blog/categories/swift/"><span class="badge">swift</span></a>
+
+  <a href="/blog/categories/tools/"><span class="badge">tools</span></a>
+
+
+
+
+        </p>
+      </div>
+      
+      <div class="span6 social-sharing">
+        <div class="sharing">
+  <div class="addthis_toolbox addthis_default_style ">
+  
+  
+  <a class="addthis_button_tweet"></a>
+  
+  
+  <a class="addthis_counter addthis_pill_style"></a>
+  </div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
+</div>
+
+      </div>
+      
+      
+    </div>
+    
+    <div class="row-fluid">
+      <div class="span12">
+        <p class="meta">
+          
+            <a class="basic-alignment left" href="/blog/2017/01/29/temporary-build-settings/" title="Previous Post: Build settings depending on Xcode version">&laquo; Build settings depending on Xcode version</a>
+          
+          
+            <a class="basic-alignment right" href="/blog/2017/06/16/fixing-autocompletion-on-mixed-objective-c-and-swift-projects/" title="Next Post: Fixing autocompletion on mixed Objective-C and Swift projects">Fixing autocompletion on mixed Objective-C and Swift projects &raquo;</a>
+          
+        </p>
+      </div>
+    </div>
+  </footer>
+</article>
+
+</div>
+
+
+
+        </div>
+      </div>
+      <div class="row-fluid">
+        <footer class="footer-page" role="contentinfo">
+          <p>
+  Copyright &copy; 2018 - Miguel Angel Quiñones -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span> - Theme by <a href="http://alexgaribay.com">Alex Garibay</a>
+</p>
+
+
+        </footer>
+      </div>
+  </div>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'https://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

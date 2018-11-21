@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: personal | miqu.me]]></title>
+  <link href="http://miqu.me/blog/categories/personal/atom.xml" rel="self"/>
+  <link href="http://miqu.me/"/>
+  <updated>2018-11-21T10:05:53+00:00</updated>
+  <id>http://miqu.me/</id>
+  <author>
+    <name><![CDATA[Miguel Angel Quiñones]]></name>
+    <email><![CDATA[miguel@miqu.me]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Hello WWWorld]]></title>
+    <link href="http://miqu.me/blog/2014/08/17/hello-wwworld/"/>
+    <updated>2014-08-17T20:26:06+00:00</updated>
+    <id>http://miqu.me/blog/2014/08/17/hello-wwworld</id>
+    <content type="html"><![CDATA[<p>Hi there!</p>
+
+<p>Welcome to my technical blog! I may write here from time to time. My intention is to write about technical stuff, mainly programming and iOS.</p>
+]]></content>
+  </entry>
+  
+</feed>

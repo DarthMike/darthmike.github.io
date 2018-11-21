@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: git | miqu.me]]></title>
+  <link href="http://miqu.me/blog/categories/git/atom.xml" rel="self"/>
+  <link href="http://miqu.me/"/>
+  <updated>2018-11-21T10:05:53+00:00</updated>
+  <id>http://miqu.me/</id>
+  <author>
+    <name><![CDATA[Miguel Angel Quiñones]]></name>
+    <email><![CDATA[miguel@miqu.me]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Reducing the pain of git bisect with Xcode]]></title>
+    <link href="http://miqu.me/blog/2017/01/22/reducing-the-pain-of-git-bisect-with-xcode/"/>
+    <updated>2017-01-22T11:49:01+00:00</updated>
+    <id>http://miqu.me/blog/2017/01/22/reducing-the-pain-of-git-bisect-with-xcode</id>
+    <content type="html"><![CDATA[<p>There&rsquo;s times when you need to investigate regressions in your project, and you don&rsquo;t know have any clue as why something is happening. <a href="https://git-scm.com/docs/git-bisect">Git bisect</a> is the best tool for this cases, but it can be painful to use in non small projects using CocoaPods and Xcode. I want to share what I&rsquo;ve been doing to ease the pain.</p>
+
+<!-- more -->
+
+
+<p>If you never used Git bisect, check this <a href="https://git-scm.com/book/en/v2/Git-Tools-Debugging-with-Git">introduction</a>. The git command performs a <a href="https://en.wikipedia.org/wiki/Binary_search_algorithm">binary search</a> across your repository history, starting from two known commits you provide to the algorithm: &lsquo;Good&rsquo; and &lsquo;Bad&rsquo;. &lsquo;Bad&rsquo; will usually be your last commit, and &lsquo;Good&rsquo; will be a commit back in the history of your repository, when you know the code was working as expected. For every step of the search you need to tell git if a commit is good or bad, either manually or automatically by running a script.</p>
+
+<h1>Pain points</h1>
+
+<p>When we enter the realm of iOS development, there&rsquo;s a some factors that make bisect tedious to use.</p>
+
+<p>If you use CocoaPods, and if you don&rsquo;t check in the &lsquo;Pods&rsquo; directory in source control, every time you change branch or bisect selects a new commit, you might need to run <code>pod install</code> in order to have all dependencies available and compile correctly.</p>
+
+<p>If you are searching for a regression, chances are you don&rsquo;t have an automated test suite, so you&rsquo;ll need to run your app manually and reproduce the issue you are searching for. There will be cases when you&rsquo;re dealing with a bug that needs an app reinstall or needs to run on device to reproduce. To top all this, Xcode will start the long indexing process every time there&rsquo;s changes to the sources due to change of commit, so your computer will start doing lot of work.</p>
+
+<p>All of these nuances makes the process of searching for issues using bisect very tedious and not so &lsquo;magical&rsquo; as it is supposed to be. I&rsquo;ve nevertheless used bisect many times to save time otherwise wasted reading code and navigating breakpoints during long debugging sessions. You just need some patience and the will to automate some stuff.</p>
+
+<h1>Reducing the pain</h1>
+
+<h2>Automate pod install</h2>
+
+<p>If you don&rsquo;t check in the &lsquo;Pods&rsquo; directory in source control, you might want to run <code>pod install</code> after every bisect step, to refresh all dependencies. Make use of git&rsquo;s <code>post-checkout</code> <a href="https://git-scm.com/docs/githooks">hook</a> and just perform the operation automatically. I like to close Xcode while updating pods so it doesn&rsquo;t turn crazy and slows down computer even more than usual:</p>
+
+<pre><code class="bash">#!/bin/sh
+# Script for .git/hooks/post-checkout
+set -e
+osascript -e 'quit app "Xcode"'
+pod install
+open -a Xcode
+</code></pre>
+
+<p>After you say &lsquo;good&rsquo; or &lsquo;bad&rsquo;, bisect chooses another commit, and automatically close Xcode, update dependencies and open Xcode again. You can be more sophisticated and open the current project directly. See this <a href="https://github.com/robbyrussell/oh-my-zsh/blob/57fcee0f1c520a7c5e3aa5e2bde974154cdaf0c3/plugins/xcode/xcode.plugin.zsh">example</a>.</p>
+
+<h2>Automate build and run</h2>
+
+<p>As I&rsquo;ve mentioned before, if you end up doing a bisect in the codebase you don&rsquo;t have unit tests covering the issue, or any other kind of regression suite covering the issue. You&rsquo;ll need to manually run the project and reproduce the bug. You can still automate the building and running, so you just need to wait to reproduce, and tell git if the commit was good or bad.</p>
+
+<p>Combine <code>xcodebuild</code> with <a href="https://github.com/phonegap/ios-sim">ios-sim</a> in a <code>post-checkout</code> script:</p>
+
+<pre><code class="bash">#!/bin/sh
+set -e
+xcodebuild -arch x86_64 -sdk iphonesimulator10.2 -derivedDataPath ".build" -scheme myScheme
+
+ios-sim launch --devicetypeid com.apple.CoreSimulator.SimDeviceType.iPhone-6-Plus .build/Build/Products/Debug-iphonesimulator/myapp.app
+</code></pre>
+
+<p>Here we force a simulator-only build and run it straight away so you can do your painful manual testing. You can combine the update of dependencies to just leave reproducing the issue and feedback as manual steps in the process.</p>
+
+<h2>Repository discipline</h2>
+
+<p>In order to be able to bisect faster and achieve meaningful results there&rsquo;s some practices to follow in your commits:</p>
+
+<ul>
+<li><strong>Granular commits are better</strong>: Smaller commits will make results of bisect more useful as the commit will have small changes, and will be easier to determine the source of the problem.</li>
+<li><strong>Ensure every commit compiles</strong>: It will make a potential bisect easier by not struggling with commits that need to be fixed before tested</li>
+<li><strong>Check in CocoaPods</strong>: There&rsquo;s many <a href="https://www.dzombak.com/blog/2014/03/including-pods-in-source-control.html">advantages some disadvantages</a> of keeping Pods in the repository. And one advantage will be the code compiles as-is without need of fetching dependencies.</li>
+<li><strong>Write meaningful commits</strong>: This should be general practice in the team, but a meaningful commit might tell you what went wrong without even looking at the code, and will help teammates understand your changes.</li>
+</ul>
+
+
+<h1>Use bisect</h1>
+
+<p>Everybody makes mistakes, and there will be the time when you&rsquo;ll be the one tasked to find out why something is not working, with no clue whatsoever of why. This is the time to think about using <code>git bisect</code>. It can be tedious under iOS projects, but you can ease the pain by automating some bits of the process and some patience.</p>
+
+<p>And if you find finally find a commit of your 1-month younger self, you&rsquo;ll thank yourself if you wrote a meaningful commit message.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Jumping into existing codebases]]></title>
+    <link href="http://miqu.me/blog/2015/11/15/jumping-into-existing-codebases/"/>
+    <updated>2015-11-15T18:55:18+00:00</updated>
+    <id>http://miqu.me/blog/2015/11/15/jumping-into-existing-codebases</id>
+    <content type="html"><![CDATA[<p>I’ve recently changed workplace - <a href="http://peak.net">we’re hiring!</a> - and I’ve jumped into an existing codebase. This is a good time to review what I like to do when I start to work on a project in these circumstances.</p>
+
+<!-- more -->
+
+
+<p>When you don&rsquo;t start a greenfield project, which is most of the time for many developers, you need to rapidly and effectively get to grasp with all the code, so you can become productive and acknowledgeable with any changes that need to be done. There&rsquo;s some things I always do in these cases.</p>
+
+<h1>Examining the repository</h1>
+
+<h2>Git stats</h2>
+
+<p>I always like to start with the repository itself. Looking at the history, commits and overall activity. Many times you will find that developers are not used to providing consistent and meaningful commit messages (how many times you’ve seem <strong>WIP feature X</strong> commit message?). So looking at the history is not informative. So I prefer to look at global statistics instead.</p>
+
+<p>Assuming you will work with a git repository, the first tool I like to use is <a href="https://github.com/tomgi/git_stats">git stats</a>. As easy as:</p>
+
+<pre><code class="bash">gem install git_stats
+cd &lt;repo&gt;
+git_stats generate
+</code></pre>
+
+<p>Running this tool will result in a nice html document giving insights about authors, commits, files and lines of code. It’s mostly informative but it’s good to get an overview of the key collaborators of a project, who created, and most importantly, who deleted the most lines of code!</p>
+
+<h3>Gource</h3>
+
+<p>A very interesting way to see the commit history in a graphical way is <a href="http://gource.io">gource</a>. I always like to run it for 5 minutes just to get a feel of the rush of the project, and basically to see
+in a glance what are the core parts of the codebase. It also is very funny to look at, and you can get a feel what is the core part of the repository, what parts changed the most, and the number of developers working at the same time. It&rsquo;s available via <a href="http://brew.sh">homebrew</a> as well so very easy to install and run:</p>
+
+<pre><code class="bash">brew install gource
+cd &lt;repo&gt;
+gource
+</code></pre>
+
+<p>Check the available options, like <code>seconds-per-day</code>, to customize how you see the animation. I like to run it with 2 seconds per day, to make the visualization move faster (and be funnier to watch!).</p>
+
+<h2>Commit messages</h2>
+
+<p>I like to just do a <code>git log</code> in terminal and understand if the team has any kind of agreement on what and how commit messages are structured. Having good commit messages beats any amount of commented code kept around and is a very integral part of the project.</p>
+
+<p>There has been plenty of discussion on the subject, I’m just going to link here 2 of my favorite articles: <a href="http://chris.beams.io/posts/git-commit/">this</a> and <a href="https://robots.thoughtbot.com/5-useful-tips-for-a-better-commit-message">this one</a>. I don’t adhere to all the points presented but agree to many of them. You’ll get an overview of how a project has evolved by looking at some logs, specially from the beginning. Just do:</p>
+
+<pre><code class="bash">git log --reverse
+</code></pre>
+
+<p>Having good commit messages helps a lot when dealing with bug fixes, using <a href="https://git-scm.com/docs/git-bisect">git bisect</a>. When you&rsquo;re the new one in a project you don&rsquo;t have the domain and code knowledge to understand what changed or debug, you can save hours of pain for  bug fixes by using it, and when you nail down the commit that broke something, you can understand the motivation behind it much better.</p>
+
+<h2>Structure</h2>
+
+<p>Just a quick glance of the repository structure can give you a feel of the (lack of) organization and practices of the team. Step number 2 after checking commit logs is browsing the project structure. I&rsquo;m not going to judge or give opinion on what project structure should be the best, as it very much depends on the project, but I generally will try to identify these kind of groups:</p>
+
+<ul>
+<li>Code</li>
+<li>Assets</li>
+<li>Submodules or dependencies</li>
+<li>Utility scripts</li>
+</ul>
+
+
+<p>If the repository does not even contain separate folders for this then you know what is your first task!</p>
+
+<h2>Dependency management</h2>
+
+<p>Once I&rsquo;ve checked the commit logs, and project structure, before I move on to the code, my last step is to understand the strategy for dependency management. As I work on iOS projects, let&rsquo;s see the options for these:</p>
+
+<ul>
+<li>Pre-built libraries</li>
+<li>Copied code (ideally in a sub folder)</li>
+<li>Submodule</li>
+<li>Cocoapods</li>
+<li>Carthage</li>
+</ul>
+
+
+<p>Every project will have a combination of strategies, as many times libraries come from various sources. But if there&rsquo;s a chance, I like to suggest and improve this if possible, and unify how libraries are managed in the project. My opinion is that it&rsquo;s easier to manage dependencies if they are contained and imported the same way.</p>
+
+<p>Many projects will use Cocoapods as the dependency management, even for internal libraries. If that is the case, my last stop is the Podfile. If the team hasn&rsquo;t yet, I just suggest to fix the version for all but internal libraries. This is a practice I consider a must if working with 3rd party libraries, as many unexpected bugs can occur if you import libraries with relaxed version requirements, or just the latest one.</p>
+
+<h1>Code</h1>
+
+<p>It is said that a programmer spends most of time reading code rather than writing it, and it will be specially true when you jump into an existing codebase.</p>
+
+<p>Reading (and understanding) the code of an existing project is very daunting at first. How much will take you to understand the fundamental bits depends on many factors, including domain knowledge, code style, code organization and background of the key project developers.</p>
+
+<p>Before diving into specifics of the code, I like to get an overview:</p>
+
+<ul>
+<li>Lines of code tool</li>
+<li>Dependency visualiser</li>
+</ul>
+
+
+<h2>Sloccount</h2>
+
+<p><a href="http://www.dwheeler.com/sloccount/">This tool</a> will give you a summary of lines of code in the repository. You will get a feel of overall complexity of code, and if you have source code for dependencies, you can also check which are the bigger dependencies in terms of code size.</p>
+
+<p>Once you take part in more than one project you&rsquo;ll be able to get a feel when a project is <em>big</em> or <em>small</em>, which is very subjective, but useful to know, when you approach new code.</p>
+
+<p>This tool is again available via <a href="http://brew.sh">homebrew</a>, so it&rsquo;s very easy to run in any project:
+<code>bash
+brew install sloccount
+sloccount &lt;source_directory&gt;
+</code></p>
+
+<h2>Dependency visualiser</h2>
+
+<p>The biggest problem of reading new code is that everything is kind of new: Domain, code style, requirements, patterns. A very good way to get a grasp of the code structure is visualise the relationships. I know of two tools that do that for Objective-C: <a href="https://github.com/PaulTaykalo/objc-dependency-visualizer">objc-dependency-visualizer</a> and <a href="https://github.com/nst/objc_dep">objc_dep</a>.</p>
+
+<p>I quite like <a href="https://github.com/PaulTaykalo/objc-dependency-visualizer">objc-dependency-visualizer</a> because it&rsquo;s easier to use to get a broad picture of relative code size between classes and relationships. Just be warned that for medium to big projects the visualisations are just messy. That&rsquo;s when you can use <a href="https://github.com/nst/objc_dep">obj_dep</a> to get graphs for specific files or modules.</p>
+
+<h2>iOS projects</h2>
+
+<p>Before I go into reading specific code, I do these checks first:</p>
+
+<ul>
+<li>Run static analyser</li>
+<li>Compile project and see warnings</li>
+<li>Basic objc good practices (swift is very new for practices yet)</li>
+</ul>
+
+
+<h3>Static analyser</h3>
+
+<p>I will run the static analyser, which is the part of the toolchain that will generally be overlooked by most teams. Developers don&rsquo;t trust analyser because it can give false positives, but in my opinion clean code should have 0 analyser warnings.</p>
+
+<h3>Compile warnings</h3>
+
+<p>With Objective-C and Swift, we get a program to check our code before it&rsquo;s even run. Many see the compiler as a nuisance, specially those used to interpreted languages. I will run a compilation first to see if the project has warnings, treats warnings as errors, and how many outstanding warnings the team is used to have. I consider Jon Reid&rsquo;s <a href="https://github.com/jonreid/XcodeWarnings">xcconfig</a> a very good base line for any project.</p>
+
+<p>Ideally I would like to work on code with most warnings turned on, and warnings treated as error, but this is not the case for many projects out there. The general problem with Xcode is that it creates projects with very lax default warning settings. So many developers don&rsquo;t bother changing them, thus having an unsafe environment for the project from the beginning.</p>
+
+<p>If you start a new project, I&rsquo;d recommend using a tool to configure properly the project, like <a href="https://github.com/thoughtbot/liftoff">liftoff</a> or <a href="https://github.com/krzysztofzablocki/crafter">crafter</a>. For project warnings, I personally prefer to have a .xcconfig file because it&rsquo;s more readable, maintainable, and allows for comments of disabled warnings. See <a href="https://github.com/jonreid/XcodeWarnings">xcconfig</a> or <a href="https://github.com/jspahrsummers/xcconfigs">xcconfigs</a> for examples.</p>
+
+<h3>Basic good practices</h3>
+
+<p>My last step when surveying new code, is checking the safety of the code. I&rsquo;ll check for basic safe usage of Objective-C which is a very punishing language with lots of sharp edges that can cut the unaware developer ;)</p>
+
+<ul>
+<li>Safe use of BOOL: See <a href="http://nshipster.com/bool/">http://nshipster.com/bool/</a></li>
+<li>Correct use of copy: For classes having mutable subclasses - NSArray, NSDictionary, NSString, NSData&hellip;</li>
+<li>Safe use of blocks: Checking for nil block parameters</li>
+<li>Memory leaks and blocks: Has the code a simple definition of <a href="https://github.com/jspahrsummers/libextobjc/blob/master/extobjc/EXTScope.h">@weakify and @strongify</a>, or dealing with retain cycles with blocks in a similar way?</li>
+<li>Modern code: Uses <a href="http://miqu.me/blog/2015/04/17/adopting-nullability-annotations/">nullability</a> and <a href="http://miqu.me/blog/2015/06/09/adopting-objectivec-generics/">generics</a>?</li>
+</ul>
+
+
+<h1>Start coding!</h1>
+
+<p>I hope you get some useful tips from my review of tools and checks I do when jumping into new projects. I you&rsquo;ve got any more, <a href="https://twitter.com/miguelquinon">tell me!</a>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Continuously improving with your tools]]></title>
+    <link href="http://miqu.me/blog/2014/10/18/continously-improving-with-your-tools/"/>
+    <updated>2014-10-18T12:17:49+00:00</updated>
+    <id>http://miqu.me/blog/2014/10/18/continously-improving-with-your-tools</id>
+    <content type="html"><![CDATA[<p>Have you ever setup your tools in half an hour? In my opinion, the key to improving your tools is gradually evolving what you use, and how you use them. Here’s what I think about it.</p>
+
+<!-- more -->
+
+
+<h1>Continuous improvement</h1>
+
+<p>I like to improve and learn incrementally. This means I start using new tools, improve how I use existing ones, and in the 21st century, working in different computers at different times during the day.</p>
+
+<p>So, I usually find myself in situations where I tweak my config files or I add a new tool to my favourites, and then I customise it a bit. You would expect to have all these new settings across different computers. Wouldn’t it be great if we could automate all this?</p>
+
+<h1>Enter git</h1>
+
+<p>So I decided a while ago to version my config files using git, as many other programmers do nowadays. I like to keep my dotfiles and configuration files for applications I use in the same repo.</p>
+
+<p>I take the approach to hard link dotfiles to my $HOME from my cloned repository. Regarding links, <a href="http://stackoverflow.com/questions/11786623/cant-hard-link-the-gitconfig-file">others have tried it before</a> and you can have problems, specially with .gitconfig. I never had any problem with it, because I edit files manually.</p>
+
+<h1>Remember: There is life after origin</h1>
+
+<p>Sometimes we are used to git origin to be the repo we push code to, or github/bitbucket for our personal or open source projects. But you can do more. I like having those settings stored in Dropbox as a remote for my settings. The advantage is that I don’t have to remember the remote urls of my public source repo, just reference a local disk url, which is usually ~/Dropbox/reponame.</p>
+
+<p>You can setup a new remote in dropbox like this:
+<code>bash
+cd /path/to/dropbox/
+git init --bare myrepo.git
+</code>
+Then from your local repo:
+<code>bash
+git remote add dropbox /path/to/dropbox/myrepo.git
+</code>
+That’s it! You can push to it normally:
+<code>bash
+git push dropbox master
+</code>
+Bonus for push/pull speed, as both repos are local to your machine.</p>
+
+<h1>Conclusion</h1>
+
+<p>So the goal is to improve gradually, because we learn new tools and tweak existing ones. Git can help you with that, and you can take <a href="http://dotfiles.github.io/">many approaches</a> to how you manage your dotiles. Whatever your approach to keeping these settings, it&rsquo;s important to take care of them normally, improve them, tweak them as you use them.
+<br/>
+Spend 20 minutes now to think about how to gradually improve your workflow, and you will be saving hours of time in the long term.</p>
+]]></content>
+  </entry>
+  
+</feed>

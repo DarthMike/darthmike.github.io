@@ -1,0 +1,401 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Easy localization management with Google spreadsheets - miqu.me</title>
+  <meta name="author" content="Miguel Angel Quiñones">
+
+   
+  <meta name="description" content="Software engineering thoughts">
+  
+  <meta name="keywords" content="">
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://miqu.me/blog/2016/11/19/easy-localizations-management-with-spreadsheets">
+  <link href="/favicon.png" rel="icon">
+  <link href='https://fonts.googleapis.com/css?family=Quicksand:300,400' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="miqu.me" type="application/atom+xml">
+  <script src="/js/jquery.js"></script>
+  <script src="/js/bootstrap-collapse.js"></script>
+  <script src="/js/modernizr-2.0.js"></script>
+  <script src="/js/octopress.js" type="text/javascript"></script>
+  <script src="/js/application.js"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="https://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="https://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <div class="navbar navbar-inverse navbar-static-top">
+  	<div class="navbar-inner">
+  	  <div class="container">
+        <a class="btn btn-navbar" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+          <span class="fui-menu-24"></span>
+        </a>
+  	  	<div class="nav-collapse collapse navbar-responsive-collapse" style="height:0;">
+  	      <ul class="nav">
+    
+        <li ><a href="/">Blog</a></li>
+    
+        <li ><a href="/about/">Who?</a></li>
+    
+        <li ><a href="/games/">Games</a></li>
+    
+        <li ><a href="/speaking/">Speaking</a></li>
+    
+</ul>
+
+<ul class="nav pull-right">
+    
+    <li><a href="https://github.com/DarthMike" title="Github Profile"><i class="icon-github-sign social-navbar"></i></a></li>
+    
+    
+    
+    <li><a href="https://linkedin.com/in/miguelquinon" title="Linkedin Profile"><i class="icon-linkedin-sign social-navbar"></i></a></li>
+    
+    
+    <li><a href="https://twitter.com/@miguelquinon" title="Twitter Profile"><i class="icon-twitter-sign social-navbar"></i></a></li>
+    
+    
+    
+    
+
+    
+    <li><a href="mailto:miguel@miqu.me" title="Email"><i class="icon-envelope social-navbar"></i></a></li>
+    
+</ul>
+
+  	    </div>
+  	  </div>
+  	</div>
+  </div>
+  <div class="container" id="main">
+      <div class="row-fluid">
+        <div id="content">
+          <div>
+<article class="hentry" role="article">
+  
+
+  <header>
+  <div class="jumbotron">
+    Easy Localization Management With Google Spreadsheets
+	<h5>
+
+
+
+
+
+
+
+
+  
+
+
+
+<i class="icon-calendar-empty"></i> <time datetime="2016-11-19T16:50:18+00:00" pubdate data-updated="true">19 Nov 2016</time></h5>
+  </div>
+</header>
+  <div class="row-fluid">
+    <div class="span12">
+      <p>Last thursday I gave a talk at <a href="http://www.meetup.com/NSLondon/">NSLondon meetup</a> called &lsquo;Minimum Viable Tooling&rsquo;. The topic was examples of approaching tooling and automation for small teams. I showed real examples of what we do at <a href="http://www.peak.net">Peak</a>, where I currently work. One of the things people showed interest in after the talk was how we deal with localizations.</p>
+
+<p>In this post I will replicate the simple solution from scratch, so you can follow along and get started with your own projects. And we will be using Swift for the scripting, just because we can!</p>
+
+<!-- more -->
+
+
+<h1>The minimal CMS</h1>
+
+<p>In the talk I showed what we currently use to automate generation of strings at <a href="http://www.peak.net">Peak</a>. The goal of the solution is twofold: The first is to remove manual manipulation of local strings files by developers. The second is to raise visibility of any translation across the company and enable easier collaboration with translators. This is generally achieved by using a CMS, either a built solution or your own. We&rsquo;ll build our own by leveraging Google spreadsheets as a database and web interface.</p>
+
+<p>So we&rsquo;ll need two simple parts: One one side, the strings are hosted in a Google spreasheet. Then on the other side, we&rsquo;ll run a script locally or on our CI every time we want to update strings in the application. The script will load the spreasheet contents, and generate the appropiate <code>.strings</code> file contents.</p>
+
+<h1>The spreadsheet</h1>
+
+<p>I&rsquo;ve created an example spreadsheet <a href="https://docs.google.com/spreadsheets/d/1pduU_ZiMNjPmQVl5_dDjK2XcgacfJkARsA567ddOrGg/edit?usp=sharing">here</a>. It contains rows with keys, and columns with the supported language keys in your app:</p>
+
+<p><img src="/images/posts/spreadsheet-1.png" alt="spreadsheet1" /></p>
+
+<p>Here you can take two approaches for your script; you can either use any Google spreadsheet library for a popular scripting language like Ruby or Python, or you can leverage yet another service on top of spreasheets: <a href="https://sheetsu.com">Sheetsu</a>. Using the service means you don&rsquo;t need any library because it converts the content to a JSON API that can be easily parsed with traditional code. We&rsquo;ll use this as it&rsquo;s the simplest solution. Note that we would need to pay to have more flexibility as the free plan only allows one spreadsheet without any additional sheets, but this is fine for our example.</p>
+
+<h2>Sheetsu</h2>
+
+<p>Sign up to <a href="https://sheetsu.com">Sheetsu</a>, and give them the spreadsheet you want to use. Once you do this, they&rsquo;ll automatically create an API endpoint:</p>
+
+<p><img src="/images/posts/sheetsu-1.png" alt="sheetsu1" /></p>
+
+<h1>The script</h1>
+
+<p>We&rsquo;ll need to setup Swift for scripting. Given that we don&rsquo;t use any libraries, we can develop the code in a playground, and when we&rsquo;re done we can move the file to our repository. Here&rsquo;s an example playground code:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+</pre></td><td class='code'><pre><code class='swift'><span class='line'><span class="k">import</span> <span class="n">Foundation</span>
+</span><span class='line'><span class="k">import</span> <span class="n">PlaygroundSupport</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">PlaygroundPage</span><span class="p">.</span><span class="n">current</span><span class="p">.</span><span class="n">needsIndefiniteExecution</span> <span class="o">=</span> <span class="nb">true</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">typealias</span> <span class="n">RawLocalizationData</span> <span class="o">=</span> <span class="p">[[</span><span class="nl">String</span><span class="p">:</span><span class="n">String</span><span class="p">]]</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">struct</span> <span class="n">Entry</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">var</span> <span class="nl">key</span><span class="p">:</span> <span class="n">String</span>
+</span><span class='line'>    <span class="k">var</span> <span class="nl">value</span><span class="p">:</span> <span class="n">String</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">struct</span> <span class="n">Localization</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">var</span> <span class="nl">languageKey</span><span class="p">:</span> <span class="n">String</span>
+</span><span class='line'>    <span class="k">var</span> <span class="nl">entries</span><span class="p">:</span> <span class="p">[</span><span class="n">Entry</span><span class="p">]</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">extension</span> <span class="n">Localization</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">func</span> <span class="n">export</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="n">String</span><span class="p">]</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">entries</span><span class="p">.</span><span class="n">map</span> <span class="p">{</span> <span class="n">entry</span> <span class="k">in</span>
+</span><span class='line'>            <span class="k">let</span> <span class="n">value</span> <span class="o">=</span> <span class="n">entry</span><span class="p">.</span><span class="n">value</span><span class="p">.</span><span class="n">characters</span><span class="p">.</span><span class="n">count</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">?</span> <span class="n">entry</span><span class="p">.</span><span class="nl">value</span> <span class="p">:</span> <span class="s">&quot;NOT_TRANSLATED&quot;</span>
+</span><span class='line'>            <span class="k">return</span> <span class="s">&quot;</span><span class="se">\&quot;</span><span class="s">\(entry.key)</span><span class="se">\&quot;</span><span class="s"> = </span><span class="se">\&quot;</span><span class="s">\(value)</span><span class="se">\&quot;</span><span class="s">;&quot;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">func</span> <span class="n">findLanguages</span><span class="p">(</span><span class="k">in</span> <span class="nl">data</span><span class="p">:</span> <span class="n">RawLocalizationData</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="n">String</span><span class="p">]</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">guard</span> <span class="k">let</span> <span class="n">firstEntry</span> <span class="o">=</span> <span class="n">data</span><span class="p">.</span><span class="n">first</span> <span class="k">else</span> <span class="p">{</span> <span class="k">return</span> <span class="p">[]</span> <span class="p">}</span>
+</span><span class='line'>    <span class="n">assert</span><span class="p">(</span><span class="n">firstEntry</span><span class="p">[</span><span class="s">&quot;key&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="nb">nil</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">let</span> <span class="n">languages</span> <span class="o">=</span> <span class="n">firstEntry</span><span class="p">.</span><span class="n">keys</span><span class="p">.</span><span class="n">filter</span> <span class="p">{</span> <span class="err">$</span><span class="mi">0</span> <span class="o">!=</span> <span class="s">&quot;key&quot;</span> <span class="p">}</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">languages</span><span class="p">.</span><span class="n">map</span> <span class="p">{</span> <span class="err">$</span><span class="mi">0</span> <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">func</span> <span class="n">parse</span><span class="p">(</span><span class="n">_</span> <span class="nl">data</span><span class="p">:</span> <span class="n">RawLocalizationData</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="n">Localization</span><span class="p">]</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">let</span> <span class="n">languages</span> <span class="o">=</span> <span class="n">findLanguages</span><span class="p">(</span><span class="k">in</span><span class="o">:</span> <span class="n">data</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">var</span> <span class="n">localizations</span> <span class="o">=</span> <span class="p">[</span><span class="nl">String</span><span class="p">:</span><span class="n">Localization</span><span class="p">]()</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">for</span> <span class="n">entry</span> <span class="k">in</span> <span class="n">data</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">let</span> <span class="n">key</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s">&quot;key&quot;</span><span class="p">]</span> <span class="o">??</span> <span class="s">&quot;__ERROR__NO_KEY__&quot;</span>
+</span><span class='line'>        <span class="k">let</span> <span class="n">values</span> <span class="o">=</span> <span class="n">languages</span><span class="p">.</span><span class="n">map</span> <span class="p">{</span> <span class="p">(</span><span class="nl">language</span><span class="p">:</span> <span class="err">$</span><span class="mi">0</span><span class="p">,</span> <span class="nl">entry</span><span class="p">:</span> <span class="n">Entry</span><span class="p">(</span><span class="nl">key</span><span class="p">:</span> <span class="n">key</span><span class="p">,</span> <span class="nl">value</span><span class="p">:</span> <span class="n">entry</span><span class="p">[</span><span class="err">$</span><span class="mi">0</span><span class="p">]</span><span class="o">!</span><span class="p">))</span> <span class="p">}</span>
+</span><span class='line'>        <span class="k">for</span> <span class="n">value</span> <span class="k">in</span> <span class="n">values</span> <span class="p">{</span>
+</span><span class='line'>            <span class="k">var</span> <span class="n">localization</span> <span class="o">=</span> <span class="n">localizations</span><span class="p">[</span><span class="n">value</span><span class="p">.</span><span class="n">language</span><span class="p">]</span> <span class="o">??</span> <span class="n">Localization</span><span class="p">(</span><span class="nl">languageKey</span><span class="p">:</span> <span class="n">value</span><span class="p">.</span><span class="n">language</span><span class="p">,</span> <span class="nl">entries</span><span class="p">:</span> <span class="p">[])</span>
+</span><span class='line'>            <span class="n">localization</span><span class="p">.</span><span class="n">entries</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">.</span><span class="n">entry</span><span class="p">)</span>
+</span><span class='line'>            <span class="n">localizations</span><span class="p">[</span><span class="n">value</span><span class="p">.</span><span class="n">language</span><span class="p">]</span> <span class="o">=</span> <span class="n">localization</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">return</span> <span class="n">localizations</span><span class="p">.</span><span class="n">values</span><span class="p">.</span><span class="n">map</span> <span class="p">{</span> <span class="err">$</span><span class="mi">0</span> <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">func</span> <span class="n">write</span><span class="p">(</span><span class="n">_</span> <span class="nl">localizations</span><span class="p">:</span> <span class="p">[</span><span class="n">Localization</span><span class="p">])</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">for</span> <span class="n">localization</span> <span class="k">in</span> <span class="n">localizations</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">print</span><span class="p">(</span><span class="n">localization</span><span class="p">.</span><span class="n">export</span><span class="p">().</span><span class="n">joined</span><span class="p">(</span><span class="nl">separator</span><span class="p">:</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">))</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">let</span> <span class="n">spreadsheetURL</span> <span class="o">=</span> <span class="n">URL</span><span class="p">(</span><span class="nl">string</span><span class="p">:</span> <span class="s">&quot;https://sheetsu.com/apis/v1.0/a96943d37c32&quot;</span><span class="p">,</span> <span class="nl">relativeTo</span><span class="p">:</span> <span class="nb">nil</span><span class="p">)</span><span class="o">!</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">let</span> <span class="n">session</span> <span class="o">=</span> <span class="n">URLSession</span><span class="p">.</span><span class="n">shared</span>
+</span><span class='line'><span class="k">let</span> <span class="n">task</span> <span class="o">=</span> <span class="n">session</span><span class="p">.</span><span class="n">dataTask</span><span class="p">(</span><span class="nl">with</span><span class="p">:</span> <span class="n">spreadsheetURL</span><span class="p">)</span> <span class="p">{</span> <span class="n">data</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">error</span> <span class="k">in</span>
+</span><span class='line'>    <span class="n">guard</span> <span class="k">let</span> <span class="n">data</span> <span class="o">=</span> <span class="n">data</span> <span class="k">else</span> <span class="p">{</span> <span class="n">print</span><span class="p">(</span><span class="s">&quot;Error&quot;</span><span class="p">);</span> <span class="k">return</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">let</span> <span class="n">json</span> <span class="o">=</span> <span class="n">try</span><span class="o">?</span> <span class="n">JSONSerialization</span><span class="p">.</span><span class="n">jsonObject</span><span class="p">(</span><span class="nl">with</span><span class="p">:</span> <span class="n">data</span><span class="p">,</span> <span class="nl">options</span><span class="p">:</span> <span class="p">[])</span> <span class="kt">as</span><span class="o">!</span> <span class="n">RawLocalizationData</span>
+</span><span class='line'>    <span class="k">let</span> <span class="n">localizations</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">json</span> <span class="o">??</span> <span class="p">[])</span>
+</span><span class='line'>    <span class="n">write</span><span class="p">(</span><span class="n">localizations</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">PlaygroundPage</span><span class="p">.</span><span class="n">current</span><span class="p">.</span><span class="n">finishExecution</span><span class="p">()</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">task</span><span class="p">.</span><span class="n">resume</span><span class="p">()</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The only thing worthy of note is using <code>PlaygroundSupport</code> to enable asynchrous execution. All the other code is straightforward use of <code>URLSesssion</code> to parse JSON. All that is left is converting the playground to a script. The script doesn&rsquo;t save contents to any file, because when running in playground we&rsquo;re constrained to the sandbox. When moving to a script we can generate the folders and files as appropiate for our application. We&rsquo;re not going to do all these finishing touches now, but it&rsquo;s very simple to continue from here.</p>
+
+<p>It only took me 1 hours to setup, and considering I had to look up how to use <code>PlaygroundSupport</code>, I would say it&rsquo;s very quick to implement!</p>
+
+<h1>Caveats</h1>
+
+<p>With this approach we can quickly build automation around localizations, and we can share the spreadsheet with our translators. This example spreadsheet does not contain strings with placeholders (for example: <code>"WELCOME_MESSAGE" = "Hello %@!"</code>). This will require handling validation, because the translators can - and will - make mistakes when writing their new strings. In a later post I will elaborate the required validation of strings with placeholders, and how we can reduce errors with human-readable tokens.</p>
+
+<p>I hope this is useful to you.</p>
+
+    </div>
+  </div>
+
+
+
+  <footer>
+    <hr>
+    
+    <div class="row-fluid">
+      
+      <div class="span6">
+        <p class="meta">
+        
+        
+
+
+
+  <a href="/blog/categories/localization/"><span class="badge">localization</span></a>
+
+  <a href="/blog/categories/swift/"><span class="badge">swift</span></a>
+
+  <a href="/blog/categories/tips/"><span class="badge">tips</span></a>
+
+  <a href="/blog/categories/tools/"><span class="badge">tools</span></a>
+
+
+
+
+        </p>
+      </div>
+      
+      <div class="span6 social-sharing">
+        <div class="sharing">
+  <div class="addthis_toolbox addthis_default_style ">
+  
+  
+  <a class="addthis_button_tweet"></a>
+  
+  
+  <a class="addthis_counter addthis_pill_style"></a>
+  </div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
+</div>
+
+      </div>
+      
+      
+    </div>
+    
+    <div class="row-fluid">
+      <div class="span12">
+        <p class="meta">
+          
+            <a class="basic-alignment left" href="/blog/2016/10/26/controlling-time-in-the-app/" title="Previous Post: Controlling time in the app">&laquo; Controlling time in the app</a>
+          
+          
+            <a class="basic-alignment right" href="/blog/2016/11/28/app-extensions-xcode-and-cocoapods-omg/" title="Next Post: App extensions, Xcode and Cocoapods, OMG!">App extensions, Xcode and Cocoapods, OMG! &raquo;</a>
+          
+        </p>
+      </div>
+    </div>
+  </footer>
+</article>
+
+</div>
+
+
+
+        </div>
+      </div>
+      <div class="row-fluid">
+        <footer class="footer-page" role="contentinfo">
+          <p>
+  Copyright &copy; 2018 - Miguel Angel Quiñones -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span> - Theme by <a href="http://alexgaribay.com">Alex Garibay</a>
+</p>
+
+
+        </footer>
+      </div>
+  </div>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'https://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
