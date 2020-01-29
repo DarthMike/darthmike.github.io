@@ -4,7 +4,7 @@ branches:
   - source
 language: ruby
 rvm:
-- 2.2.5
+- 2.2.7
 before_script:
 - git config --global user.name "Miguel Angel Quinones"
 - git config --global user.email "miguel@miqu.me"
