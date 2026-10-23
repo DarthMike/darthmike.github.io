@@ -43,5 +43,5 @@ To conclude, if you introduce any kind of prize contest in your engineering team
 Ripley signing off.
 
 [wikipedia]: https://en.wikipedia.org/wiki/Legacy_code
-[wat]: http://www.cnbc.com/2016/05/25/us-military-uses-8-inch-floppy-disks-to-coordinate-nuclear-force-operations.html
-[refactoring]: http://martinfowler.com/articles/workflowsOfRefactoring/
+[wat]: https://www.cnbc.com/2016/05/25/us-military-uses-8-inch-floppy-disks-to-coordinate-nuclear-force-operations.html
+[refactoring]: https://martinfowler.com/articles/workflowsOfRefactoring/

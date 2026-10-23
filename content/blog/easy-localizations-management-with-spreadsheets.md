@@ -118,7 +118,7 @@ With this approach we can quickly build automation around localizations, and we 
 
 I hope this is useful to you.
 
-[NSLondon]: http://www.meetup.com/NSLondon/
-[Peak]: http://www.peak.net
+[NSLondon]: https://www.meetup.com/NSLondon/
+[Peak]: https://www.peak.net
 [Sheetsu]: https://sheetsu.com
 [spreadsheet]: https://docs.google.com/spreadsheets/d/1pduU_ZiMNjPmQVl5_dDjK2XcgacfJkARsA567ddOrGg/edit?usp=sharing

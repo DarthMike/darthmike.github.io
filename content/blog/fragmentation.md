@@ -72,8 +72,8 @@ I can't wait for what Apple has to say on this year's [WWDC][wwdc]!
 
 [wwdc]: https://developer.apple.com/wwdc/
 [fragmentation]: https://en.wikipedia.org/wiki/Fragmentation_(programming)
-[frag1]: http://bgr.com/2013/12/13/android-fragmentation-vs-ios-fragmentation/
-[android]: http://www.android.com/
+[frag1]: https://bgr.com/2013/12/13/android-fragmentation-vs-ios-fragmentation/
+[android]: https://www.android.com/
 [sizes]: https://developer.apple.com/library/prerelease/ios/releasenotes/General/WhatsNewIniOS/Articles/iOS8.html#//apple_ref/doc/uid/TP40014205-SW44
 [nsurlsession]: https://developer.apple.com/library/ios/documentation/Foundation/Reference/NSURLSession_class/index.html
 [autolayout]: https://developer.apple.com/library/ios/documentation/UserExperience/Conceptual/AutolayoutPG/index.html

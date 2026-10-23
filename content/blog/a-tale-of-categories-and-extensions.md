@@ -35,7 +35,7 @@ price = 18.9
 euro_price = self.euro_to_dollars * price
 ```
 
-The rules for this in Ruby are simple, you can add to existing classes and modify methods and properties. Opening a class and modifying it [can create serious problems](http://www.infoq.com/articles/ruby-open-classes-monkeypatching), but this is the nature of the language. In Ruby you can change even essential parts of the language and the standard libraries.
+The rules for this in Ruby are simple, you can add to existing classes and modify methods and properties. Opening a class and modifying it [can create serious problems](https://www.infoq.com/articles/ruby-open-classes-monkeypatching), but this is the nature of the language. In Ruby you can change even essential parts of the language and the standard libraries.
 
 # The patterns
 From now on I will be giving examples using *Swift extensions*. You can apply the examples to Objective-C categories, but bear in mind that **they are not exactly same**, and **they don’t offer the same functionality** - More on that just a bit later.

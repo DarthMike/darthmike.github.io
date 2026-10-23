@@ -77,7 +77,7 @@ Even somebody with basic knowledge and unexperienced with *compilers* like mysel
 
 The release of open source code so close to our day to day jobs is a very special thing for us developers. Compiling swift and the tools is very easy, which just shows the high technical leadership and high quality of the open source release by the team at Apple. Congrats! This will be an amazing journey, for all of us.
 
-[swift-org]: http://swift.org
+[swift-org]: https://swift.org
 [swift-started]: https://swift.org/getting-started/
 [swift-readme]: https://github.com/apple/swift/blob/master/README.md 
 [swift-download]: https://swift.org/download/

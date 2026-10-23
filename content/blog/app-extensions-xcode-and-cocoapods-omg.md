@@ -121,6 +121,6 @@ I've found an issue created for Swift, [SR-1226][swift-issue], that is still unr
 [cocoapods-issue]: https://github.com/CocoaPods/CocoaPods/issues/5373
 [neonacho]: https://twitter.com/neonacho
 [example]: https://github.com/snowplow/snowplow-objc-tracker/blob/86c1049e960f72966ed61faa8824dbf1a73840f4/Snowplow/OpenIDFA.m#L48-L52
-[1.1.0]: http://blog.cocoapods.org/CocoaPods-1.1.0/
+[1.1.0]: https://blog.cocoapods.org/CocoaPods-1.1.0/
 [swift-issue]: https://bugs.swift.org/browse/SR-1226
 [pr]: https://github.com/snowplow/snowplow-objc-tracker/pull/303

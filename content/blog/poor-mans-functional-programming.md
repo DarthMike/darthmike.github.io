@@ -31,7 +31,7 @@ There’s a higher barrier of entry to learn how to think and code programs whic
 
 You’ll find engineers and computer scientists that believe that the *only and true* way of doing things is of course thinking functionally, and we’ve all been doing it wrong during the last decades. The math is the only source of truth and validity, hence FP is the only way.
 
-They’ve got their very valid reasons to think this way, but my opinion is that many people familiar with FP start to use higher-level vocabulary, and describe conventions and problems in a way that might seem foreign and strange for somebody who is not used to those terms. Rob Napier has [an excellent article describing this](http://robnapier.net/haskell-overlords).
+They’ve got their very valid reasons to think this way, but my opinion is that many people familiar with FP start to use higher-level vocabulary, and describe conventions and problems in a way that might seem foreign and strange for somebody who is not used to those terms. Rob Napier has [an excellent article describing this](https://robnapier.net/haskell-overlords).
 
 Computer science, and programming in particular, is a curious field where people take sides around things that may seem totally absurd for an outsider: Vim vs Emacs, Windows vs Mac, Linux vs everything else, Ruby vs Python, OOP vs FP.
 
@@ -41,7 +41,7 @@ I’d love to see the people who are experts or versed in FP to reach out and sh
 
 # Poor man’s functional programming
 
-I would like to think that for most engineers, the choice of paradigm on our day to day work is not a clear one. Thus we will have direct benefit from a language that lets you choose. Using such a language we will be able to write code in an OOP or FP way where it benefits the most. And it seems I’m [not](https://realm.io/news/altconf-saul-mora-object-orientated-functional-programming/) the [first](http://www.johndcook.com/blog/2009/03/23/functional-in-the-small-oo-in-the-large/) to think about this.
+I would like to think that for most engineers, the choice of paradigm on our day to day work is not a clear one. Thus we will have direct benefit from a language that lets you choose. Using such a language we will be able to write code in an OOP or FP way where it benefits the most. And it seems I’m [not](https://realm.io/news/altconf-saul-mora-object-orientated-functional-programming/) the [first](https://www.johndcook.com/blog/2009/03/23/functional-in-the-small-oo-in-the-large/) to think about this.
 
 Coming back to Swift, this is precisely what you can do with it. You can choose programming styles depending on what your problem is, the framework you work with, and even the team you work on. 
 
@@ -53,15 +53,15 @@ We’ll make mistakes as we learn, but hey that’s part of our job. Do you like
 
 I like to be [pragmatic](https://pragprog.com/book/tpp/the-pragmatic-programmer) rather than zealous. And I think Swift brings an excellent opportunity to learn more about other ways of thinking about building software, different abstractions, and how to fit those into our day to day work as iOS developers.
 
-Swift, as [other modern languages](http://www.scala-lang.org/), offers a unique opportunity to learn and grow. It’s a very exciting field we work on.
+Swift, as [other modern languages](https://www.scala-lang.org/), offers a unique opportunity to learn and grow. It’s a very exciting field we work on.
 
 *Aside: Sources to check the ‘tension’ between OOP and FP:*
 
-- [Functional on the small, OO in the large](http://www.johndcook.com/blog/2009/03/23/functional-in-the-small-oo-in-the-large/)
+- [Functional on the small, OO in the large](https://www.johndcook.com/blog/2009/03/23/functional-in-the-small-oo-in-the-large/)
 - [I have no idea what I’m doing](https://realm.io/news/altconf-graham-lee-i-have-no-idea-what-i-m-doing/)
 
 - [OOP is an expensive disaster](http://www.smashcompany.com/technology/object-oriented-programming-is-an-expensive-disaster-which-must-end)
 
-- [Why hasn’t functional programming taken over yet](http://stackoverflow.com/questions/2835801/why-hasnt-functional-programming-taken-over-yet)
+- [Why hasn’t functional programming taken over yet](https://stackoverflow.com/questions/2835801/why-hasnt-functional-programming-taken-over-yet)
 
 *And the list goes on and on...*

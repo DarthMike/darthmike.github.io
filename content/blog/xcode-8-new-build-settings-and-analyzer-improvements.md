@@ -79,7 +79,7 @@ And the last, but not least:
 > Xcode takes build settings set in xcconfig files into account when suggesting updates to your build
 settings.
 
-[notes]: http://adcdownload.apple.com/Developer_Tools/Xcode_8_beta_3/Release_Notes_for_Xcode_8_beta_3.pdf
+[notes]: https://adcdownload.apple.com/Developer_Tools/Xcode_8_beta_3/Release_Notes_for_Xcode_8_beta_3.pdf
 [xcconfig]: https://pewpewthespells.com/blog/xcconfig_guide.html
 [technote1]: https://developer.apple.com/library/ios/qa/qa1881/_index.html
 [twitter]: https://twitter.com/miguelquinon

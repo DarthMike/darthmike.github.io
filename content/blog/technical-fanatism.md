@@ -11,7 +11,7 @@ That's why it's important to discuss with other people in the field their opinio
 insights which otherwise would be hidden to you for longer. But sometimes, you hit a wall. Somebody does not listen.
 <!--more-->
 # Fanatism
-Definition of [discussion](http://dictionary.cambridge.org/dictionary/british/discussion):
+Definition of [discussion](https://dictionary.cambridge.org/dictionary/british/discussion):
 >**The activity in which people talk about something and tell each other their ideas or opinions:**
 >
 >- Management are holding/having discussions with employee representatives about possible redundancies

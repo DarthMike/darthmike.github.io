@@ -69,12 +69,12 @@ I hope you found the article interesting, and that you also are improving your t
 
 [vim]: https://en.wikipedia.org/wiki/Vim_(text_editor)
 [xvim]: https://github.com/XVimProject/XVim
-[tip1]: http://www.viemu.com/a-why-vi-vim.html
+[tip1]: https://www.viemu.com/a-why-vi-vim.html
 [tip2]: https://danielmiessler.com/study/vim/
-[tip3]: http://nvie.com/posts/how-i-boosted-my-vim/ 
-[tip4]: http://mislav.net/2011/12/vim-revisited/
-[cheatsheet]: http://www.viemu.com/a_vi_vim_graphical_cheat_sheet_tutorial.html
-[atom]: http://atom.io
+[tip3]: https://nvie.com/posts/how-i-boosted-my-vim/ 
+[tip4]: https://mislav.net/2011/12/vim-revisited/
+[cheatsheet]: https://www.viemu.com/a_vi_vim_graphical_cheat_sheet_tutorial.html
+[atom]: https://atom.io
 [appcode]: https://www.jetbrains.com/objc/
 [vimium]: https://vimium.github.io/
 [twitter]: https://twitter.com/miguelquinon

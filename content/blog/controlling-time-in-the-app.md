@@ -62,5 +62,5 @@ Using a tool designed for unit tests, you can build a small utility that can mak
 
 I hope you find this as useful as we've found it. Suffice to say that it should not be used for more than testing and debugging.
 
-[peak]: http://www.peak.net
+[peak]: https://www.peak.net
 [tudelorean]: https://github.com/tuenti/TUDelorean

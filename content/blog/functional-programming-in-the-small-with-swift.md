@@ -270,7 +270,7 @@ Given Swift is a multi-paradigm language it's up to the programmer to choose how
 We are all learning so don't hesitate to tell me if I'm wrong or disagree with me. If you have any comments I'd love to [discuss them][twitter].
 
 [part1]: /blog/2015/08/31/poor-mans-functional-programming/
-[small_large]: http://www.johndcook.com/blog/2009/03/23/functional-in-the-small-oo-in-the-large/
+[small_large]: https://www.johndcook.com/blog/2009/03/23/functional-in-the-small-oo-in-the-large/
 [fp_intro_swift]: http://harlankellaway.com/blog/2015/08/10/swift-functional-programming-intro
 [harken_twitter]: https://twitter.com/HarlanKellaway
 [twitter]: https://twitter.com/miguelquinon

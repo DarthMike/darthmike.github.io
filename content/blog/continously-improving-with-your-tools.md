@@ -14,7 +14,7 @@ So, I usually find myself in situations where I tweak my config files or I add a
 # Enter git
 So I decided a while ago to version my config files using git, as many other programmers do nowadays. I like to keep my dotfiles and configuration files for applications I use in the same repo.
 
-I take the approach to hard link dotfiles to my $HOME from my cloned repository. Regarding links, [others have tried it before](http://stackoverflow.com/questions/11786623/cant-hard-link-the-gitconfig-file) and you can have problems, specially with .gitconfig. I never had any problem with it, because I edit files manually.
+I take the approach to hard link dotfiles to my $HOME from my cloned repository. Regarding links, [others have tried it before](https://stackoverflow.com/questions/11786623/cant-hard-link-the-gitconfig-file) and you can have problems, specially with .gitconfig. I never had any problem with it, because I edit files manually.
 
 # Remember: There is life after origin
 Sometimes we are used to git origin to be the repo we push code to, or github/bitbucket for our personal or open source projects. But you can do more. I like having those settings stored in Dropbox as a remote for my settings. The advantage is that I don’t have to remember the remote urls of my public source repo, just reference a local disk url, which is usually ~/Dropbox/reponame.
@@ -34,6 +34,6 @@ git push dropbox master
 ```
 Bonus for push/pull speed, as both repos are local to your machine.
 # Conclusion
-So the goal is to improve gradually, because we learn new tools and tweak existing ones. Git can help you with that, and you can take [many approaches](http://dotfiles.github.io/) to how you manage your dotiles. Whatever your approach to keeping these settings, it's important to take care of them normally, improve them, tweak them as you use them.
+So the goal is to improve gradually, because we learn new tools and tweak existing ones. Git can help you with that, and you can take [many approaches](https://dotfiles.github.io/) to how you manage your dotiles. Whatever your approach to keeping these settings, it's important to take care of them normally, improve them, tweak them as you use them.
 <br/>
 Spend 20 minutes now to think about how to gradually improve your workflow, and you will be saving hours of time in the long term.

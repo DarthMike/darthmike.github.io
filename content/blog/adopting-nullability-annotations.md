@@ -48,7 +48,7 @@ controller.nonNullString = nil; // Warning
 ```
 Compiling the previous code, generates a warning for a nonnull property only when you set a **direct** nil value. If you set an **indirect** nil value, the compiler happily accepts this without any warning. This may surprise you at first, so you need to be aware of this.
 
-I think it could improve though: [rdar://problem/20596086](http://openradar.appspot.com/20596086).
+I think it could improve though: [rdar://problem/20596086](https://openradar.appspot.com/20596086).
 
 ## Weak properties
 
@@ -77,7 +77,7 @@ controller.delegate = nil; // Generates warning at compile time
 
 So as you can see, you can annotate a weak pointer as `nonnull` but obviously it is a nullable value. The generated code is not changed and runtime behaviour remains the same. But the compiler (incorrectly) warns you only when you set a direct value to nil.
 
-I think this could also improve: [rdar://problem/20596408](http://openradar.appspot.com/20596408).
+I think this could also improve: [rdar://problem/20596408](https://openradar.appspot.com/20596408).
 
 # Adopting nullability for existing projects
 

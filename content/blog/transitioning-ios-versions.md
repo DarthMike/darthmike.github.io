@@ -143,7 +143,7 @@ Maintaining software projects is hard, and if you are working with a team with a
 [nullability]: /blog/2015/05/27/fragmentation/
 [generics]: /blog/2015/06/09/adopting-objectivec-generics/
 [version-check]: https://developer.apple.com/library/ios/documentation/DeveloperTools/Conceptual/cross_development/Using/using.html#//apple_ref/doc/uid/20002000-1114537-BABHHJBC
-[swift]: http://swift.org
+[swift]: https://swift.org
 [arc]: https://developer.apple.com/library/ios/releasenotes/ObjectiveC/RN-TransitioningToARC/Introduction/Introduction.html https://developer.apple.com/library/ios/releasenotes/ObjectiveC/ModernizationObjC/AdoptingModernObjective-C/AdoptingModernObjective-C.html
 [swift-evolution]: https://lists.swift.org/mailman/listinfo/swift-evolution-announce
 [swift-evolution-repository]: https://github.com/apple/swift-evolution

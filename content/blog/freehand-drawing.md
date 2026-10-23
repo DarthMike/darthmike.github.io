@@ -21,4 +21,4 @@ I also get to brag about something I was really happy to build for the [Bumble][
 [part1]: https://techblog.badoo.com/blog/2015/06/15/lets-build-freehand-drawing-in-ios-part-1/
 [part2]: https://techblog.badoo.com/blog/2015/06/29/lets-build-freehand-drawing-in-ios-part-2/
 [part3]: https://techblog.badoo.com/blog/2015/08/18/lets-build-freehand-drawing-in-ios-part-3/
-[bumble]: http://bumble.com/
+[bumble]: https://bumble.com/

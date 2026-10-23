@@ -129,7 +129,7 @@ If you start a new project, I'd recommend using a tool to configure properly the
 
 My last step when surveying new code, is checking the safety of the code. I'll check for basic safe usage of Objective-C which is a very punishing language with lots of sharp edges that can cut the unaware developer ;)
 
-- Safe use of BOOL: See http://nshipster.com/bool/
+- Safe use of BOOL: See https://nshipster.com/bool/
 - Correct use of copy: For classes having mutable subclasses - NSArray, NSDictionary, NSString, NSData...
 - Safe use of blocks: Checking for nil block parameters
 - Memory leaks and blocks: Has the code a simple definition of [@weakify and @strongify][weakify], or dealing with retain cycles with blocks in a similar way?
@@ -139,14 +139,14 @@ My last step when surveying new code, is checking the safety of the code. I'll c
 
 I hope you get some useful tips from my review of tools and checks I do when jumping into new projects. I you've got any more, [tell me!][twitter].
 
-[peak]: http://peak.net
+[peak]: https://peak.net
 [git_stats]: https://github.com/tomgi/git_stats
-[commit_message]: http://chris.beams.io/posts/git-commit/
+[commit_message]: https://chris.beams.io/posts/git-commit/
 [commit_message2]: https://robots.thoughtbot.com/5-useful-tips-for-a-better-commit-message
 [git_bisect]: https://git-scm.com/docs/git-bisect
-[gource]: http://gource.io
-[homebrew]: http://brew.sh
-[sloccount]: http://www.dwheeler.com/sloccount/
+[gource]: https://gource.io
+[homebrew]: https://brew.sh
+[sloccount]: https://www.dwheeler.com/sloccount/
 [dependency-visualizer]: https://github.com/PaulTaykalo/objc-dependency-visualizer
 [objc_dep]: https://github.com/nst/objc_dep
 [liftoff]: https://github.com/thoughtbot/liftoff

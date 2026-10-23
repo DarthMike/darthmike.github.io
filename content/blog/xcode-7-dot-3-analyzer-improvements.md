@@ -45,7 +45,7 @@ Hey, we can't have everything, but here's my [request for improvement submitted]
 Anyway, go ahead and enable these new settings! And use the analyzer!
 
 [xcode]: https://developer.apple.com/xcode/download/
-[xcode-release-notes]: http://adcdownload.apple.com/Developer_Tools/Xcode_7.3_beta/Xcode_7.3_beta_Release_Notes.pdf
+[xcode-release-notes]: https://adcdownload.apple.com/Developer_Tools/Xcode_7.3_beta/Xcode_7.3_beta_Release_Notes.pdf
 [nullability]: /blog/2015/04/17/adopting-nullability-annotations/
 [generics]: /blog/2015/06/09/adopting-objectivec-generics/
-[radar]: http://openradar.appspot.com/radar?id=4993758374395904
+[radar]: https://openradar.appspot.com/radar?id=4993758374395904

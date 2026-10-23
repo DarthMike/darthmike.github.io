@@ -77,4 +77,4 @@ I hope this helps anybody that is asking 'why my autocompletion in Swift broke i
 
 Happy bug hunting!
 
-[peak]: http://peak.net
+[peak]: https://peak.net

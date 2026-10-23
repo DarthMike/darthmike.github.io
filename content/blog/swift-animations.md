@@ -11,7 +11,7 @@ Today I introduce [a small Swift DSL](https://github.com/DarthMike/SwiftAnimatio
 
 We iOS Developers are spoiled. We have a rich set of Frameworks built by Apple, and some of the APIs are very idiomatic and easy to use. 
 
-This is the case of UIKit animations. A simple method call and you can achieve *fire-and-forget* animations, all asynchronously executed and interpolated for you. But these APIs are part of the *’legacy’* of [Cocoa Touch](http://nshipster.com/the-death-of-cocoa). Sometimes you feel wanting a bit more, specially when writing Swift code. 
+This is the case of UIKit animations. A simple method call and you can achieve *fire-and-forget* animations, all asynchronously executed and interpolated for you. But these APIs are part of the *’legacy’* of [Cocoa Touch](https://nshipster.com/the-death-of-cocoa). Sometimes you feel wanting a bit more, specially when writing Swift code. 
 
 Let’s look at how the simplest kind of animation looks like in Code:
 ```swift
@@ -85,7 +85,7 @@ UIView.animateWithDuration(0.3 , animations: animationA) {
   }
 }
 ```
-Some may argue this is ok, and I will argue it is better but not worse than the [Swift optional pyramids of Doom](http://www.scottlogic.com/blog/2014/12/08/swift-optional-pyramids-of-doom.html) or *if else if else if else* blocks.
+Some may argue this is ok, and I will argue it is better but not worse than the [Swift optional pyramids of Doom](https://www.scottlogic.com/blog/2014/12/08/swift-optional-pyramids-of-doom.html) or *if else if else if else* blocks.
 
 Now bear in mind that this example **this is the simplest chain of animations** we can come up with. Now there are **variants** you might need for every animation. Say the second animation curve is different, durations are obviously different.
 
@@ -136,4 +136,4 @@ I think it’s a big improvement. I believe only the most complex animation code
 
 I might change the API a bit in the following days, but the idea stays the same.
 
-The code is on [Github](https://github.com/DarthMike/SwiftAnimations). Take a look at it and [tell me what you think](http://twitter.com/miguelquinon).
+The code is on [Github](https://github.com/DarthMike/SwiftAnimations). Take a look at it and [tell me what you think](https://twitter.com/miguelquinon).

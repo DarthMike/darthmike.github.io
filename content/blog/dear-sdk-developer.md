@@ -95,6 +95,6 @@ Both SDKs provide you with a naive example without explaining what the return re
 [RxSwift]: https://github.com/ReactiveX/RxSwift/tree/master/Documentation
 [Quick]: https://github.com/Quick/Quick/tree/master/Documentation/en-us
 [snowplow-github-discussion]: https://github.com/snowplow/snowplow-objc-tracker/issues/274
-[snowplow-migration-guide]: http://snowplowanalytics.com/blog/2016/01/18/snowplow-objective-c-tracker-0.6.0-released/
+[snowplow-migration-guide]: https://snowplowanalytics.com/blog/2016/01/18/snowplow-objective-c-tracker-0.6.0-released/
 [fbsdk]: https://developers.facebook.com/docs/ios/getting-started#delegate
 [branch]: https://dev.branch.io/getting-started/sdk-integration-guide/guide/ios/#start-a-branch-session

@@ -162,5 +162,5 @@ But as many of us need to work with ‘legacy’ Objective-C code, ‘lightweigh
 I will mention again this is not a full ’generics’ implementation for Objective-C, but rather annotations for the compiler to check your API usage, and intention. It also changes how Swift sees the Objective-C code and improves interoperability between the languages. A win-win situation.
 
 [generics]: https://developer.apple.com/library/prerelease/ios/documentation/Swift/Conceptual/BuildingCocoaApps/InteractingWithObjective-CAPIs.html#//apple_ref/doc/uid/TP40014216-CH4-ID35
-[fbs]: http://fuckingblocksyntax.com/
+[fbs]: https://fuckingblocksyntax.com/
 [nullability]: /blog/2015/04/17/adopting-nullability-annotations/
