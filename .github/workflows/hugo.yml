@@ -16,6 +16,7 @@ concurrency:
 
 env:
   HUGO_VERSION: 0.163.3
+  HUGO_SHA256: 1234302ece1167cef2c252aaa69c89b4f0afc5851f1a30536d693e8e7fc4d1bf
 
 jobs:
   build:
@@ -25,8 +26,8 @@ jobs:
         run: |
           base=https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}
           file=hugo_extended_${HUGO_VERSION}_linux-amd64.tar.gz
-          curl -sSLO "$base/$file"
-          curl -sSL "$base/hugo_${HUGO_VERSION}_checksums.txt" | grep " $file\$" | sha256sum -c -
+          curl -fsSLO "$base/$file"
+          echo "${HUGO_SHA256}  $file" | sha256sum -c -
           sudo tar -xzf "$file" -C /usr/local/bin hugo
           hugo version
       - name: Checkout
