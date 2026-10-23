@@ -1,0 +1,24 @@
+{{- $pages := first 20 (where site.RegularPages "Section" "blog") -}}
+{{- printf "<?xml version=\"1.0\" encoding=\"utf-8\"?>" | safeHTML }}
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>{{ site.Title }}</title>
+  <subtitle>{{ site.Params.description }}</subtitle>
+  <link href="{{ .Permalink }}atom.xml" rel="self"/>
+  <link href="{{ .Permalink }}"/>
+  <id>{{ .Permalink }}</id>
+  <updated>{{ (index $pages 0).Lastmod.Format "2006-01-02T15:04:05Z07:00" }}</updated>
+  <author><name>{{ site.Params.author }}</name></author>
+  {{- range $pages }}
+  <entry>
+    <title>{{ .Title }}</title>
+    <link href="{{ .Permalink }}"/>
+    <id>{{ .Permalink }}</id>
+    <published>{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}</published>
+    <updated>{{ .Lastmod.Format "2006-01-02T15:04:05Z07:00" }}</updated>
+    {{- range .Params.categories }}
+    <category term="{{ . }}"/>
+    {{- end }}
+    <content type="html">{{ .Content | transform.XMLEscape | safeHTML }}</content>
+  </entry>
+  {{- end }}
+</feed>
